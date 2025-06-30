@@ -27,10 +27,6 @@ const CategoryList: React.FC<CategoryListProps> = ({
   // Use provided categories or fallback to sample data
   const categoryData = categories && categories.length > 0 ? categories : samepleCategoryData
 
-  const cachedSelectedCategory = useMemo(() => {
-    return selectedCategory || categoryData[0]
-  }, [selectedCategory, categoryData])
-
   const handleCategoryPress = (category: string, index: number) => {
     setFocusedIndex(index)
     onCategoryPress?.(category)
@@ -60,77 +56,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
   }
 
   return (
-    // <ScrollView 
-    //   style={styles.container}
-    //   showsVerticalScrollIndicator={false}
-    // >
-    //   {categoryData.map((category, index) => {
-    //     const isSelected = selectedCategory === category
-    //     const isFocused = focusedIndex === index
-        
-    //     return (
-    //       <TouchableOpacity
-    //         key={index}
-    //         style={[
-    //           styles.categoryItem,
-    //           (isFocused || isSelected) && styles.categoryItemFocused
-    //         ]}
-    //         onPress={() => handleCategoryPress(category, index)}
-    //         onFocus={() => handleFocus(index)}
-    //         onBlur={() => setFocusedIndex(null)}
-    //         activeOpacity={1}
-    //       >
-    //         <Text
-    //         numberOfLines={1}
-    //         ellipsizeMode='tail'
-    //         style={[
-    //           styles.categoryText,
-    //           (isFocused || isSelected) && styles.categoryTextFocused
-    //         ]}>
-    //           {category}
-    //         </Text>
-    //       </TouchableOpacity>
-    //     )
-    //   })}
-    // </ScrollView>
+
     <View style={styles.container}>
-    {/* <FlashList
-      data={categoryData}
-      horizontal={false}
-      showsVerticalScrollIndicator={false}
-      estimatedItemSize={100}
-      // estimatedItemSize={moderateScale(50)}
-      renderItem={({ item, index }) => 
-      {
-        const isSelected = selectedCategory === item
-        const isFocused = focusedIndex === index
-        return (
-          <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.categoryItem,
-                    (isFocused || isSelected) && styles.categoryItemFocused
-                  ]}
-                  onPress={() => handleCategoryPress(item, index)}
-                  onFocus={() => handleFocus(index)}
-                  onBlur={() => setFocusedIndex(null)}
-                  activeOpacity={1}
-                >
-                  <Text
-                  numberOfLines={1}
-                  ellipsizeMode='tail'
-                  style={[
-                    styles.categoryText,
-                    (isFocused || isSelected) && styles.categoryTextFocused
-                  ]}>
-                    {item}
-                  </Text>
-          </TouchableOpacity>
-        )
-      }
-      }
-      keyExtractor={(item, index) => item}
-    /> */}
 
 <FlashList
       ref={flashListRef}

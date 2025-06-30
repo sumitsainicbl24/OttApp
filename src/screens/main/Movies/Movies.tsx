@@ -60,101 +60,15 @@ const Movies = () => {
   const loadMovieData = async () => {
     try {
       setLoading(true)
-      // console.log('Loading movie data from MMKV...')
-      
-      // const movies = await getMoviesFromMMKV()
-      // console.log('Loaded movies:', Object.keys(movies).length, 'categories',movies)
-      
-      // if (Object.keys(movies).length > 0) {
-      //   // Filter only movie entries and convert to correct type
-      //   const movieOnlyData: MovieData = {}
-      //   Object.keys(movies).forEach(category => {
-      //     const movieEntries = movies[category].filter(entry => entry.type === 'movie') as MovieEntry[]
-      //     if (movieEntries.length > 0) {
-      //       movieOnlyData[category] = movieEntries
-      //     }
-      //   })
-        
-      //   setMovieData(movieOnlyData)
-      //   const categories = Object.keys(movieOnlyData).sort()
+     
         setMovieCategories(moviesData)
         setSelectedCategory(moviesData[0])
         
-        // Set first category as selected by default
-        // if (categories.length > 0 && !selectedCategory) {
-        //   setSelectedCategory(categories[0])
-        // }
-      // } else {
-      //   console.log('No movie data found in MMKV, using dummy data')
-      //   // Fallback to dummy data structure
-      //   const dummyData: MovieData = {
-      //     'Action': ActionMovieData.map(movie => ({
-      //       type: 'movie' as const,
-      //       groupTitle: 'Action',
-      //       name: movie.title,
-      //       logo: movie.image || imagepath.guardianOfGalaxyMovie,
-      //       url: ''
-      //     })),
-      //     'Comedy': ComedyMovieData.map(movie => ({
-      //       type: 'movie' as const,
-      //       groupTitle: 'Comedy', 
-      //       name: movie.title,
-      //       logo: movie.image || imagepath.guardianOfGalaxyMovie,
-      //       url: ''
-      //     })),
-      //     'Drama': DramaMovieData.map(movie => ({
-      //       type: 'movie' as const,
-      //       groupTitle: 'Drama',
-      //       name: movie.title,
-      //       logo: movie.image || imagepath.guardianOfGalaxyMovie,
-      //       url: ''
-      //     }))
-      //   }
-      //   setMovieData(dummyData)
-      //   setMovieCategories(['Action', 'Comedy', 'Drama'])
-      //   setSelectedCategory('Action')
-      // }
     } catch (error) {
-      // console.error('Error loading movie data:', error)
-      // // Use dummy data as fallback
-      // const dummyData: MovieData = {
-      //   'Action': ActionMovieData.map(movie => ({
-      //     type: 'movie' as const,
-      //     groupTitle: 'Action',
-      //     name: movie.title,
-      //     logo: movie.image || imagepath.guardianOfGalaxyMovie,
-      //     url: ''
-      //   })),
-      //   'Comedy': ComedyMovieData.map(movie => ({
-      //     type: 'movie' as const,
-      //     groupTitle: 'Comedy',
-      //     name: movie.title,
-      //     logo: movie.image || imagepath.guardianOfGalaxyMovie,
-      //     url: ''
-      //   })),
-      //   'Drama': DramaMovieData.map(movie => ({
-      //     type: 'movie' as const,
-      //     groupTitle: 'Drama',
-      //     name: movie.title,
-      //     logo: movie.image || imagepath.guardianOfGalaxyMovie,
-      //     url: ''
-      //   }))
-      // }
-      // setMovieData(dummyData)
-      // setMovieCategories(['Action', 'Comedy', 'Drama'])
-      // setSelectedCategory('Action')
+     
     } finally {
       setLoading(false)
     }
-  }
-
-  const handlePlayPress = () => {
-    console.log('Play button pressed')
-    setIsLiveVideo(true)
-  }
-
-  const handleMyListPress = () => {
-    console.log('My List button pressed')
   }
 
   const handleCategoryPress = (category: string) => {
@@ -233,15 +147,6 @@ const Movies = () => {
       category: movie.groupTitle
     }))
   }
-
-
-  // useEffect(() => {
-  //   if(selectedCategory && movieData[selectedCategory] && movieData[selectedCategory].length > 0){
-  //     // Get the clean name from the first movie in the selected category
-  //     const firstMovieName = cleanMovieName(movieData[selectedCategory][0].name)
-  //     getShowDetailsData(firstMovieName, 1, 1)
-  //   }
-  // }, [selectedCategory])
 
   return (
     <MainLayout activeScreen={activeScreen || "Movies"} hideSidebar={!showCategoryAndSidebar}>
