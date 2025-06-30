@@ -7,11 +7,29 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "clean": "cd android && ./gradlew clean && cd ..",
+    "full-clean": "cd android && ./gradlew clean && rm -rf ~/.gradle/caches/ && gradlew -stop && cd .. watchman watch-del-all"
   },
   "dependencies": {
+    "@react-navigation/native": "^7.1.10",
+    "@react-navigation/native-stack": "^7.3.14",
+    "@reduxjs/toolkit": "^2.8.2",
+    "@shopify/flash-list": "^1.8.3",
+    "axios": "^1.10.0",
+    "franc": "^6.2.0",
     "react": "18.3.1",
-    "react-native": "npm:react-native-tvos@0.77.0-0"
+    "react-native": "npm:react-native-tvos@0.77.0-0",
+    "react-native-blob-util": "^0.22.2",
+    "react-native-fs": "^2.20.0",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-localize": "^3.4.2",
+    "react-native-mmkv": "^3.3.0",
+    "react-native-safe-area-context": "^5.4.1",
+    "react-native-screens": "^4.11.1",
+    "react-native-tvos": "^0.79.2-0",
+    "react-native-video": "^6.15.0",
+    "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -31,6 +49,7 @@
     "jest": "^29.6.3",
     "prettier": "2.8.8",
     "react-test-renderer": "18.3.1",
+    "reactotron-react-native": "^5.1.13",
     "typescript": "5.0.4"
   },
   "engines": {

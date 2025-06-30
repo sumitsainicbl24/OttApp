@@ -1,0 +1,332 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# OTT React Native TV App - Project Structure Guidelines
+
+## Project Overview
+This is a React Native TV application (OTT - Over The Top streaming service) built for both mobile and TV platforms with the following key features:
+- M3U playlist parsing and media streaming
+- Redux state management
+- TV-optimized navigation and components
+- Multi-platform support (Android TV, iOS TV, mobile)
+- React Native Video integration
+- MMKV for local storage
+
+## Core Project Structure
+
+### Root Structure
+```
+Ott/
+├── src/                     # Main source code
+├── android/                 # Android platform files
+├── ios/                     # iOS platform files
+├── __tests__/              # Test files
+├── App.tsx                 # Root component with Redux Provider
+├── package.json            # Dependencies and scripts
+└── tsconfig.json           # TypeScript configuration
+```
+
+### Source Directory (`src/`) Structure
+```
+src/
+├── assets/                  # Static assets (images, fonts)
+├── components/              # Reusable UI components
+├── screens/                 # Screen components (auth & main)
+├── navigation/              # Navigation configuration
+├── redux/                   # State management
+├── styles/                  # Global styles and theming
+├── constants/               # App constants
+├── utils/                   # Utility functions
+├── localStorage/            # Local storage utilities
+├── config/                  # Configuration files
+└── typings/                # Type definitions
+```
+
+## React Native Component Organization
+
+### File Structure Pattern
+```
+ComponentName/
+├── ComponentName.tsx        # Main component file
+└── styles.ts               # Separated styles file
+```
+
+### Component File Structure (`ComponentName.tsx`)
+```typescript
+// 1. React Native core imports
+import React, { useState, useEffect } from 'react'
+import { Text, View, TouchableOpacity, Image } from 'react-native'
+
+// 2. Third-party library imports
+import LinearGradient from 'react-native-linear-gradient'
+
+// 3. Navigation imports (if needed)
+import { useNavigation } from '@react-navigation/native'
+
+// 4. Redux imports (if needed)
+import { useAppSelector, useAppDispatch } from '../../../redux/hooks'
+
+// 5. Global styles and utilities
+import CommonStyles from '../../../styles/CommonStyles'
+import { CommonColors } from '../../../styles/Colors'
+import { moderateScale, verticalScale, scale } from '../../../styles/scaling'
+import FontFamily from '../../../constants/FontFamily'
+import imagepath from '../../../constants/imagepath'
+
+// 6. Component imports
+import ButtonComp from '../../../components/ButtonComp'
+
+// 7. Utils and helpers
+import { getMoviesFromMMKV } from '../../../utils/m3uParseAndGet'
+
+// 8. Local styles import (ALWAYS LAST)
+import { styles } from './styles'
+
+const ComponentName = () => {
+  return (
+    // Component JSX using imported styles
+  )
+}
+
+export default ComponentName
+```
+
+### Styles File Structure (`styles.ts`)
+```typescript
+import { StyleSheet } from 'react-native'
+import { CommonColors } from '../../../styles/Colors'
+import { moderateScale, verticalScale, scale, width, height } from '../../../styles/scaling'
+import FontFamily from '../../../constants/FontFamily'
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: CommonColors.themeMain,
+  },
+  // All component-specific styles here
+})
+```
+
+## Styling Guidelines
+
+### Color System (`src/styles/Colors.ts`)
+```typescript
+export const CommonColors = {
+  // Theme colors
+  themeMain: "#131619",
+  themeSecondary: '#232629',
+  white: '#FFFFFF',
+  black: '#000000',
+  
+  // Text colors
+  textBlack: '#111111',
+  textWhite: '#FFFFFF',
+  textSecondary: '#60758C',
+  
+  // Button colors
+  buttonPrimary: '#1E9CE8',
+  buttonSecondary: '#1C2F4B',
+  
+  // Input colors with opacity
+  inputBackgroundColor: 'rgba(255, 255, 255, 0.12)',
+  inputBorderColor: 'rgba(255, 255, 255, 0.06)',
+  placeholderTextColor: 'rgba(255, 255, 255, 0.5)',
+}
+```
+
+### Responsive Scaling (`src/styles/scaling.ts`)
+- Use `scale()` for width/horizontal dimensions
+- Use `verticalScale()` for height/vertical dimensions  
+- Use `moderateScale()` for font sizes
+- TV vs Mobile detection with `isTV` constant
+- Different baseline dimensions for TV (1920x1080) vs Mobile (375x812)
+
+### Font System (`src/constants/FontFamily.ts`)
+```typescript
+export default {
+  PublicSans_Regular: 'PublicSans-Regular',
+  PublicSans_Medium: 'PublicSans-Medium',
+  PublicSans_SemiBold: 'PublicSans-SemiBold',
+  PublicSans_Bold: 'PublicSans-Bold',
+  PublicSans_ExtraBold: 'PublicSans-ExtraBold',
+  PublicSans_Light: 'PublicSans-Light',
+}
+```
+
+## Navigation Structure
+
+### Stack Types (`src/navigation/NavigationsTypes.ts`)
+- **AuthStackParamList**: Playlist setup, settings screens for unauthorized users
+- **MainStackParamList**: Main app screens (Home, Movies, Shows, TV, Search, Favorites)
+
+### Navigation Flow
+1. `Routes.tsx` - Root navigation with conditional rendering based on auth state
+2. `Authstack.tsx` - Authentication/setup flow
+3. `Mainstack.tsx` - Main application navigation
+
+## State Management (Redux)
+
+### Store Structure (`src/redux/store.ts`)
+```typescript
+export const store = configureStore({
+  reducer: {
+    rootReducer,
+  },
+})
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+```
+
+### Redux Hooks (`src/redux/hooks.ts`)
+- Use `useAppSelector` instead of `useSelector`
+- Use `useAppDispatch` instead of `useDispatch`
+
+### Auth State Management
+- Handles playlist processing state (`isplaylistprocessed`)
+- Manages authentication tokens
+- Controls navigation flow between auth and main stacks
+
+## Asset Management
+
+### Image Assets (`src/constants/imagepath.ts`)
+- Centralized image imports using `require()`
+- Organized by category (icons, movies, shows, categories)
+- TV-specific assets and placeholders
+
+### Font Assets
+- Located in `src/assets/fonts/` and `android/app/src/main/assets/fonts/`
+- PublicSans font family with multiple weights
+- Configured in `react-native.config.js`
+
+## Data Management & M3U Parsing
+
+### MMKV Storage (`src/localStorage/mmkv.ts`)
+- Fast key-value storage for playlist data
+- Chunked storage for large datasets
+- Resume capability for downloads
+
+### M3U Parser (`src/utils/m3uParseAndGet.ts`)
+- Streaming parser for large M3U files
+- Categorizes content into channels, movies, series
+- Supports resume functionality
+- Batch processing with memory optimization
+
+### Data Structure
+```typescript
+type M3UEntry = {
+  type: 'channel' | 'movie' | 'series';
+  groupTitle: string;
+  name: string;
+  logo: string;
+  url: string;
+};
+
+type GroupedM3UData = {
+  [category in M3UEntry['type']]: {
+    [groupTitle: string]: M3UEntry[];
+  };
+};
+```
+
+## Component Patterns
+
+### Reusable Components (`src/components/`)
+- `ButtonComp.tsx` - TV-focused button with variants (primary, secondary, simple)
+- `TopNavigation.tsx` - Main navigation bar
+- `MovieCarousel.tsx` - Horizontal movie/show lists
+- `DrawerLayout.tsx` - Side navigation for TV
+- All components support TV focus management
+
+### TV Focus Management
+- Use `hasTVPreferredFocus` prop for initial focus
+- Implement `onFocus`/`onBlur` handlers for TV navigation
+- Style focused states with border highlighting
+
+### Button Variants
+```typescript
+interface ButtonCompProps {
+  title: string
+  variant?: 'primary' | 'secondary' | 'Simple'
+  hasTVPreferredFocus?: boolean
+  onFocus?: (event: any) => void
+  onBlur?: (event: any) => void
+}
+```
+
+## Screen Organization
+
+### Auth Screens (`src/screens/auth/`)
+- Playlist setup flow
+- Each screen has folder structure with component + styles
+
+### Main Screens (`src/screens/main/`)
+- Home, Movies, Shows, TV, Search, Favorites
+- Settings screens (General, Playlist, Appearance, Playback, Remote Control, Other)
+- Each includes DummyData.ts for fallback content
+
+## Platform-Specific Considerations
+
+### TV Optimizations
+- Larger touch targets and font sizes
+- Focus-based navigation
+- TV-specific scaling using `isTV` detection
+- Android TV and Apple TV support
+
+### React Native TVOS
+- Uses `react-native-tvos` fork
+- TV-specific navigation patterns
+- Remote control support
+
+## Key Dependencies
+
+### Core Libraries
+- `react-native-tvos` - TV platform support
+- `@react-navigation/native` - Navigation
+- `@reduxjs/toolkit` - State management
+- `react-native-video` - Video playback
+- `react-native-mmkv` - Fast storage
+- `react-native-linear-gradient` - Gradients
+
+### Utility Libraries
+- `react-native-fs` - File system operations
+- `axios` - HTTP requests
+- `@shopify/flash-list` - Performant lists
+
+## Development Guidelines
+
+### Import Order (CRITICAL)
+1. React Native core imports
+2. Third-party library imports
+3. Navigation imports
+4. Redux imports
+5. Global styles and utilities
+6. Component imports
+7. Utils and helpers
+8. Local styles (ALWAYS LAST)
+
+### File Naming Conventions
+- Components: PascalCase (`ButtonComp.tsx`)
+- Screens: PascalCase with folder structure
+- Styles: lowercase (`styles.ts`)
+- Constants: lowercase (`imagepath.ts`, `FontFamily.ts`)
+- Utils: camelCase (`m3uParseAndGet.ts`)
+
+### Code Organization Principles
+1. **Separation of Concerns**: Always separate styles from component logic
+2. **TV-First Design**: Consider TV navigation and focus management
+3. **Responsive Scaling**: Use scaling functions for all dimensions
+4. **Centralized Assets**: Use imagepath constants for all images
+5. **Type Safety**: Use TypeScript interfaces for all props and data
+6. **Memory Optimization**: Handle large datasets with chunking and streaming
+
+### Performance Considerations
+- Use `@shopify/flash-list` for large lists
+- Implement chunked data loading for M3U content
+- Use MMKV for fast local storage
+- Optimize images for TV resolution
+- Implement proper cleanup in useEffect hooks
+
+This structure ensures maintainable, scalable, and TV-optimized React Native development.
