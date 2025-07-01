@@ -19,8 +19,6 @@ export const imageResolutionHandlerForUrl = (url: string, resolution?: number) =
     // Convert http to https if needed
     let processedUrl = url.replace('http://', 'https://')
     processedUrl = processedUrl.replace(/_V1_SX\d+/, `_V1_SX${resolution ? resolution : 1920}`)
-
-
     return processedUrl
 }
 

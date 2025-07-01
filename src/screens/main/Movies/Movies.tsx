@@ -92,9 +92,9 @@ const Movies = () => {
   const getMovieDetails = async (movie: any) => {
 
     //clean the title
-    //  const cleanTitle = cleanMovieName(movie)
+     const cleanTitle = cleanMovieName(movie)
     //  getMovieDetailsOMDB(cleanTitle)
-    getMovieDetailsTMDB(movie)
+    getMovieDetailsTMDB(cleanTitle)
   }
 
   const getMovieDetailsOMDB = async (movie: any) => {
@@ -114,13 +114,12 @@ const Movies = () => {
   }
 
   const getMovieDetailsTMDB = async (movie: any) => {
-    const cleanTitle = cleanMovieName(movie)
 
     //searching movie with title
-    const res1 = await getShowDetailsApiTMDB(cleanTitle)
+    const res1 = await getShowDetailsApiTMDB(movie)
 
     if (!res1?.data?.results[0]?.id) {
-      getMovieDetailsOMDB(cleanTitle)
+      getMovieDetailsOMDB(movie)
     }
 
     else {
