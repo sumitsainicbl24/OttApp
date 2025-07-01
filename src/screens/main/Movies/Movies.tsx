@@ -72,13 +72,7 @@ const Movies = () => {
     }
   }
 
-  const handleCategoryPress = (category: string) => {
-    console.log('Category selected:', category)
-    setSelectedCategory((prev) => {
-      if(prev === category) return prev
-      return category
-    })
-  }
+
 
   // Handle focus events for ScrollView content
   const handleScrollViewFocus = () => {
@@ -91,18 +85,11 @@ const Movies = () => {
     setLoading(true)
     setShowCategoryAndSidebar(true)
     setSelectedCategory(category)
-    // const res = await getCategoryData('movies', category)
-    // console.log('res in getMovieData from movies', res?.data?.data?.movies)
-    // setSelectedCategoryData(res?.data?.data?.movies)
-    // setLoading(false)
-
-    // getMovieDetails(res?.data?.data?.movies[0]?.title)
 
   }
 
   const getMovieData = async (category: string) => {
     const res = await getCategoryData('movies', category)
-    console.log('res in getMovieData from movies', res?.data?.data?.movies)
     setSelectedCategoryData(res?.data?.data?.movies)
     setLoading(false)
 
@@ -121,7 +108,6 @@ const Movies = () => {
   const getMovieDetailsOMDB = async (movie: any) => {
     const res1 = await getShowDetailsApi(movie)
     const result = res1?.data
-    console.log('res1 in getMovieData from movies', res1)
     setShowDetails({
       title: result?.Title || 'Not Available',
       rating: result?.imdbRating || 'N/A', 
@@ -140,32 +126,26 @@ const Movies = () => {
     
     //searching movie with title
     const res1 = await getShowDetailsApiTMDB(cleanTitleForTMDB)
-    // const result = res1?.data?.results[0]
-    
-    let cast = ''
-    let Director = ''
-    let result: any = {}
-    let genres = ''
+
     if(!res1?.data?.results[0]?.id){
       const cleanTitle = cleanMovieName(movie)
       
     getMovieDetailsOMDB(cleanTitle)
     }
-    //getting movie details with TMDB id
+
     else{
+    //getting movie details with TMDB id
     const res2 = await getMovieDetailsWithTMDB_ID(res1?.data?.results[0]?.id)
 
-    result = res2?.data;
-    genres = result?.genres?.map((genre: any) => genre?.name).join(', ')
+    const result = res2?.data;
+    const genres = result?.genres?.map((genre: any) => genre?.name).join(', ')
 
-    //getting cast and crew
-    
-    
-      const res3 = await getMovieCastAndCrewWithTMDB_ID(res1?.data?.results[0]?.id)
+    //getting cast and crew from api call
+    const res3 = await getMovieCastAndCrewWithTMDB_ID(res1?.data?.results[0]?.id)
     //take first 5 cast and crew
-      cast = res3?.data?.cast?.slice(0, 5)?.map((cast: any) => cast?.name).join(', ')
+      const cast = res3?.data?.cast?.slice(0, 5)?.map((cast: any) => cast?.name).join(', ')
       //get director from crew in which job include Director
-      Director = res3?.data?.crew?.find((crew: any) => crew?.job?.toLowerCase()?.includes('director'))?.name
+      const Director = res3?.data?.crew?.find((crew: any) => crew?.job?.toLowerCase()?.includes('director'))?.name
     
     setShowDetails({
       title: result?.title || 'Not Available',
@@ -184,7 +164,6 @@ const Movies = () => {
   // Create debounced version of getMovieData
   const debouncedGetMovieData = useCallback(
     debounce((category: string) => {
-      console.log('debouncedGetMovieData', category)
       getMovieData(category)
     }, 500), // 300ms delay
     []
@@ -213,7 +192,6 @@ const Movies = () => {
           <CategoryList 
             categories={movieCategories}
             selectedCategory={selectedCategory}
-            // onCategoryPress={handleCategoryPress}
             onFocus={handleCategoryListFocus}
           />
         </View>
