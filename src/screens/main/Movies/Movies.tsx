@@ -16,12 +16,13 @@ import LiveVideoComp from '../../../components/LiveVideoComp'
 import ShowCatCarousel from '../../../components/ShowCatCarousel'
 import { getMoviesFromMMKV } from '../../../utils/m3uParseAndGet'
 import ShowDetails1 from '../../../components/ShowDetails1'
-import { getCategoryData, getShowDetailsApi } from '../../../redux/actions/auth'
-import { cleanMovieName, debounce, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
+import { getCategoryData, getMovieCastAndCrewWithTMDB_ID, getMovieDetailsWithTMDB_ID, getShowDetailsApi, getShowDetailsApiTMDB } from '../../../redux/actions/auth'
+import { cleanMovieForTMDB, cleanMovieName, debounce, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
 import { RootState } from '../../../redux/store'
 import { useSelector } from 'react-redux'
 import { CommonColors } from '../../../styles/Colors'
 import { height, moderateScale } from '../../../styles/scaling'
+import { TMDB_BaseUrlImage } from '../../../config/urls'
 
 type MoviesScreenRouteProp = RouteProp<MainStackParamList, 'Movies'>
 
@@ -89,14 +90,13 @@ const Movies = () => {
   const handleCategoryListFocus = async (category: string) => {
     setLoading(true)
     setShowCategoryAndSidebar(true)
+    setSelectedCategory(category)
+    // const res = await getCategoryData('movies', category)
+    // console.log('res in getMovieData from movies', res?.data?.data?.movies)
+    // setSelectedCategoryData(res?.data?.data?.movies)
+    // setLoading(false)
 
-
-    const res = await getCategoryData('movies', category)
-    console.log('res in getMovieData from movies', res?.data?.data?.movies)
-    setSelectedCategoryData(res?.data?.data?.movies)
-    setLoading(false)
-
-    getMovieDetails(res?.data?.data?.movies[0]?.title)
+    // getMovieDetails(res?.data?.data?.movies[0]?.title)
 
   }
 
@@ -113,22 +113,72 @@ const Movies = () => {
   const getMovieDetails = async (movie: any) => {
    
      //clean the title
-     const cleanTitle = cleanMovieName(movie)
-     console.log('cleanTitle in getMovieData from movies', cleanTitle)
-     const res1 = await getShowDetailsApi(cleanTitle)
-     const result = res1?.data
-     console.log('res1 in getMovieData from movies', res1)
-     setShowDetails({
-       title: result?.Title || 'Not Available',
-       rating: result?.imdbRating || 'N/A', 
-       Year: result?.Year || 'Not Available',
-       Runtime: result?.Runtime || 'Not Available',
-       Genre: result?.Genre || 'Not Available',
-       Actors: result?.Actors || 'Not Available',
-       Director: result?.Director || 'Director Information Not Available',
-       Plot: result?.Plot || 'summary is not available',
-       Poster: result?.Poster || null,
-     })
+    //  const cleanTitle = cleanMovieName(movie)
+    //  getMovieDetailsOMDB(cleanTitle)
+     getMovieDetailsTMDB(movie)
+  }
+
+  const getMovieDetailsOMDB = async (movie: any) => {
+    const res1 = await getShowDetailsApi(movie)
+    const result = res1?.data
+    console.log('res1 in getMovieData from movies', res1)
+    setShowDetails({
+      title: result?.Title || 'Not Available',
+      rating: result?.imdbRating || 'N/A', 
+      Year: result?.Year || 'Not Available',
+      Runtime: result?.Runtime || 'Not Available',
+      Genre: result?.Genre || 'Not Available',
+      Actors: result?.Actors || 'Not Available',
+      Director: result?.Director || 'Director Information Not Available',
+      Plot: result?.Plot || 'summary is not available',
+      Poster: result?.Poster || null,
+    })
+  }
+
+  const getMovieDetailsTMDB = async (movie: any) => {
+    const cleanTitleForTMDB = cleanMovieForTMDB(movie)
+    
+    //searching movie with title
+    const res1 = await getShowDetailsApiTMDB(cleanTitleForTMDB)
+    // const result = res1?.data?.results[0]
+    
+    let cast = ''
+    let Director = ''
+    let result: any = {}
+    let genres = ''
+    if(!res1?.data?.results[0]?.id){
+      const cleanTitle = cleanMovieName(movie)
+      
+    getMovieDetailsOMDB(cleanTitle)
+    }
+    //getting movie details with TMDB id
+    else{
+    const res2 = await getMovieDetailsWithTMDB_ID(res1?.data?.results[0]?.id)
+
+    result = res2?.data;
+    genres = result?.genres?.map((genre: any) => genre?.name).join(', ')
+
+    //getting cast and crew
+    
+    
+      const res3 = await getMovieCastAndCrewWithTMDB_ID(res1?.data?.results[0]?.id)
+    //take first 5 cast and crew
+      cast = res3?.data?.cast?.slice(0, 5)?.map((cast: any) => cast?.name).join(', ')
+      //get director from crew in which job include Director
+      Director = res3?.data?.crew?.find((crew: any) => crew?.job?.toLowerCase()?.includes('director'))?.name
+    
+    setShowDetails({
+      title: result?.title || 'Not Available',
+      rating: result?.vote_average || 'N/A', 
+      Year: result?.release_date || 'Not Available',
+      Runtime: result?.runtime ? result?.runtime + ' mins' : 'Not Available',
+      Genre: genres || 'Not Available',
+      Actors: cast || 'Not Available',
+      Director: Director || 'Director Information Not Available',
+      Plot: result?.overview || 'summary is not available',
+      Poster: result?.poster_path ? TMDB_BaseUrlImage + result?.poster_path : null,
+    })
+    }
   }
 
   // Create debounced version of getMovieData
@@ -147,15 +197,6 @@ const Movies = () => {
     }
   }, [selectedCategory, debouncedGetMovieData])
 
-  // Convert movie data to format expected by ShowCatCarousel
-  const convertToCarouselData = (movies: MovieEntry[]) => {
-    return movies.map((movie, index) => ({
-      id: index + 1, // ShowData expects number id
-      title: movie.name,
-      image: movie.logo || imagepath.VideoPlaceHolder, // ShowData expects 'image' not 'poster'
-      category: movie.groupTitle
-    }))
-  }
 
   return (
     <MainLayout activeScreen={activeScreen || "Movies"} hideSidebar={!showCategoryAndSidebar}>

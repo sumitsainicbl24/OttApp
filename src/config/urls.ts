@@ -16,3 +16,6 @@ export const CategoryDataUrl = getApiUrl("/category-data");
 export const getPlaylistData = getApiUrl("https://4856-125-20-102-34.ngrok-free.app/api/login-m3u");
 
 export const ShowDetailsApi = "http://www.omdbapi.com";
+
+export const TMDBBaseUrl = "https://api.themoviedb.org/3";
+export const TMDB_BaseUrlImage = "https://image.tmdb.org/t/p/w1920";
