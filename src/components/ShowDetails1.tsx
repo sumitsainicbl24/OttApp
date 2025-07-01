@@ -85,7 +85,9 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
 
       {/* Description */}
       <View style={styles.descriptionContainer}>
-        <Text style={styles.metadataText}>
+        <Text 
+        numberOfLines={4}
+        style={styles.metadataText}>
           {showDetails?.Plot || 
             'Marvel Studios` brings together the most unexpected team up with Bucky, Yelena, Red Guardian, John Walker, Ghost faced with a challenge which can change the fate of the world for ever.'}
         </Text>
