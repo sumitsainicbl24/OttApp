@@ -11,7 +11,7 @@ interface CategoryListProps {
   categories?: string[]
   selectedCategory?: string
   onCategoryPress?: (category: string) => void
-  onFocus?: () => void
+  onFocus?: (category: string) => void
 }
 
 const CategoryList: React.FC<CategoryListProps> = ({ 
@@ -41,9 +41,9 @@ const CategoryList: React.FC<CategoryListProps> = ({
     }
   }
 
-  const handleFocus = (index: number) => {
+  const handleFocus = (index: number, category: string) => {
     setFocusedIndex(index)
-    onFocus?.()
+    onFocus?.(category)
     
     // Center the focused item
     if (flashListRef.current) {
@@ -81,7 +81,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
                   ]}
                   onPress={() => handleCategoryPress(item, index)}
                   onFocus={() =>{ 
-                    handleFocus(index)
+                    handleFocus(index, item)
                     handleCategoryPress(item, index)
                   }}
                   onBlur={() => setFocusedIndex(null)}

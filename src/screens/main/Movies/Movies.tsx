@@ -86,9 +86,18 @@ const Movies = () => {
   }
 
   // Handle navigation back to category list (when pressing left)
-  const handleCategoryListFocus = () => {
+  const handleCategoryListFocus = async (category: string) => {
     setLoading(true)
     setShowCategoryAndSidebar(true)
+
+
+    const res = await getCategoryData('movies', category)
+    console.log('res in getMovieData from movies', res?.data?.data?.movies)
+    setSelectedCategoryData(res?.data?.data?.movies)
+    setLoading(false)
+
+    getMovieDetails(res?.data?.data?.movies[0]?.title)
+
   }
 
   const getMovieData = async (category: string) => {
@@ -163,7 +172,7 @@ const Movies = () => {
           <CategoryList 
             categories={movieCategories}
             selectedCategory={selectedCategory}
-            onCategoryPress={handleCategoryPress}
+            // onCategoryPress={handleCategoryPress}
             onFocus={handleCategoryListFocus}
           />
         </View>
