@@ -29,7 +29,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
 }) => {
   const handleShowPress = (show: ShowData) => {
     console.log(`${title} selected:`, show.title)
-    onShowPress?.(show)
+    // onShowPress?.(show)
   }
 
   console.log('data in ShowCatCarousel', data)

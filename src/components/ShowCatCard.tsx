@@ -5,6 +5,8 @@ import { CommonColors } from '../styles/Colors'
 import { moderateScale, scale, verticalScale } from '../styles/scaling'
 import FontFamily from '../constants/FontFamily'
 import imagepath from '../constants/imagepath'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { MainStackParamList } from '../navigation/NavigationsTypes'
 
 interface ShowData {
   group?: string
@@ -32,7 +34,7 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false)
   const [imageError, setImageError] = useState(false)
-
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
   // Reset image error state when show changes
   useEffect(() => {
     setImageError(false)
@@ -50,7 +52,8 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
 
   const handlePress = () => {
     console.log('Show category pressed:', show.title)
-    onPress?.()
+    // onPress?.()
+    navigation.navigate('MoviePlayScreen', { show: show })
   }
 
   const handleSource = () => {

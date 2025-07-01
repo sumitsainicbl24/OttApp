@@ -10,34 +10,6 @@ export const styles = StyleSheet.create({
     backgroundColor: CommonColors.themeMain,
   },
   
-  backgroundImagePlaceholder: {
-    flex: 1,
-    backgroundColor: CommonColors.themeMain,
-    // width: '100%',
-    height: height/1.2,
-    // justifyContent: 'center',
-    // marginBottom: verticalScale(-250),
-    paddingTop: verticalScale(85),
-  },
-  
-  backgroundImageStyle: {
-    resizeMode: 'cover',
-    alignSelf: 'flex-end',
-    // right: moderateScale(50),
-    position: 'absolute',
-    width: '90%',
-    height: height/1.2,
-  },
-  // New horizontal gradient overlay for left-to-right fade effect
-  horizontalGradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
-  },
-  
   scrollContainer: {
     flex: 1,
     backgroundColor: CommonColors.themeMain,

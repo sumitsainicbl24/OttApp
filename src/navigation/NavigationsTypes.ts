@@ -28,4 +28,5 @@ export type MainStackParamList = {
     RemoteControlSettings: undefined;
     OtherSettings: undefined;
     Tv: {activeScreen: string};
+    MoviePlayScreen: {show: any};
 };

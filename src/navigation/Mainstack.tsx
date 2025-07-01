@@ -14,6 +14,7 @@ import PlaybackSettings from '../screens/main/PlaybackSettings/PlaybackSettings'
 import RemoteControlSettings from '../screens/main/RemoteControlSettings/RemoteControlSettings';
 import OtherSettings from '../screens/main/OtherSettings/OtherSettings';
 import Tv from '../screens/main/Tv/Tv';
+import MoviePlayScreen from '../screens/main/MoviePlayScreen/MoviePlayScreen';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
@@ -73,6 +74,10 @@ const Mainstack = () => {
       <Stack.Screen 
         name="Tv" 
         component={Tv}
+      />
+      <Stack.Screen 
+        name="MoviePlayScreen" 
+        component={MoviePlayScreen}
       />
     </Stack.Navigator>
   )

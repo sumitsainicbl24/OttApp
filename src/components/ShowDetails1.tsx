@@ -1,8 +1,10 @@
-import React from 'react'
-import { ImageSourcePropType, StyleSheet, Text, View } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { Image, StyleSheet, Text, View, ActivityIndicator } from 'react-native'
+import LinearGradient from 'react-native-linear-gradient'
 import { CommonColors } from '../styles/Colors'
-import { moderateScale, verticalScale, scale } from '../styles/scaling'
+import { moderateScale, verticalScale, scale, height } from '../styles/scaling'
 import FontFamily from '../constants/FontFamily'
+import { getMovieDetails, imageResolutionHandlerForUrl } from '../utils/CommonFunctions'
 
 interface ShowData {
   title: string,
@@ -17,86 +19,154 @@ interface ShowData {
 }
 
 interface ShowDetails1Props {
-  showDetails?: ShowData
+  movieName?: string
 }
 
 const ShowDetails1: React.FC<ShowDetails1Props> = ({ 
-  showDetails,
+  movieName,
 }) => {
+  const [showDetails, setShowDetails] = useState<ShowData | null>(null)
+
+  useEffect(() => {
+    if (movieName) {
+      fetchMovieDetails()
+    }
+  }, [movieName])
+
+  const fetchMovieDetails = async () => {
+    if (!movieName) return
+    
+    try {
+      const details = await getMovieDetails(movieName)
+      setShowDetails(details)
+    } catch (error) {
+      console.error('Error fetching movie details:', error)
+    }
+  }
 
   return (
-    <View style={styles.container}>
-      {/* Title */}
-      <Text style={styles.title}>
-        {showDetails?.title}
-      </Text>
+    <View style={styles.backgroundImagePlaceholder}>
+      <Image 
+        source={showDetails?.Poster ? { uri: imageResolutionHandlerForUrl(showDetails?.Poster) } : undefined} 
+        style={styles.backgroundImageStyle} 
+      />
+      
+      {/* Horizontal gradient overlay - dark on left, transparent on right */}
+      <LinearGradient
+        colors={[CommonColors.themeMain, 'rgba(19, 22, 25, 0.95)', 'rgba(19, 22, 25, 0.5)', 'rgba(19, 22, 25, 0.5)', CommonColors.themeMain]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.horizontalGradientOverlay}
+      />
 
-      {/* Metadata Row */}
-      <View style={styles.metadataContainer}>
-        {/* Rating Badge */}
-        <View style={styles.ratingBadge}>
-          <Text style={styles.ratingText}>
-            {showDetails?.rating}
-          </Text>
-        </View>
-        
-        <Text style={styles.metadataText}>
-          {showDetails?.Year} .
-        </Text>
-        
-        <Text style={styles.metadataText}>
-          {showDetails?.Runtime} .
-        </Text>
-        
-        <Text style={styles.metadataText}> 
-          {showDetails?.Genre}
-        </Text>
-      </View>
+      <LinearGradient
+        colors={[CommonColors.themeMain, 'transparent', 'transparent', 'transparent']}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.horizontalGradientOverlay}
+      />
 
-      {/* Cast and Director */}
-
-      <View style={{gap: moderateScale(5)}}>
-      <View style={styles.metadataContainer}>
-        {showDetails?.Actors && (
-          <View style={{flexDirection: 'row', gap: moderateScale(5)}}>
-          <Text style={{...styles.metadataText, width: scale(115)}}>
-          Cast:
+      <View style={styles.container}>
+        {/* Title */}
+        <Text
+          numberOfLines={1}
+        style={styles.title}>
+          {showDetails?.title}
         </Text>
-          <Text style={[styles.metadataText]}>
-            {showDetails?.Actors}
-          </Text>
+
+        {/* Metadata Row */}
+        <View style={styles.metadataContainer}>
+          {/* Rating Badge */}
+          <View style={styles.ratingBadge}>
+            <Text style={styles.ratingText}>
+              {/* {showDetails?.rating} */}
+              {showDetails?.rating}
+            </Text>
           </View>
-        )}
-      </View>
-
-      <View style={styles.metadataContainer}>
-        {showDetails?.Director && (
-          <View style={{flexDirection: 'row', gap: moderateScale(5)}}>
-          <Text style={{...styles.metadataText, width: scale(115)}}>
-          Director:
-        </Text>
+          
           <Text style={styles.metadataText}>
-            {showDetails?.Director}
+            {showDetails?.Year} .
           </Text>
-          </View>
-          )}
+          
+          <Text style={styles.metadataText}>
+            {showDetails?.Runtime} .
+          </Text>
+          
+          <Text style={styles.metadataText}> 
+            {showDetails?.Genre}
+          </Text>
         </View>
-      </View>
 
-      {/* Description */}
-      <View style={styles.descriptionContainer}>
-        <Text 
-        numberOfLines={4}
-        style={styles.metadataText}>
-          {showDetails?.Plot || 
-            'Marvel Studios` brings together the most unexpected team up with Bucky, Yelena, Red Guardian, John Walker, Ghost faced with a challenge which can change the fate of the world for ever.'}
-        </Text>
+        {/* Cast and Director */}
+        <View style={{gap: moderateScale(5)}}>
+          <View style={styles.metadataContainer}>
+            {showDetails?.Actors && (
+              <View style={{flexDirection: 'row', gap: moderateScale(5)}}>
+                <Text style={{...styles.metadataText, width: scale(115)}}>
+                  Cast:
+                </Text>
+                <Text
+                  numberOfLines={1}
+                style={[styles.metadataText]}>
+                  {showDetails?.Actors}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.metadataContainer}>
+            {showDetails?.Director && (
+              <View style={{flexDirection: 'row', gap: moderateScale(5)}}>
+                <Text style={{...styles.metadataText, width: scale(115)}}>
+                  Director:
+                </Text>
+                <Text style={styles.metadataText}>
+                  {showDetails?.Director}
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Description */}
+        <View style={styles.descriptionContainer}>
+          <Text 
+            numberOfLines={4}
+            style={styles.description}>
+            {showDetails?.Plot || 
+              'Marvel Studios` brings together the most unexpected team up with Bucky, Yelena, Red Guardian, John Walker, Ghost faced with a challenge which can change the fate of the world for ever.'}
+          </Text>
+        </View>
       </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  backgroundImagePlaceholder: {
+    flex: 1,
+    backgroundColor: CommonColors.themeMain,
+    height: height/1.2,
+    paddingTop: verticalScale(85),
+  },
+  
+  backgroundImageStyle: {
+    resizeMode: 'cover',
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    width: '90%',
+    height: height/1.2,
+  },
+  
+  horizontalGradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+  
   container: {
     // width: scale(855),
     height: verticalScale(350),
