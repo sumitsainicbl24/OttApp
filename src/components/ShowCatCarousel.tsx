@@ -1,9 +1,11 @@
-import React from 'react'
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import React, { useMemo } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import { CommonColors } from '../styles/Colors'
 import { moderateScale, scale, verticalScale } from '../styles/scaling'
 import FontFamily from '../constants/FontFamily'
 import ShowCatCard from './ShowCatCard'
+import { debounce } from '../utils/CommonFunctions'
 
 interface ShowData {
   group?: string
@@ -27,6 +29,12 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   onFocus,
   getMovieDetails
 }) => {
+  // Create a debounced version of getMovieDetails
+  const debouncedGetMovieDetails = useMemo(
+    () => getMovieDetails ? debounce(getMovieDetails, 300) : undefined,
+    [getMovieDetails]
+  )
+
   const handleShowPress = (show: ShowData) => {
     console.log(`${title} selected:`, show.title)
     // onShowPress?.(show)
@@ -41,7 +49,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
       onPress={() => handleShowPress(item)}
       onFocus={()=>{
         onFocus?.()
-        getMovieDetails?.(item?.title)
+        debouncedGetMovieDetails?.(item?.title)
       }}
     />
   )
@@ -49,16 +57,21 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{title}</Text>
-      <FlatList
+      <FlashList
         data={data}
         renderItem={renderShowItem}
         keyExtractor={(item) => item?.url?.toString() || ''}
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.carouselContainer}
+        // style={styles.carouselContainer}
         contentContainerStyle={{
           paddingRight: moderateScale(20),
+          paddingLeft: moderateScale(20),
+          paddingVertical: verticalScale(35),
+          paddingHorizontal: moderateScale(20),
+          paddingTop: verticalScale(45),
         }}
+        estimatedItemSize={200}
       />
     </View>
   )
@@ -80,7 +93,8 @@ const styles = StyleSheet.create({
     marginLeft: moderateScale(20),
   },
   carouselContainer: {
-    paddingVertical: verticalScale(25),
+    paddingVertical: verticalScale(35),
     paddingHorizontal: moderateScale(20),
+    paddingTop: verticalScale(45),
   },
 }) 
