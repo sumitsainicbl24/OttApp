@@ -29,6 +29,13 @@ export default{
     homeIcon:require('../assets/images/homeIcon.png'),
     homeIconActive:require('../assets/images/homeIconActive.png'),
     VideoPlaceHolder:require('../assets/images/VideoPlaceHolder.png'),
+    playbuttonarrowhead:require('../assets/images/playbuttonarrowhead.png'),
+    maximizeIcon:require('../assets/images/maximize.png'),
+    movieTrailerIcon:require('../assets/images/movieTrailer.png'),
+    wishlistIcon:require('../assets/images/wishlist.png'),
+    pauseIcon:require('../assets/images/pause.png'),
+    skip10SecIcon:require('../assets/images/skip10Sec.png'),
+    prev10SecIcon:require('../assets/images/prev10Sec.png'),
 
     //sample data
     popularMovie1:require('../assets/images/popularMovie1.jpg'),

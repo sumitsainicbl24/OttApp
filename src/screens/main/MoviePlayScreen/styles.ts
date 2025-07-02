@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
   },
   
   ratingContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: CommonColors.buttonTransparent,
     paddingHorizontal: moderateScale(12),
     paddingVertical: verticalScale(4),
     borderRadius: moderateScale(4),
@@ -134,46 +134,52 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   
+  actionButtonsSection: {
+    paddingHorizontal: moderateScale(60),
+    paddingVertical: verticalScale(40),
+    marginTop: -moderateScale(100),
+    zIndex: 1000,
+  },
+  
   playButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: CommonColors.white,
+    backgroundColor: CommonColors.buttonTransparent,
     paddingHorizontal: moderateScale(24),
     paddingVertical: verticalScale(12),
     borderRadius: moderateScale(8),
     gap: moderateScale(12),
+    borderWidth: 1,
+    borderColor: CommonColors.buttonTransparent,
   },
   
   playIconPlaceholder: {
     width: moderateScale(20),
     height: moderateScale(20),
-    backgroundColor: CommonColors.themeMain,
     borderRadius: moderateScale(2),
   },
   
   playButtonText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: moderateScale(16),
-    color: CommonColors.themeMain,
+    color: CommonColors.white,
   },
   
   externalPlayerButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: CommonColors.buttonTransparent,
     paddingHorizontal: moderateScale(24),
     paddingVertical: verticalScale(12),
     borderRadius: moderateScale(8),
     gap: moderateScale(12),
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: CommonColors.buttonTransparent,
   },
   
   externalPlayerIconPlaceholder: {
     width: moderateScale(20),
     height: moderateScale(20),
-    backgroundColor: CommonColors.white,
-    borderRadius: moderateScale(2),
   },
   
   externalPlayerButtonText: {
@@ -185,20 +191,18 @@ export const styles = StyleSheet.create({
   trailerButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: CommonColors.buttonTransparent,
     paddingHorizontal: moderateScale(24),
     paddingVertical: verticalScale(12),
     borderRadius: moderateScale(8),
     gap: moderateScale(12),
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: CommonColors.buttonTransparent,
   },
   
   trailerIconPlaceholder: {
     width: moderateScale(20),
     height: moderateScale(20),
-    backgroundColor: CommonColors.white,
-    borderRadius: moderateScale(2),
   },
   
   trailerButtonText: {
@@ -210,20 +214,18 @@ export const styles = StyleSheet.create({
   addToListButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: CommonColors.buttonTransparent,
     paddingHorizontal: moderateScale(24),
     paddingVertical: verticalScale(12),
     borderRadius: moderateScale(8),
     gap: moderateScale(12),
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: CommonColors.buttonTransparent,
   },
   
   addToListIconPlaceholder: {
     width: moderateScale(20),
     height: moderateScale(20),
-    backgroundColor: CommonColors.white,
-    borderRadius: moderateScale(2),
   },
   
   addToListButtonText: {

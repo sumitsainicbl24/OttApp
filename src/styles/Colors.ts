@@ -15,6 +15,7 @@ export const CommonColors= {
     //button colors
     buttonPrimary:'#1E9CE8',
     buttonSecondary:'#1C2F4B',
+    buttonTransparent:'rgba(255, 255, 255, 0.2)',
 
     //input colors
     inputBackgroundColor: 'rgba(255, 255, 255, 0.12)',
