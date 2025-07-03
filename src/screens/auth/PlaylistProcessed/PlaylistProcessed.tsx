@@ -1,26 +1,21 @@
 // 1. React Native core imports
-import { Text, View, TouchableOpacity, Image, Animated } from 'react-native'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { Animated, Image, Text, TouchableOpacity, View } from 'react-native'
 
 // 2. Global styles and utilities
 import CommonStyles from '../../../styles/CommonStyles'
-import { CommonColors } from '../../../styles/Colors'
-import { moderateScale, verticalScale } from '../../../styles/scaling'
 
 // 3. Component imports
-import WrapperContainer from '../../../components/WrapperContainer'
-import InputComp from '../../../components/InputComp'
-import CheckboxComp from '../../../components/CheckboxComp'
 import { NavigationProp, RouteProp, useNavigation } from '@react-navigation/native'
-import { AuthStackParamList } from '../../../navigation/NavigationsTypes'
+import WrapperContainer from '../../../components/WrapperContainer'
 import imagepath from '../../../constants/imagepath'
+import { AuthStackParamList } from '../../../navigation/NavigationsTypes'
 
 // 4. Local styles import (ALWAYS LAST)
-import { styles } from './styles'
-import { setAuthToken } from '../../../redux/reducers/auth'
-import { getAllPlaylistData, getCategoryApi, getCategoryData, getMediaData, LoginApi, setAuthTokenAction, setIsPlaylistProcessedAction } from '../../../redux/actions/auth'
 import RNFS from 'react-native-fs'
-import { M3UStreamParser, checkResumeAvailable, generateResumeKey } from '../../../utils/m3uParseAndGet'
+import { getCategoryApi, LoginApi, setAuthTokenAction, setIsPlaylistProcessedAction } from '../../../redux/actions/auth'
+import { checkResumeAvailable, generateResumeKey, M3UStreamParser } from '../../../utils/m3uParseAndGet'
+import { styles } from './styles'
 
 const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'PlaylistProcessed'> }) => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>()

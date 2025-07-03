@@ -1,5 +1,5 @@
-import { getMovieCastAndCrewWithTMDB_ID, getMovieDetailsWithTMDB_ID, getShowDetailsApi, getShowDetailsApiTMDB } from '../redux/actions/auth'
 import { TMDB_BaseUrlImage } from '../config/urls'
+import { getMovieCastAndCrewWithTMDB_ID, getMovieDetailsWithTMDB_ID, getShowDetailsApi, getShowDetailsApiTMDB } from '../redux/actions/main'
 
 export const cleanMovieName = (name: string) => {
     return name

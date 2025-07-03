@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef, useCallback } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { CommonColors } from '../styles/Colors'
@@ -29,10 +29,33 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   onFocus,
   getMovieDetails
 }) => {
+  const flashListRef = useRef<FlashList<ShowData>>(null)
+  const lastScrollTimeRef = useRef<number>(0)
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
   // Create a debounced version of getMovieDetails
   const debouncedGetMovieDetails = useMemo(
     () => getMovieDetails ? debounce(getMovieDetails, 300) : undefined,
     [getMovieDetails]
+  )
+
+  // Debounced scroll to center function
+  const debouncedScrollToCenter = useCallback(
+    debounce((index: number) => {
+      const now = Date.now()
+      const timeSinceLastScroll = now - lastScrollTimeRef.current
+      
+      // Only scroll to center if enough time has passed since last scroll
+      // This prevents interference with rapid/continuous scrolling
+      if (timeSinceLastScroll > 100) {
+        flashListRef.current?.scrollToIndex({
+          index,
+          animated: true,
+          viewPosition: 0.5, // 0.5 centers the item
+        })
+      }
+    }, 150),
+    []
   )
 
   const handleShowPress = (show: ShowData) => {
@@ -40,17 +63,35 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
     // onShowPress?.(show)
   }
 
+  const handleItemFocus = (index: number, item: ShowData) => {
+    onFocus?.()
+    debouncedGetMovieDetails?.(item?.title)
+    
+    // Clear any existing timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current)
+    }
+    
+    // Set a timeout to center the item after a brief delay
+    // This allows for smooth continuous scrolling
+    scrollTimeoutRef.current = setTimeout(() => {
+      debouncedScrollToCenter(index)
+    }, 200)
+  }
+
+  // Track scroll events to prevent centering during active scrolling
+  const handleScroll = () => {
+    lastScrollTimeRef.current = Date.now()
+  }
+
   console.log('data in ShowCatCarousel', data)
   
 
-  const renderShowItem = ({ item }: { item: ShowData }) => (
+  const renderShowItem = ({ item, index }: { item: ShowData; index: number }) => (
     <ShowCatCard
       show={item} 
       onPress={() => handleShowPress(item)}
-      onFocus={()=>{
-        onFocus?.()
-        debouncedGetMovieDetails?.(item?.title)
-      }}
+      onFocus={() => handleItemFocus(index, item)}
     />
   )
 
@@ -58,11 +99,13 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <FlashList
+        ref={flashListRef}
         data={data}
         renderItem={renderShowItem}
         keyExtractor={(item) => item?.url?.toString() || ''}
         horizontal
         showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
         // style={styles.carouselContainer}
         contentContainerStyle={{
           paddingRight: moderateScale(20),
@@ -89,7 +132,7 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.PublicSans_Bold,
     fontSize: scale(38),
     color: CommonColors.white,
-    marginBottom: verticalScale(5),
+    // marginBottom: verticalScale(5),
     marginLeft: moderateScale(20),
   },
   carouselContainer: {

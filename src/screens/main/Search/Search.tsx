@@ -1,5 +1,5 @@
 // 1. React Native core imports
-import React, { useState, useRef, useMemo } from 'react'
+import React, { useState, useRef, useMemo, useEffect } from 'react'
 import { ImageBackground, ScrollView, StatusBar, View, TextInput, TouchableOpacity, Text, Image } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
@@ -14,6 +14,7 @@ import { CommonColors } from '../../../styles/Colors'
 import ShowCatCarousel from '../../../components/ShowCatCarousel'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { MainStackParamList } from '../../../navigation/NavigationsTypes'
+import { getSearchData } from '../../../redux/actions/main'
 
 type SearchScreenRouteProp = RouteProp<MainStackParamList, 'Search'>
 
@@ -22,6 +23,9 @@ const Search = () => {
   const { activeScreen } = route.params
   
   const [searchText, setSearchText] = useState('')
+  const [searchedMovies, setSearchedMovies] = useState<any[]>([])
+  const [searchedShows, setSearchedShows] = useState<any[]>([])
+  const [searchedChannels, setSearchedChannels] = useState<any[]>([])
   const [microphoneFocused, setMicrophoneFocused] = useState(false)
 
   // Filter data based on search text
@@ -46,14 +50,6 @@ const Search = () => {
     );
   }, [searchText]);
 
-  const handlePlayPress = () => {
-    console.log('Play button pressed')
-  }
-
-  const handleMyListPress = () => {
-    console.log('My List button pressed')
-  }
-
   const handleMicrophonePress = () => {
     console.log('Microphone button pressed')
     // Handle voice search functionality here
@@ -70,6 +66,36 @@ const Search = () => {
   const handleMicrophoneBlur = () => {
     setMicrophoneFocused(false)
   }
+
+  const loadSearchData = async () => {
+    try{
+      let res = await getSearchData('movies', searchText)
+      setSearchedMovies(res?.data?.data || [])
+
+      res = await getSearchData('series', searchText)
+      setSearchedShows(res?.data?.data || [])
+
+      res = await getSearchData('channel', searchText)
+      setSearchedChannels(res?.data?.data || [])
+    }catch(error){
+      console.log('error in loadSearchData', error)
+    }
+  }
+
+  const handleSearchSubmit = () => {
+    if (searchText.trim()) {
+      loadSearchData()
+    }
+  }
+
+  // // Clear search results when search text is cleared
+  // useEffect(() => {
+  //   if (!searchText.trim()) {
+  //     setSearchedMovies([])
+  //     setSearchedShows([])
+  //     setSearchedChannels([])
+  //   }
+  // }, [searchText])
 
   return (
     <MainLayout activeScreen={activeScreen || "Search"}>
@@ -100,6 +126,8 @@ const Search = () => {
             placeholderTextColor={CommonColors.textSecondary}
             value={searchText}
             onChangeText={handleSearchChange}
+            onSubmitEditing={handleSearchSubmit}
+            returnKeyType="search"
             inputWrapperStyle={styles.searchInputContainer}
             inputStyle={styles.searchInput}
           />
@@ -108,26 +136,35 @@ const Search = () => {
         {/* Show search results count if searching */}
         {searchText.trim() !== '' && (
           <Text style={styles.searchResultsCount}>
-            {filteredComedyData.length + filteredDramaData.length} results found
+              {searchedMovies.length + searchedShows.length + searchedChannels.length} results found
           </Text>
         )}
 
-        {/* Only render carousel if it has data */}
-        {filteredComedyData.length > 0 && (
+        {/* Show API search results if available */}
+        {searchedMovies.length > 0 && (
           <ShowCatCarousel 
             title="Movies" 
-            data={filteredComedyData}
-            onShowPress={(show) => console.log('Comedy show selected:', show.title)}
+            data={searchedMovies}
+            onShowPress={(show) => console.log('Movie selected:', show.title)}
           />
         )}
 
-        {filteredDramaData.length > 0 && (
+        {searchedShows.length > 0 && (
           <ShowCatCarousel 
             title="Shows" 
-            data={filteredDramaData}
-            onShowPress={(show) => console.log('Drama show selected:', show.title)}
+            data={searchedShows}
+            onShowPress={(show) => console.log('Show selected:', show.title)}
           />
         )}
+
+        {searchedChannels.length > 0 && (
+          <ShowCatCarousel 
+            title="Channels" 
+            data={searchedChannels}
+            onShowPress={(show) => console.log('Channel selected:', show.title)}
+          />
+        )}
+
       </ScrollView>
     </MainLayout>
   )

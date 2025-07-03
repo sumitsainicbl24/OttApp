@@ -33,10 +33,6 @@ export const setIsPlaylistProcessedAction = async (isplaylistprocessed: boolean)
 
 
 //api
-const apiKeyForShowDetails = "79c065d3";
-
-const apiKeyTMDB= "ab0623f200520bab43cd0b39873cbad8";
-
 
 export const LoginApi = async (m3uUrl: string) => {
     const response = await apiPost(loginUrl, {
@@ -49,40 +45,6 @@ export const getAllPlaylistData = async () => {
     const response = await apiPost(getPlaylistData, {
         m3uUrl: "http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts%22"
     });
-    return response;
-}
-
-export const getShowDetailsApi = async (title: string, season?: number, episode?: number) => {
-
-    if(season && episode){                          
-        const response = await apiGet(`${ShowDetailsApi}/?t=${encodeURIComponent(title)}&Season=${season}&Episode=${episode}&apikey=${apiKeyForShowDetails}`);
-        return response;
-    }else{
-        const response = await apiGet(`${ShowDetailsApi}/?t=${encodeURIComponent(title)}&apikey=${apiKeyForShowDetails}`);
-        return response;
-    }
-}
-
-export const getShowDetailsApiTMDB = async (title: string, season?: number, episode?: number) => {
-    
-    if(season && episode){
-        // For TV shows with specific season/episode, use TV search first then get season details
-        const searchResponse = await apiGet(`${TMDBBaseUrl}/search/tv?api_key=${apiKeyTMDB}&query=${encodeURIComponent(title)}`);
-        return searchResponse;
-    }else{
-        // For movies or general TV show search
-        const movieResponse = await apiGet(`${TMDBBaseUrl}/search/multi?api_key=${apiKeyTMDB}&query=${encodeURIComponent(title)}`);
-        return movieResponse;
-    }
-}
-
-export const getMovieDetailsWithTMDB_ID = async (id: string) => {
-    const response = await apiGet(`${TMDBBaseUrl}/movie/${id}?api_key=${apiKeyTMDB}`);
-    return response;
-}
-
-export const getMovieCastAndCrewWithTMDB_ID = async (id: string) => {
-    const response = await apiGet(`${TMDBBaseUrl}/movie/${id}/credits?api_key=${apiKeyTMDB}`);
     return response;
 }
 
