@@ -145,6 +145,7 @@ const Search = () => {
           <ShowCatCarousel 
             title="Movies" 
             data={searchedMovies}
+            horizontal={true}
             onShowPress={(show) => console.log('Movie selected:', show.title)}
           />
         )}
@@ -153,6 +154,7 @@ const Search = () => {
           <ShowCatCarousel 
             title="Shows" 
             data={searchedShows}
+            horizontal={true}
             onShowPress={(show) => console.log('Show selected:', show.title)}
           />
         )}
@@ -161,6 +163,7 @@ const Search = () => {
           <ShowCatCarousel 
             title="Channels" 
             data={searchedChannels}
+            horizontal={true}
             onShowPress={(show) => console.log('Channel selected:', show.title)}
           />
         )}

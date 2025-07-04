@@ -23,4 +23,4 @@ export const searchUrl = getApiUrl("/search");
 export const ShowDetailsApi = "http://www.omdbapi.com";
 
 export const TMDBBaseUrl = "https://api.themoviedb.org/3";
-export const TMDB_BaseUrlImage = "https://image.tmdb.org/t/p/w1920";
+export const TMDB_BaseUrlImage = "https://image.tmdb.org/t/p/original";

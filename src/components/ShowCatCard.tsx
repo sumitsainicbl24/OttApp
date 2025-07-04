@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
     width: scale(250),
     height: verticalScale(400),
     borderRadius: scale(24),
-    marginRight: moderateScale(15),
     marginVertical: verticalScale(15),
     overflow: 'hidden',
     borderWidth: 2,

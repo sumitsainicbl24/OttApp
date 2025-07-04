@@ -131,7 +131,7 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
         {/* Description */}
         <View style={styles.descriptionContainer}>
           <Text 
-            numberOfLines={4}
+            numberOfLines={3}
             style={styles.description}>
             {showDetails?.Plot || 
               'Marvel Studios` brings together the most unexpected team up with Bucky, Yelena, Red Guardian, John Walker, Ghost faced with a challenge which can change the fate of the world for ever.'}
@@ -145,7 +145,7 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
 const styles = StyleSheet.create({
   backgroundImagePlaceholder: {
     flex: 1,
-    backgroundColor: CommonColors.themeMain,
+    // backgroundColor: CommonColors.themeMain,
     height: height/1.2,
     paddingTop: verticalScale(85),
   },
@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1,
+    height:height/1.2
   },
   
   container: {

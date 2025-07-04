@@ -108,10 +108,9 @@ const Movies = () => {
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
 
       <View style={styles.container}>
-
         {/* category list */}
         {(
-          <View style={[styles.categoryListContainer, !showCategoryAndSidebar && { width: 0 }]} nativeID="categoryList">
+          <View style={[styles.categoryListContainer, !showCategoryAndSidebar && { width: 0, overflow: 'hidden' }]} nativeID="categoryList">
             <CategoryList
               categories={movieCategories}
               selectedCategory={selectedCategory}
@@ -120,36 +119,36 @@ const Movies = () => {
           </View>
         )}
 
-        <ScrollView
-          style={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
+        <View>
           <ShowDetails1
             movieName={selectedMovieName}
           />
 
-          <View style={{
-            marginTop: -moderateScale(250),
-            zIndex: 1000
-          }}>
-            {/* Show selected category if available */}
-            {(selectedCategory && moviesData || selectedCategoryData.length > 0) && !loading && (
-              <ShowCatCarousel
-                title={`${selectedCategory}`}
-                data={selectedCategoryData}
-                onShowPress={(show) => console.log(`Featured ${selectedCategory} movie selected:`, show.title)}
-                onFocus={handleScrollViewFocus}
-                getMovieDetails={handleMovieSelect}
-              />
-            )}
+          <View
+            style={styles.scrollContainer}
+          // showsVerticalScrollIndicator={false}
+          >
+            <View style={{
+              // marginTop: -moderateScale(250),
+              zIndex: 1000
+            }}>
+              {/* Show selected category if available */}
+              {(selectedCategory && moviesData || selectedCategoryData.length > 0) && !loading && (
+                <ShowCatCarousel
+                  title={`${selectedCategory}`}
+                  data={selectedCategoryData}
+                  onShowPress={(show) => console.log(`Featured ${selectedCategory} movie selected:`, show.title)}
+                  onFocus={handleScrollViewFocus}
+                  getMovieDetails={handleMovieSelect}
+                />
+              )}
 
-            {loading && (
-              <ActivityIndicator size="large" color={CommonColors.white} />
-            )}
+              {loading && (
+                <ActivityIndicator size="large" color={CommonColors.white} />
+              )}
+            </View>
           </View>
-
-        </ScrollView>
-
+        </View>
       </View>
     </MainLayout>
   )
