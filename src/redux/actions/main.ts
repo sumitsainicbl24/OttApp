@@ -2,7 +2,7 @@ import { apiGet, apiPost } from "../../utils/utils"
 import { setAuthToken, setIsPlaylistProcessed, setSeriesData, setUserData, setMoviesData, setChannelsData } from "../reducers/auth"
 import { store } from "../store"
 
-import { CategoryDataUrl, categoryUrl, fetchMedia, getPlaylistData, getSeriesEpisodesUrl, loginUrl, searchUrl, ShowDetailsApi, TMDBBaseUrl } from "../../config/urls"
+import { CategoryDataUrl, categoryUrl, fetchMedia, getPlaylistData, getSeriesEpisodesUrl, loginUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
 import { saveChannelsDataToMMKV, saveMoviesDataToMMKV, saveSeriesDataToMMKV } from "../../localStorage/mmkv"
 
 const {dispatch} = store
@@ -77,5 +77,21 @@ export const getSeriesShowDetailsOMDB = async (title: string, season?: number, e
 //getting all episodes of a series
 export const getSeriesEpisodes = async (title: string) => {
     const response = await apiGet(`${getSeriesEpisodesUrl}?title=${encodeURIComponent(title)}`);
+    return response;
+}
+
+//auth apis 
+export const signupApi = async (data: any) => {
+const response = await apiPost(signupUrl, data);
+    return response;
+}
+
+export const signinApi = async (data: any) => {
+    const response = await apiPost(signInUrl, data);
+    return response;
+}
+
+export const verifyOtpApi = async (data: any) => {
+    const response = await apiPost(verifyOtpUrl, data);
     return response;
 }

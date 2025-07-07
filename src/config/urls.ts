@@ -1,7 +1,5 @@
-// export const API_BASE_URL = "https://e6bd-14-194-168-22.ngrok-free.app/api";
-
-// export const API_BASE_URL = "https://638b-125-20-102-34.ngrok-free.app/api";
-export const API_BASE_URL = "https://api-ott.netsolutionindia.com/api";
+// export const API_BASE_URL = "https://api-ott.netsolutionindia.com/api";
+export const API_BASE_URL = "http://192.168.102.208:3001/api";
 
 export const getApiUrl = (endpoint: string) => API_BASE_URL + endpoint;
 
@@ -18,6 +16,12 @@ export const getPlaylistData = getApiUrl("https://4856-125-20-102-34.ngrok-free.
 export const searchUrl = getApiUrl("/search");
 
 export const getSeriesEpisodesUrl = getApiUrl("/series-episodes");
+
+export const signupUrl = getApiUrl("/signup");
+
+export const signInUrl = getApiUrl("/signin");
+
+export const verifyOtpUrl = getApiUrl("/verify-otp");
 
 
 

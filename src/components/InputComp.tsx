@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     backgroundColor: CommonColors.inputBackgroundColor,
     borderColor: CommonColors.inputBorderColor,
-    borderWidth: 1,
+    borderWidth: moderateScale(1),
     borderRadius: moderateScale(8),
     // paddingVertical: verticalScale(14),
     paddingHorizontal: moderateScale(16),
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   inputWrapperFocused: {
     borderColor: CommonColors.white,
-    borderWidth: moderateScale(2),
+    borderWidth: moderateScale(1),
   },
   textInput: {
     fontFamily: FontFamily.PublicSans_Regular,

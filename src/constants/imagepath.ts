@@ -36,6 +36,7 @@ export default{
     pauseIcon:require('../assets/images/pause.png'),
     skip10SecIcon:require('../assets/images/skip10Sec.png'),
     prev10SecIcon:require('../assets/images/prev10Sec.png'),
+    LoginBg:require('../assets/images/LoginBg.png'),
 
     //sample data
     popularMovie1:require('../assets/images/popularMovie1.jpg'),

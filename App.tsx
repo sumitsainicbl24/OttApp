@@ -16,6 +16,7 @@ import {
   Colors
 } from 'react-native/Libraries/NewAppScreen';
 import { Provider } from 'react-redux';
+import Toast from 'react-native-toast-message';
 import { getAuthTokenLocalStorage, getIsPlaylistProcessedLocalStorage } from './src/localStorage/mmkv';
 import Routes from './src/navigation/Routes';
 import { setAuthToken , setIsPlaylistProcessed} from './src/redux/reducers/auth';
@@ -53,6 +54,7 @@ function App(): React.JSX.Element {
       <SafeAreaView style={styles.container}>
         <Routes />
       </SafeAreaView>
+      <Toast />
     </Provider>
   );
 }

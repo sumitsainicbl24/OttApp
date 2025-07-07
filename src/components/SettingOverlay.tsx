@@ -5,11 +5,13 @@ import { verticalScale } from '../styles/scaling'
 import { CommonColors } from '../styles/Colors'
 import FontFamily from '../constants/FontFamily'
 import imagepath from '../constants/imagepath'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { MainStackParamList } from '../navigation/NavigationsTypes'
 
 const SettingOverlay = ({children, topTitle}: {children: React.ReactNode, topTitle: string}) => {
 
     const [focusedOption, setFocusedOption] = useState('');
-
+    const navigation = useNavigation<NavigationProp<MainStackParamList>>();
   return (
     <>
       <View style={styles.backgroundOverlay} />
@@ -32,6 +34,7 @@ const SettingOverlay = ({children, topTitle}: {children: React.ReactNode, topTit
           style={[styles.premiumButton, focusedOption === 'premium' && { borderColor: CommonColors.white, borderWidth: 1 }]}
           onFocus={() => setFocusedOption('premium')}
           onBlur={() => setFocusedOption('')}
+          onPress={() => navigation.navigate('LoginScreen')}
           activeOpacity={1}
           {...({ 
             isTVSelectable: true,

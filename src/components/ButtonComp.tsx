@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
+import { StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, TouchableOpacityProps } from 'react-native'
 import React, { useState } from 'react'
 import { CommonColors } from '../styles/Colors'
 import { moderateScale, scale, verticalScale } from '../styles/scaling'
@@ -10,6 +10,7 @@ interface ButtonCompProps extends TouchableOpacityProps {
   hasTVPreferredFocus?: boolean
   onFocus?: (event: any) => void
   onBlur?: (event: any) => void
+  innerTextStyle?: StyleProp<TextStyle>
 }
 
 const ButtonComp: React.FC<ButtonCompProps> = ({ 
@@ -19,6 +20,7 @@ const ButtonComp: React.FC<ButtonCompProps> = ({
   style,
   onFocus,
   onBlur,
+  innerTextStyle,
   ...props 
 }) => {
   const [isFocused, setIsFocused] = useState(false)
@@ -50,7 +52,7 @@ const ButtonComp: React.FC<ButtonCompProps> = ({
       onBlur={handleBlur}
       {...props}
     >
-      <Text style={[textStyle, isFocused && styles.focusedText]}>{title}</Text>
+      <Text style={[textStyle, isFocused && styles.focusedText, innerTextStyle]}>{title}</Text>
     </TouchableOpacity>
   )
 }
@@ -65,9 +67,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(16),
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: moderateScale(2),
   },
   primaryButtonFocus: {
-    borderWidth: 2,
+    borderWidth: moderateScale(2),
     borderColor: CommonColors.white,
   },
   primaryButtonText: {

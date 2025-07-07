@@ -1,6 +1,6 @@
 // 1. React Native core imports
 import React, { useState, useEffect } from 'react'
-import { Text, View, TouchableOpacity, ScrollView, StatusBar, Image } from 'react-native'
+import { Text, View, TouchableOpacity, ScrollView, StatusBar, Image, FlatList } from 'react-native'
 
 // 2. Third-party library imports
 import LinearGradient from 'react-native-linear-gradient'
@@ -29,6 +29,9 @@ import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 // 8. Local styles import (ALWAYS LAST)
 import { styles } from './styles'
 import LiveVideoComp from '../../../components/LiveVideoComp'
+import { getSeriesEpisodes } from '../../../redux/actions/main'
+import ShowCatCard from '../../../components/ShowCatCard'
+import { getEpisodeAndSeasonNumber } from '../../../utils/CommonFunctions'
 
 type MoviePlayScreenRouteProp = RouteProp<MainStackParamList, 'MoviePlayScreen'>
 
@@ -48,27 +51,18 @@ interface MovieData {
 const MoviePlayScreen = () => {
   const navigation = useNavigation()
   const route = useRoute<MoviePlayScreenRouteProp>()
-  const { show } = route.params
-
+  const { show, movie } = route.params
+  const [movieTitle, setMovieTitle] = useState(movie?.title || movie?.name )
+  const [showTitle, setShowTitle] = useState(show?.title || show?.name )
+  const [seriesEpisodes, setSeriesEpisodes] = useState<any[]>([])
   // Focus state management
   const [focusedButton, setFocusedButton] = useState<string | null>(null)
   const [isMoviePlaying, setIsMoviePlaying] = useState(false)
+  const [selectedEpisode, setSelectedEpisode] = useState<any>(null)
 
-  // Mock data - in real app this would come from props or API
-  const [movieData, setMovieData] = useState<MovieData>({
-    title: 'De Thundermans keren terug',
-    language: 'NL',
-    rating: '7.0',
-    year: '2024',
-    duration: '2h 0m',
-    genres: ['Familie', 'Sciencefiction', 'Actie'],
-    cast: 'Kira Kosarin, Jack Griffo, Addison Riecke, Diego Velazquez...',
-    director: 'Beth Correll, Sarah Schmaus, Trevor Kirschner',
-    description: 'De tweeling Phoebe en Max genieten van hun superheldenlevensstijl, maar wanneer een \'save\' misgaat, worden de Thundermans teruggestuurd naar Hiddenville. Terwijl Hank en Barb genieten van hun terugkeer en Billy en Nora uitkijken naar een normaal leven op de middelbare school, zijn Max en Phoebe vastbesloten hun superheldenstatus terug te krijgen.',
-  })
+  console.log(show, movie, "show and movie");
+  
 
-  // Get movie title from route params or fallback to mock data
-  const movieTitle = show?.title || show?.name || movieData.title
 
   // Focus handlers
   const handleFocus = (buttonName: string) => {
@@ -98,13 +92,71 @@ const MoviePlayScreen = () => {
     // Handle add to list action
   }
 
+  // Episode card component
+  const EpisodeCard = ({ episode }: { episode: any }) => {
+    const [isFocused, setIsFocused] = useState(false)
+
+    const handleFocus = () => {
+      setIsFocused(true)
+    }
+
+    const handleBlur = () => {
+      setIsFocused(false)
+    }
+
+    return (
+      <TouchableOpacity 
+        style={[
+          styles.episodeCard,
+          isFocused && styles.episodeCardFocused
+        ]}
+        onPress={() => {
+          setSelectedEpisode(episode)
+        }}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        activeOpacity={1}
+      >
+        <Image 
+          source={episode?.logo && episode.logo.includes('https://') 
+            ? { uri: episode.logo } 
+            : imagepath.VideoPlaceHolder
+          } 
+          style={styles.episodeImage}
+        />
+        <View style={styles.episodeTitleContainer}>
+          <Text numberOfLines={1} style={styles.episodeTitle}>
+            {episode.title || episode.name || 'Episode'}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    )
+  }
+
+  useEffect(() => {
+    if(movie){
+      setMovieTitle(movie?.title || movie?.name)
+    }
+    if(show){
+      (async () => {
+      try {
+        const res = await getSeriesEpisodes(show?.title || show?.name)
+        console.log('res from series episodes', res)
+        setSeriesEpisodes(res?.data?.data?.episodes || [])
+        } catch (error) {
+          console.log('error', error)
+        }
+      })()
+    }
+  }, [movie, show])
+
   return (
     <MainLayout activeScreen="MoviePlayScreen" hideSidebar={true}>
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
-      {isMoviePlaying ? <LiveVideoComp streamUrl={show?.url} /> : (
+      {isMoviePlaying ? <LiveVideoComp streamUrl={movie?.url} /> : (
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* ShowDetails1 Component - handles background, gradients, and movie details */}
-        <ShowDetails1 movieName={movieTitle} />
+        <ShowDetails1 movieName={movieTitle} showName={showTitle} />
         
         {/* Action Buttons Section */}
         <View style={styles.actionButtonsSection}>
@@ -127,7 +179,7 @@ const MoviePlayScreen = () => {
               <Text style={[
                 styles.playButtonText,
                 focusedButton === 'play' && { color: CommonColors.black }
-              ]}>Play</Text>
+              ]}>Play {selectedEpisode? getEpisodeAndSeasonNumber(selectedEpisode?.title) : ''}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -194,6 +246,21 @@ const MoviePlayScreen = () => {
             </TouchableOpacity>
           </View>
         </View>
+      
+        {seriesEpisodes?.length > 0 && (
+          <View style={styles.episodesSection}>
+            <Text style={styles.episodesSectionTitle}>Episodes</Text>
+            <FlatList
+              data={seriesEpisodes}
+              renderItem={({ item }) => <EpisodeCard episode={item} />}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.episodesList}
+            />
+          </View>
+        )}
+        
       </ScrollView>)}
     </MainLayout>
   )

@@ -15,13 +15,16 @@ import RemoteControlSettings from '../screens/main/RemoteControlSettings/RemoteC
 import OtherSettings from '../screens/main/OtherSettings/OtherSettings';
 import Tv from '../screens/main/Tv/Tv';
 import MoviePlayScreen from '../screens/main/MoviePlayScreen/MoviePlayScreen';
+import LoginScreen from '../screens/appAuth/LoginScreen';
+import SignupScreen from '../screens/appAuth/SignupScreen';
+import VerifyOtp from '../screens/appAuth/VerifyOtp/VerifyOtp';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 const Mainstack = () => {
   return (
     <Stack.Navigator 
-    screenOptions={{ headerShown: false }}
+    screenOptions={{ headerShown: false, animation: 'fade' }}
     >
       <Stack.Screen 
         name="Home" 
@@ -78,6 +81,18 @@ const Mainstack = () => {
       <Stack.Screen 
         name="MoviePlayScreen" 
         component={MoviePlayScreen}
+      />
+      <Stack.Screen 
+        name="LoginScreen" 
+        component={LoginScreen}
+      />
+      <Stack.Screen 
+        name="SignupScreen" 
+        component={SignupScreen}
+      />
+      <Stack.Screen 
+        name="VerifyOtp" 
+        component={VerifyOtp}
       />
     </Stack.Navigator>
   )
