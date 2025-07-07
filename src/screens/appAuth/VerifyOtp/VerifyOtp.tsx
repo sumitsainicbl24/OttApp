@@ -65,7 +65,7 @@ const VerifyOtp = ({route}: {route: RouteProp<MainStackParamList, 'VerifyOtp'>})
         text1: 'OTP verified successfully',
         type: 'success',
       })
-      navigation.navigate('Home', {activeScreen: 'Home'})
+      navigation.navigate('LoginScreen')
     }
 
     } catch (error:any) {

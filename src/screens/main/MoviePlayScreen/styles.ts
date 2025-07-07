@@ -255,7 +255,8 @@ export const styles = StyleSheet.create({
   },
   
   episodesList: {
-    paddingRight: moderateScale(60),
+    paddingHorizontal: moderateScale(5),
+    paddingVertical: verticalScale(10),
   },
   
   episodeCard: {
