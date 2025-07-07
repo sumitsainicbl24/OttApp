@@ -24,6 +24,7 @@ interface LiveVideoCompProps {
 }
 
 const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
+  console.log('fjsklfjdklsjfkldsjkl', streamUrl)
   // State management
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

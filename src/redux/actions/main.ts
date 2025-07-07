@@ -2,7 +2,7 @@ import { apiGet, apiPost } from "../../utils/utils"
 import { setAuthToken, setIsPlaylistProcessed, setSeriesData, setUserData, setMoviesData, setChannelsData } from "../reducers/auth"
 import { store } from "../store"
 
-import { CategoryDataUrl, categoryUrl, fetchMedia, getPlaylistData, loginUrl, searchUrl, ShowDetailsApi, TMDBBaseUrl } from "../../config/urls"
+import { CategoryDataUrl, categoryUrl, fetchMedia, getPlaylistData, getSeriesEpisodesUrl, loginUrl, searchUrl, ShowDetailsApi, TMDBBaseUrl } from "../../config/urls"
 import { saveChannelsDataToMMKV, saveMoviesDataToMMKV, saveSeriesDataToMMKV } from "../../localStorage/mmkv"
 
 const {dispatch} = store
@@ -50,5 +50,32 @@ export const getMovieCastAndCrewWithTMDB_ID = async (id: string) => {
 
 export const getSearchData = async (type: string, title: string) => {
     const response = await apiGet(`${searchUrl}?type=${type}&query=${encodeURIComponent(title)}`);
+    return response;
+}
+
+// for series show details
+export const getSeriesShowDetailsWithTMDB = async (title: string) => {
+    const response = await apiGet(`${TMDBBaseUrl}/search/tv?api_key=${apiKeyTMDB}&query=${encodeURIComponent(title)}`);
+    return response?.data?.results[0]?.id;
+}
+
+export const getSeriesShowDetailsWithTMDB_ID = async (id: string) => {
+    const response = await apiGet(`${TMDBBaseUrl}/tv/${id}?api_key=${apiKeyTMDB}`);
+    return response;
+}
+
+export const getSeriesShowDetailsOMDB = async (title: string, season?: number, episode?: number) => {
+    if(season && episode){
+        const response = await apiGet(`${ShowDetailsApi}/?t=${encodeURIComponent(title)}&Season=${season}&Episode=${episode}&apikey=${apiKeyForShowDetails}`);
+        return response;
+    }else{
+        const response = await apiGet(`${ShowDetailsApi}/?t=${encodeURIComponent(title)}&apikey=${apiKeyForShowDetails}`);
+        return response;
+    }
+}
+
+//getting all episodes of a series
+export const getSeriesEpisodes = async (title: string) => {
+    const response = await apiGet(`${getSeriesEpisodesUrl}?title=${encodeURIComponent(title)}`);
     return response;
 }

@@ -309,6 +309,15 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
 
     } catch (error: any) {
       console.log('Login error details:',error)
+      await getCategoryApi('live')
+      await getCategoryApi('movies')
+      const res = await getCategoryApi('series')
+      setStats({
+        channels: res.data.totalLive,
+        movies: res.data.totalMovies,
+        series: res.data.totalSeries
+      })
+      setLoading(false)
     }
   }
   

@@ -17,6 +17,8 @@ export const getPlaylistData = getApiUrl("https://4856-125-20-102-34.ngrok-free.
 
 export const searchUrl = getApiUrl("/search");
 
+export const getSeriesEpisodesUrl = getApiUrl("/series-episodes");
+
 
 
 // movie details urls

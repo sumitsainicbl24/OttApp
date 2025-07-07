@@ -7,6 +7,8 @@ import { moderateScale, scale, verticalScale, width } from '../styles/scaling'
 import FontFamily from '../constants/FontFamily'
 import ShowCatCard from './ShowCatCard'
 import { debounce } from '../utils/CommonFunctions'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { MainStackParamList } from '../navigation/NavigationsTypes'
 
 interface ShowData {
   group?: string
@@ -22,6 +24,7 @@ interface ShowCatCarouselProps {
   onFocus?: () => void
   getMovieDetails?: (movie: any) => void
   horizontal?: boolean
+  type?: string
 }
 
 const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({ 
@@ -30,16 +33,18 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   onShowPress,
   onFocus,
   getMovieDetails,
-  horizontal = false
+  horizontal = false,
+  type
 }) => {
   const flashListRef = useRef<FlashList<ShowData>>(null)
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
   
   // Calculate number of columns based on screen width and card width
   const numColumns = useMemo(() => {
     if (horizontal) return 1
     
     const cardWidth = scale(250) // ShowCatCard width
-    const horizontalPadding = moderateScale(40) // Total horizontal padding
+    const horizontalPadding = moderateScale(10) // Total horizontal padding
     const cardMargin = moderateScale(15) // Margin between cards
     const availableWidth = width - horizontalPadding
     const minColumns = 1
@@ -55,7 +60,12 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
 
   const handleShowPress = (show: ShowData) => {
     console.log(`${title} selected:`, show.title)
-    // onShowPress?.(show)
+    if(type === 'series'){
+      navigation.navigate('MoviePlayScreen', { show: show })
+    }
+    if(type === 'movie'){
+      navigation.navigate('MoviePlayScreen', { movie: show })
+    }
   }
 
   const scrollToRow = useCallback((itemIndex: number) => {
@@ -110,7 +120,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
           ref={flashListRef}
           data={data}
           renderItem={renderShowItem}
-          keyExtractor={(item) => item?.url?.toString() || ''}
+          keyExtractor={(item, index) => item?.url?.toString() || index.toString()}
           numColumns={numColumns}
           horizontal={horizontal}
           showsVerticalScrollIndicator={false}

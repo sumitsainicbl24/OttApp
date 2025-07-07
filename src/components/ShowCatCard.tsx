@@ -64,7 +64,7 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
     if(show?.logo?.toString().includes('https://')){
       return {uri: show?.logo?.toString()}
     }
-    return show?.logo
+    return imagepath.VideoPlaceHolder
   }
 
   const handleImageError = () => {
@@ -90,7 +90,7 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
           source={handleSource()} 
           style={[
             styles.showImage,
-            isFocused && styles.showImageFocused
+            isFocused && styles.showImageFocused,
           ]} 
           onError={handleImageError}
         />
@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
     marginBottom: verticalScale(25),
+    backgroundColor: CommonColors.backgroundGrey,
   },
   showCardFocused: {
     borderColor: CommonColors.white,

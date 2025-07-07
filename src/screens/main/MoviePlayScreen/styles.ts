@@ -233,4 +233,72 @@ export const styles = StyleSheet.create({
     fontSize: moderateScale(16),
     color: CommonColors.white,
   },
+
+  gridItem: {
+    width: scale(150),
+    height: scale(200),
+    marginRight: moderateScale(10),
+    marginBottom: moderateScale(10),
+  },
+  
+  // Episode styles
+  episodesSection: {
+    paddingHorizontal: moderateScale(60),
+    paddingVertical: verticalScale(30),
+  },
+  
+  episodesSectionTitle: {
+    fontFamily: FontFamily.PublicSans_Bold,
+    fontSize: moderateScale(24),
+    color: CommonColors.white,
+    marginBottom: verticalScale(20),
+  },
+  
+  episodesList: {
+    paddingRight: moderateScale(60),
+  },
+  
+  episodeCard: {
+    width: scale(250),
+    height: verticalScale(400),
+    borderRadius: scale(12),
+    marginRight: moderateScale(15),
+    overflow: 'hidden',
+    backgroundColor: CommonColors.backgroundGrey,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  
+  episodeCardFocused: {
+    borderColor: CommonColors.white,
+    transform: [{ scale: 1.05 }],
+    shadowColor: CommonColors.white,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    zIndex: 1000,
+  },
+  
+  episodeImage: {
+    width: '100%',
+    height: '80%',
+    resizeMode: 'cover',
+  },
+  
+  episodeTitleContainer: {
+    flex: 1,
+    backgroundColor: CommonColors.backgroundGrey,
+    justifyContent: 'center',
+    paddingHorizontal: moderateScale(8),
+  },
+  
+  episodeTitle: {
+    fontSize: moderateScale(14),
+    fontFamily: FontFamily.PublicSans_Regular,
+    color: CommonColors.textWhite,
+    textAlign: 'center',
+  },
 }) 

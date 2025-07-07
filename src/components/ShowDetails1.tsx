@@ -4,7 +4,7 @@ import LinearGradient from 'react-native-linear-gradient'
 import { CommonColors } from '../styles/Colors'
 import { moderateScale, verticalScale, scale, height } from '../styles/scaling'
 import FontFamily from '../constants/FontFamily'
-import { getMovieDetails, imageResolutionHandlerForUrl } from '../utils/CommonFunctions'
+import { getMovieDetails, getSeriesShowDetails, imageResolutionHandlerForUrl } from '../utils/CommonFunctions'
 
 interface ShowData {
   title: string,
@@ -19,11 +19,13 @@ interface ShowData {
 }
 
 interface ShowDetails1Props {
-  movieName?: string
+  movieName?: string,
+  showName?: string
 }
 
 const ShowDetails1: React.FC<ShowDetails1Props> = ({ 
   movieName,
+  showName
 }) => {
   const [showDetails, setShowDetails] = useState<ShowData | null>(null)
 
@@ -31,7 +33,10 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
     if (movieName) {
       fetchMovieDetails()
     }
-  }, [movieName])
+    if (showName) {
+      fetchShowDetails()
+    }
+  }, [movieName, showName])
 
   const fetchMovieDetails = async () => {
     if (!movieName) return
@@ -41,6 +46,18 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
       setShowDetails(details)
     } catch (error) {
       console.error('Error fetching movie details:', error)
+    }
+  }
+
+  const fetchShowDetails = async () => {
+    if (!showName) return
+    
+    try {
+      const details = await getSeriesShowDetails(showName)
+      console.log('details fetchShowDetails', details)
+      setShowDetails(details)
+    } catch (error) {
+      console.error('Error fetching show details:', error)
     }
   }
 
