@@ -41,8 +41,6 @@ const Shows = () => {
   const [loading, setLoading] = useState(true)
   const [selectedMovieName, setSelectedMovieName] = useState<string>('')
 
-  console.log('moviesDatamoviesData', seriesData)
-
   // Load movie data from MMKV on component mount
   useEffect(() => {
     loadMovieData()
@@ -76,7 +74,6 @@ const Shows = () => {
 
   const getMovieData = async (category: string) => {
     const res = await getCategoryData('series', category)
-    console.log('res getCategoryData', res?.data?.data?.series)
     setSelectedCategoryData(res?.data?.data?.series)
     setLoading(false)
 

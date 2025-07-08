@@ -41,8 +41,6 @@ const Movies = () => {
   const [loading, setLoading] = useState(true)
   const [selectedMovieName, setSelectedMovieName] = useState<string>('')
 
-  console.log('moviesDatamoviesData', moviesData)
-
   // Load movie data from MMKV on component mount
   useEffect(() => {
     loadMovieData()
@@ -140,6 +138,7 @@ const Movies = () => {
                   onShowPress={(show) => console.log(`Featured ${selectedCategory} movie selected:`, show.title)}
                   onFocus={handleScrollViewFocus}
                   getMovieDetails={handleMovieSelect}
+                  type="movies"
                 />
               )}
 

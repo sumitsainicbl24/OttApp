@@ -51,9 +51,7 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
   }
 
   const handlePress = () => {
-    console.log('Show category pressed:', show.title)
-    // onPress?.()
-    navigation.navigate('MoviePlayScreen', { show: show })
+    onPress?.()
   }
 
   const handleSource = () => {

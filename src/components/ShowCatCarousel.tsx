@@ -59,11 +59,10 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   )
 
   const handleShowPress = (show: ShowData) => {
-    console.log(`${title} selected:`, show.title)
     if(type === 'series'){
       navigation.navigate('MoviePlayScreen', { show: show })
     }
-    if(type === 'movie'){
+    if(type === 'movies'){
       navigation.navigate('MoviePlayScreen', { movie: show })
     }
   }
@@ -98,9 +97,6 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
     debouncedGetMovieDetails?.(item?.title)
     scrollToRow(index)
   }
-
-  console.log('data in ShowCatCarousel', data)
-  console.log('Calculated numColumns:', numColumns)
   
 
   const renderShowItem = ({ item, index }: { item: ShowData; index: number }) => (

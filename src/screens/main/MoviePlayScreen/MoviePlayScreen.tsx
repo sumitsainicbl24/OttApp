@@ -59,6 +59,7 @@ const MoviePlayScreen = () => {
   const [focusedButton, setFocusedButton] = useState<string | null>(null)
   const [isMoviePlaying, setIsMoviePlaying] = useState(false)
   const [selectedEpisode, setSelectedEpisode] = useState<any>(null)
+  const [streamUrl, setStreamUrl] = useState<string | null>(null)
 
   console.log(show, movie, "show and movie");
   
@@ -112,6 +113,8 @@ const MoviePlayScreen = () => {
         ]}
         onPress={() => {
           setSelectedEpisode(episode)
+          setStreamUrl(episode?.url)
+          setIsMoviePlaying(true)
         }}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -135,7 +138,9 @@ const MoviePlayScreen = () => {
 
   useEffect(() => {
     if(movie){
+      console.log('moviedata in play screen', movie)
       setMovieTitle(movie?.title || movie?.name)
+      setStreamUrl(movie?.url)
     }
     if(show){
       (async () => {
@@ -143,6 +148,7 @@ const MoviePlayScreen = () => {
         const res = await getSeriesEpisodes(show?.title || show?.name)
         console.log('res from series episodes', res)
         setSeriesEpisodes(res?.data?.data?.episodes || [])
+        setStreamUrl(res?.data?.data?.episodes[0]?.url)
         } catch (error) {
           console.log('error', error)
         }
@@ -153,10 +159,24 @@ const MoviePlayScreen = () => {
   return (
     <MainLayout activeScreen="MoviePlayScreen" hideSidebar={true}>
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
-      {isMoviePlaying ? <LiveVideoComp streamUrl={movie?.url} /> : (
+      {isMoviePlaying ? <LiveVideoComp streamUrl={streamUrl || ''} /> : (
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* ShowDetails1 Component - handles background, gradients, and movie details */}
         <ShowDetails1 movieName={movieTitle} showName={showTitle} />
+
+        {seriesEpisodes?.length > 0 && (
+          <View style={styles.episodesSection}>
+            <Text style={styles.episodesSectionTitle}>Episodes</Text>
+            <FlatList
+              data={seriesEpisodes}
+              renderItem={({ item }) => <EpisodeCard episode={item} />}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.episodesList}
+            />
+          </View>
+        )}
         
         {/* Action Buttons Section */}
         <View style={styles.actionButtonsSection}>
@@ -247,19 +267,6 @@ const MoviePlayScreen = () => {
           </View>
         </View>
       
-        {seriesEpisodes?.length > 0 && (
-          <View style={styles.episodesSection}>
-            <Text style={styles.episodesSectionTitle}>Episodes</Text>
-            <FlatList
-              data={seriesEpisodes}
-              renderItem={({ item }) => <EpisodeCard episode={item} />}
-              keyExtractor={(item, index) => index.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.episodesList}
-            />
-          </View>
-        )}
         
       </ScrollView>)}
     </MainLayout>

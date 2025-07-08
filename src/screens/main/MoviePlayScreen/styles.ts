@@ -137,7 +137,7 @@ export const styles = StyleSheet.create({
   actionButtonsSection: {
     paddingHorizontal: moderateScale(60),
     paddingVertical: verticalScale(40),
-    marginTop: -moderateScale(100),
+    // marginTop: -moderateScale(100),
     zIndex: 1000,
   },
   
@@ -245,6 +245,8 @@ export const styles = StyleSheet.create({
   episodesSection: {
     paddingHorizontal: moderateScale(60),
     paddingVertical: verticalScale(30),
+    marginTop: -moderateScale(250),
+    zIndex: 1000,
   },
   
   episodesSectionTitle: {

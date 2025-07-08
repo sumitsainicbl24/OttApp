@@ -27,7 +27,7 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
   movieName,
   showName
 }) => {
-  const [showDetails, setShowDetails] = useState<ShowData | null>(null)
+  const [showDetails, setShowDetails] = useState<any | null>(null)
 
   useEffect(() => {
     if (movieName) {
@@ -54,7 +54,6 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
     
     try {
       const details = await getSeriesShowDetails(showName)
-      console.log('details fetchShowDetails', details)
       setShowDetails(details)
     } catch (error) {
       console.error('Error fetching show details:', error)

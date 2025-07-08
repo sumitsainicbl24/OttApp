@@ -70,8 +70,6 @@ const MovieCard: React.FC<MovieCardProps> = ({
     setImageError(true)
   }
 
-  console.log('movie in movie card', movie)
-
   return (
     <TouchableOpacity 
       style={[
