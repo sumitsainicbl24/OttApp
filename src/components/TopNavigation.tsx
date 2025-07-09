@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   navMenuContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: moderateScale(24),
+    gap: moderateScale(5),
   },
   
   activeMenuItem: {
