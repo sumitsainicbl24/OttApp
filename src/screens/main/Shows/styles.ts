@@ -51,6 +51,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     width:width,
     // backgroundColor: CommonColors.themeMain,
+    marginTop: -moderateScale(150),
   },
   
   // Top Navigation Styles

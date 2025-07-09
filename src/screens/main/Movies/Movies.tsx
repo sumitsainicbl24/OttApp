@@ -95,7 +95,7 @@ const Movies = () => {
       
       // If no cached data, fetch from API
       const res = await getCategoryData('movies', category)
-      const movieData = res?.data?.data?.movies
+      const movieData = res?.data?.data?.data?.movies
       
       if (movieData && movieData.length > 0) {
         // Update state

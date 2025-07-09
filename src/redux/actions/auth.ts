@@ -73,20 +73,20 @@ export const getCategoryApi = async (type: string) => {
     if(!!type){
         const response = await apiGet(`${categoryUrl}?type=${type}`);
         if(type === 'live'){
-            await saveChannelsDataToMMKV(response.data.data)
-            dispatch(setChannelsData(response.data.data))
+            await saveChannelsDataToMMKV(response.data.data.data)
+            dispatch(setChannelsData(response.data.data.data))
         }else if(type === 'movies'){
-            await saveMoviesDataToMMKV(response.data.data)
-            dispatch(setMoviesData(response.data.data))
+            await saveMoviesDataToMMKV(response.data.data.data)
+            dispatch(setMoviesData(response.data.data.data))
         }else if(type === 'series'){
-            await saveSeriesDataToMMKV(response.data.data)
-            dispatch(setSeriesData(response.data.data))
+            await saveSeriesDataToMMKV(response.data.data.data)
+            dispatch(setSeriesData(response.data.data.data))
         }
         return response;
     }else{
         const response = await apiGet(`${categoryUrl}`);
-        saveChannelsDataToMMKV(response.data)
-        dispatch(setChannelsData(response.data))
+        saveChannelsDataToMMKV(response.data.data)
+        dispatch(setChannelsData(response.data.data))
         return response;
     }
 }

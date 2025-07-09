@@ -288,7 +288,9 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
   const login = async () => {
     try {
       let res = await LoginApi(playlistUrl)
-      await setAuthTokenAction(res.data.token)
+      console.log('login response:', res)
+      
+      await setAuthTokenAction(res?.data?.token)
 
       // setLoading(false)
       // res = await getMediaData()
@@ -296,27 +298,45 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
       // await getMediaData('series')
       // await getMediaData('movies')
 
-      await getCategoryApi('live')
-      await getCategoryApi('movies')
+      res =await getCategoryApi('live')
+
+      console.log('getCategoryApi response:', res)
+      
+      setStats(prev => ({
+        ...prev,
+        channels: res?.data?.data?.totalChannels
+      }))
+      res = await getCategoryApi('movies')
+      setStats(prev => ({
+        ...prev,
+        movies: res?.data?.data?.totalMovies
+      }))
       res = await getCategoryApi('series')
-      setStats({
-        channels: res.data.totalLive,
-        movies: res.data.totalMovies,
-        series: res.data.totalSeries
-      })
+      setStats(prev => ({
+        ...prev,
+        series: res?.data?.data?.totalSeries
+      }))
       console.log('getCategoryData response:', res)
       setLoading(false)
 
     } catch (error: any) {
       console.log('Login error details:',error)
-      await getCategoryApi('live')
-      await getCategoryApi('movies')
-      const res = await getCategoryApi('series')
-      setStats({
-        channels: res.data.totalLive,
-        movies: res.data.totalMovies,
-        series: res.data.totalSeries
-      })
+      let res = await getCategoryApi('live')
+      setStats(prev => ({
+        ...prev,
+        channels: res?.data?.data?.totalChannels
+      }))
+      res = await getCategoryApi('movies')
+      setStats(prev => ({
+        ...prev,
+        movies: res?.data?.data?.totalMovies
+      }))
+      res = await getCategoryApi('series')
+      setStats(prev => ({
+        ...prev,
+        series: res?.data?.data?.totalSeries
+      }))
+     
       setLoading(false)
     }
   }

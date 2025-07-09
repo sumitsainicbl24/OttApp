@@ -147,8 +147,8 @@ const MoviePlayScreen = () => {
       try {
         const res = await getSeriesEpisodes(show?.title || show?.name)
         console.log('res from series episodes', res)
-        setSeriesEpisodes(res?.data?.data?.episodes || [])
-        setStreamUrl(res?.data?.data?.episodes[0]?.url)
+        setSeriesEpisodes(res?.data?.data?.data?.episodes || [])
+        setStreamUrl(res?.data?.data?.data?.episodes[0]?.url)
         } catch (error) {
           console.log('error', error)
         }

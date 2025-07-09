@@ -74,11 +74,11 @@ const Shows = () => {
 
   const getMovieData = async (category: string) => {
     const res = await getCategoryData('series', category)
-    setSelectedCategoryData(res?.data?.data?.series)
+    setSelectedCategoryData(res?.data?.data?.data?.series)
     setLoading(false)
 
-    if (res?.data?.data?.series[0]?.title) {
-      setSelectedMovieName(res?.data?.data?.series[0]?.title)
+    if (res?.data?.data?.data?.series[0]?.title) {
+      setSelectedMovieName(res?.data?.data?.data?.series[0]?.title)
     }
   }
 
@@ -128,8 +128,8 @@ const Shows = () => {
           // showsVerticalScrollIndicator={false}
           >
             <View style={{
-              position: 'absolute',
-              bottom: 0,
+              // position: 'absolute',
+              // bottom: 0,
               zIndex: 1000
             }}>
               {/* Show selected category if available */}
