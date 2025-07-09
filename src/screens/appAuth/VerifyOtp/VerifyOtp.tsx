@@ -24,7 +24,7 @@ import ButtonComp from '../../../components/ButtonComp'
 import { styles } from './styles'
 import imagepath from '../../../constants/imagepath'
 import { MainStackParamList } from '../../../navigation/NavigationsTypes'
-import { verifyOtpApi } from '../../../redux/actions/main'
+import { signupApi, verifyOtpApi } from '../../../redux/actions/main'
 import Toast from 'react-native-toast-message'
 
 const VerifyOtp = ({route}: {route: RouteProp<MainStackParamList, 'VerifyOtp'>}) => {
@@ -79,9 +79,23 @@ const VerifyOtp = ({route}: {route: RouteProp<MainStackParamList, 'VerifyOtp'>})
     }
   }
 
-  const handleResendOtp = () => {
-    console.log('Resend OTP pressed')
-    // TODO: Implement resend OTP logic
+  const handleResendOtp = async() => {
+    try {
+      const response = await signupApi(data);
+      Toast.show({
+        text1: 'OTP sent successfully',
+        type: 'success',
+      })
+  
+    } catch (error:any) {
+      {error?.response?.data?.error &&
+          Toast.show({
+              text1: error?.response?.data?.error,
+              type: 'error',
+            })
+      }
+      console.log(error);
+    }
   }
 
   const handleFocus = (buttonName: string) => {

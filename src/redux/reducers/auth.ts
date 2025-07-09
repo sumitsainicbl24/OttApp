@@ -1,15 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../store'
-import { User } from '../../constants/commonTypes'
 
 interface AuthState {
-    user: User | null
+    user: any
     auth_token: string
     isplaylistprocessed: boolean
     seriesData: any
     moviesData: any
     channelsData: any
+    userToken: string
 }
 
 const initialState: AuthState = {
@@ -19,13 +19,14 @@ const initialState: AuthState = {
     seriesData: null,
     moviesData: null,
     channelsData: null,
+    userToken: '',
 }
 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setUserData: (state, action: PayloadAction<User>) => {
+        setUserData: (state, action: PayloadAction<any>) => {
             state.user = action.payload
         },
         setAuthToken: (state, action: PayloadAction<string>) => {
@@ -43,8 +44,11 @@ const authSlice = createSlice({
         setChannelsData: (state, action: PayloadAction<any>) => {
             state.channelsData = action.payload
         },
+        setUserToken: (state, action: PayloadAction<string>) => {
+            state.userToken = action.payload
+        },
     },
 })
 
-export const { setUserData, setAuthToken, setIsPlaylistProcessed, setSeriesData, setMoviesData, setChannelsData } = authSlice.actions
+export const { setUserData, setAuthToken, setIsPlaylistProcessed, setSeriesData, setMoviesData, setChannelsData, setUserToken } = authSlice.actions
 export default authSlice.reducer

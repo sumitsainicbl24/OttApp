@@ -22,7 +22,7 @@ import ButtonComp from '../../../components/ButtonComp'
 import { styles } from './styles'
 import imagepath from '../../../constants/imagepath'
 import { MainStackParamList } from '../../../navigation/NavigationsTypes'
-import { signinApi } from '../../../redux/actions/main'
+import { setUserAction, setUserTokenAction, signinApi } from '../../../redux/actions/main'
 import Toast from 'react-native-toast-message'
 
 const LoginScreen = () => {
@@ -47,6 +47,9 @@ const LoginScreen = () => {
             text1: 'Login successful',
             type: 'success',
           })
+
+          setUserAction(response?.data?.data?.user)
+          setUserTokenAction(response?.data?.data?.token)
           navigation.navigate('Home', {activeScreen: 'Home'})
         }
         console.log(response);

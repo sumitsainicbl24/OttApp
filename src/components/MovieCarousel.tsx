@@ -26,11 +26,8 @@ const MovieCarousel: React.FC<MovieCarouselProps> = ({
   onMoviePress 
 }) => {
   const handleMoviePress = (movie: MovieData) => {
-    console.log(`${title} selected:`, movie.title)
     onMoviePress?.(movie)
   }
-
-  console.log('data in movie carousel', data)
 
   const renderItem = ({ item }: { item: MovieData }) => (
     <MovieCard 

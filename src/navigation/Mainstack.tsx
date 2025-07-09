@@ -18,6 +18,7 @@ import MoviePlayScreen from '../screens/main/MoviePlayScreen/MoviePlayScreen';
 import LoginScreen from '../screens/appAuth/LoginScreen';
 import SignupScreen from '../screens/appAuth/SignupScreen';
 import VerifyOtp from '../screens/appAuth/VerifyOtp/VerifyOtp';
+import BuySubscription from '../screens/main/BuySubscription/BuySubscription';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
@@ -93,6 +94,10 @@ const Mainstack = () => {
       <Stack.Screen 
         name="VerifyOtp" 
         component={VerifyOtp}
+      />
+      <Stack.Screen 
+        name="BuySubscription" 
+        component={BuySubscription}
       />
     </Stack.Navigator>
   )

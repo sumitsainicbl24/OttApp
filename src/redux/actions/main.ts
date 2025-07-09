@@ -1,9 +1,9 @@
 import { apiGet, apiPost } from "../../utils/utils"
-import { setAuthToken, setIsPlaylistProcessed, setSeriesData, setUserData, setMoviesData, setChannelsData } from "../reducers/auth"
 import { store } from "../store"
 
-import { CategoryDataUrl, categoryUrl, fetchMedia, getPlaylistData, getSeriesEpisodesUrl, loginUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
-import { saveChannelsDataToMMKV, saveMoviesDataToMMKV, saveSeriesDataToMMKV } from "../../localStorage/mmkv"
+import { getSeriesEpisodesUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
+import { getUserTokenLocalStorage, setUserDataLocalStorage, setUserTokenLocalStorage } from "../../localStorage/mmkv"
+import { setUserData, setUserToken } from "../reducers/auth"
 
 const {dispatch} = store
 
@@ -94,4 +94,20 @@ export const signinApi = async (data: any) => {
 export const verifyOtpApi = async (data: any) => {
     const response = await apiPost(verifyOtpUrl, data);
     return response;
+}
+
+
+// auth token
+export const setUserTokenAction = async (token: string) => {
+    await setUserTokenLocalStorage(token)
+    dispatch(setUserToken(token))
+}
+
+//user data
+export const setUserAction = async (user: any) => {
+    //local storage
+    await setUserDataLocalStorage(user)
+
+    //saving user data to redux
+    dispatch(setUserData(user))
 }

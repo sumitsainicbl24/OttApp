@@ -10,11 +10,9 @@ const {dispatch} = store
 export const setUser = async (user: any) => {
     //local storage
     await setUserDataLocalStorage(user)
-    await setAuthTokenLocalStorage(user.token)
 
     //saving user data to redux
     dispatch(setUserData(user))
-    dispatch(setAuthToken(user.token))
 }
 
 export const setAuthTokenAction = async (token: string) => {

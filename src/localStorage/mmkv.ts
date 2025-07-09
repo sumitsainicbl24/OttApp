@@ -181,3 +181,21 @@ export const getChannelsDataFromMMKV = async (): Promise<any> => {
         return null;
     }
 };
+
+//user token
+export const setUserTokenLocalStorage = async (userToken: string): Promise<void> => {
+    try {
+        storage.set('userToken', userToken);
+    } catch (error) {
+        console.error('Error setting user token to MMKV:', error);
+    }
+};
+
+export const getUserTokenLocalStorage = async (): Promise<string | null> => {
+    try {
+        return await storage.getString('userToken') || null;
+    } catch (error) {
+        console.error('Error getting user token from MMKV:', error);
+        return null;
+    }
+};

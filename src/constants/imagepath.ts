@@ -37,6 +37,8 @@ export default{
     skip10SecIcon:require('../assets/images/skip10Sec.png'),
     prev10SecIcon:require('../assets/images/prev10Sec.png'),
     LoginBg:require('../assets/images/LoginBg.png'),
+    SubscitionIcon:require('../assets/images/SubscitionIcon.gif'),
+    SubscitionIcon1:require('../assets/images/SubscitionIcon.png'),
 
     //sample data
     popularMovie1:require('../assets/images/popularMovie1.jpg'),

@@ -7,11 +7,23 @@ import FontFamily from '../constants/FontFamily'
 import imagepath from '../constants/imagepath'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainStackParamList } from '../navigation/NavigationsTypes'
+import { useSelector } from 'react-redux'
+import { RootState } from '../redux/store'
 
 const SettingOverlay = ({children, topTitle}: {children: React.ReactNode, topTitle: string}) => {
 
     const [focusedOption, setFocusedOption] = useState('');
     const navigation = useNavigation<NavigationProp<MainStackParamList>>();
+    const userToken = useSelector((state: RootState) => state.rootReducer.auth.userToken);
+
+    const handlePremiumPress = () => {
+        if(userToken){
+          navigation.navigate('BuySubscription')
+        }else{
+            navigation.navigate('LoginScreen')
+        }
+    }
+
   return (
     <>
       <View style={styles.backgroundOverlay} />
@@ -34,7 +46,7 @@ const SettingOverlay = ({children, topTitle}: {children: React.ReactNode, topTit
           style={[styles.premiumButton, focusedOption === 'premium' && { borderColor: CommonColors.white, borderWidth: 1 }]}
           onFocus={() => setFocusedOption('premium')}
           onBlur={() => setFocusedOption('')}
-          onPress={() => navigation.navigate('LoginScreen')}
+          onPress={() => handlePremiumPress()}
           activeOpacity={1}
           {...({ 
             isTVSelectable: true,

@@ -15,6 +15,7 @@ import { RootState } from '../../../redux/store'
 import { useSelector } from 'react-redux'
 import { CommonColors } from '../../../styles/Colors'
 import { moderateScale } from '../../../styles/scaling'
+import { saveMoviesDataToMMKV, getMoviesDataFromMMKV } from '../../../localStorage/mmkv'
 
 type MoviesScreenRouteProp = RouteProp<MainStackParamList, 'Movies'>
 
@@ -73,12 +74,49 @@ const Movies = () => {
   }
 
   const getMovieData = async (category: string) => {
-    const res = await getCategoryData('movies', category)
-    setSelectedCategoryData(res?.data?.data?.movies)
-    setLoading(false)
-
-    if (res?.data?.data?.movies[0]?.title) {
-      setSelectedMovieName(res?.data?.data?.movies[0]?.title)
+    try {
+      // Create a cache key specific to this category
+      const cacheKey = `movies_${category}`
+      
+      // First, try to get cached data
+      const cachedData = await getMoviesDataFromMMKV()
+      const cachedCategoryData = cachedData?.[cacheKey]
+      
+      if (cachedCategoryData && cachedCategoryData.length > 0) {
+        // Use cached data
+        setSelectedCategoryData(cachedCategoryData)
+        setLoading(false)
+        
+        if (cachedCategoryData[0]?.title) {
+          setSelectedMovieName(cachedCategoryData[0]?.title)
+        }
+        return
+      }
+      
+      // If no cached data, fetch from API
+      const res = await getCategoryData('movies', category)
+      const movieData = res?.data?.data?.movies
+      
+      if (movieData && movieData.length > 0) {
+        // Update state
+        setSelectedCategoryData(movieData)
+        
+        // Save to cache
+        const existingCache = await getMoviesDataFromMMKV() || {}
+        const updatedCache = {
+          ...existingCache,
+          [cacheKey]: movieData
+        }
+        await saveMoviesDataToMMKV(updatedCache)
+        
+        if (movieData[0]?.title) {
+          setSelectedMovieName(movieData[0]?.title)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching movie data:', error)
+    } finally {
+      setLoading(false)
     }
   }
 

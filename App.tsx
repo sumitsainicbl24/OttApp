@@ -17,9 +17,9 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import { Provider } from 'react-redux';
 import Toast from 'react-native-toast-message';
-import { getAuthTokenLocalStorage, getIsPlaylistProcessedLocalStorage } from './src/localStorage/mmkv';
+import { getAuthTokenLocalStorage, getIsPlaylistProcessedLocalStorage, getUserDataLocalStorage, getUserTokenLocalStorage } from './src/localStorage/mmkv';
 import Routes from './src/navigation/Routes';
-import { setAuthToken , setIsPlaylistProcessed} from './src/redux/reducers/auth';
+import { setAuthToken , setIsPlaylistProcessed, setUserData, setUserToken} from './src/redux/reducers/auth';
 import { store } from './src/redux/store';
 
 if (__DEV__) {
@@ -41,6 +41,17 @@ function App(): React.JSX.Element {
     if(isplaylistprocessed){
       store.dispatch(setIsPlaylistProcessed(isplaylistprocessed))
     }
+
+    const userToken = await getUserTokenLocalStorage();
+    if(userToken){
+      store.dispatch(setUserToken(userToken))
+    }
+
+    const user = await getUserDataLocalStorage();
+    if(user){
+      store.dispatch(setUserData(user))
+    }
+
   };
 
   
