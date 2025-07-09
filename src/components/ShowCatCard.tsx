@@ -7,6 +7,7 @@ import FontFamily from '../constants/FontFamily'
 import imagepath from '../constants/imagepath'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainStackParamList } from '../navigation/NavigationsTypes'
+import { imageResolutionHandlerForUrl } from '../utils/CommonFunctions'
 
 interface ShowData {
   group?: string
@@ -60,7 +61,7 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
     }
     
     if(show?.logo?.toString().includes('https://')){
-      return {uri: show?.logo?.toString()}
+      return {uri: imageResolutionHandlerForUrl(show?.logo?.toString())}
     }
     return imagepath.VideoPlaceHolder
   }

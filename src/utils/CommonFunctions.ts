@@ -33,7 +33,13 @@ export const debounce = (func: Function, delay: number) => {
 export const imageResolutionHandlerForUrl = (url: string, resolution?: number) => {
     // Convert http to https if needed
     let processedUrl = url.replace('http://', 'https://')
-    // Remove the _V1_SX{number} pattern entirely to get original quality
+    
+    // Handle TMDB image URLs - replace w{number} with original
+    if (processedUrl.includes('image.tmdb.org/t/p/')) {
+        processedUrl = processedUrl.replace(/\/w\d+\//, '/original/')
+    }
+    
+    // Remove the _V1_SX{number} pattern entirely to get original quality (for IMDb URLs)
     processedUrl = processedUrl.replace(/_V1_SX\d+/, '')
     return processedUrl
 }
