@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    borderRadius: scale(18),
   },
   continueWatchingImageFocused: {
     // Additional image styling when focused if needed

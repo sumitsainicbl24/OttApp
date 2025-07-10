@@ -49,7 +49,7 @@ export default ContinueWatchingCarousel
 
 const styles = StyleSheet.create({
   sectionContainer: {
-    marginTop: verticalScale(40),
+    // marginTop: verticalScale(40),
     paddingHorizontal: moderateScale(20),
   },
   sectionTitle: {

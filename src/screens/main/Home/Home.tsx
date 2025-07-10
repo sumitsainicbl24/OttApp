@@ -16,6 +16,8 @@ import { getMoviesFromMMKV, getSeriesFromMMKV } from '../../../utils/m3uParseAnd
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../redux/store'
 import { getCategoryData } from '../../../redux/actions/auth'
+import ShowCatCarousel from '../../../components/ShowCatCarousel'
+import { verticalScale } from '../../../styles/scaling'
 
 
 const Home = () => {
@@ -45,9 +47,9 @@ const Home = () => {
   const loadMovieData = async () => {
     try{
       const res= await getCategoryData('movies', moviesData[0])
-      console.log('response from getCategoryData for movies', res?.data?.data?.movies)
-      setDynamicPopularMovieData(res?.data?.data?.movies?.slice(0, 5))
-      setDynamicRecentlyAddedMovieData(res?.data?.data?.movies?.slice(5, 10))
+      console.log('response from getCategoryData for movies', res?.data?.data?.data?.movies)
+      setDynamicPopularMovieData(res?.data?.data?.data?.movies?.slice(0, 7))
+      setDynamicRecentlyAddedMovieData(res?.data?.data?.data?.movies?.slice(7, 14))
     }catch(error){
       console.log('error in loadMovieData', error)
     }
@@ -55,9 +57,9 @@ const Home = () => {
 
   const loadShowsData = async () => {
     try{
-      const res= await getCategoryData('series', seriesData[5])
-      console.log('response from getCategoryData for series', res?.data?.data?.series)
-      setDynamicPopularShowsData(res?.data?.data?.series?.slice(0, 5))
+      const res= await getCategoryData('series', seriesData[7])
+      console.log('response from getCategoryData for series', res?.data?.data?.data?.series)
+      setDynamicPopularShowsData(res?.data?.data?.data?.series?.slice(0, 7))
     }catch(error){
       console.log('error', error)
     }
@@ -99,25 +101,53 @@ const Home = () => {
             onChannelPress={handleChannelPress}
           />
         </ImageBackground>
-        <MovieCarousel 
+        {/* <MovieCarousel 
           title="Popular movies" 
           data={DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : PopularMovieData}
           onMoviePress={(movie) => console.log('Popular movie selected:', movie.title)}
-        />
-        <MovieCarousel 
+        /> */}
+        <View style={{marginBottom: verticalScale(55)}}/>
+         <ShowCatCarousel
+                  title="Popular movies"
+                  data={DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : PopularMovieData}
+                  onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
+                  onFocus={()=>{}}
+                  getMovieDetails={()=>{}}
+                  type="movies"
+          />
+          <View style={{marginBottom: verticalScale(-35)}}/>
+          <ShowCatCarousel
+                  title="Popular Shows"
+                  data={DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : PopularShowsData}
+                  onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
+                  onFocus={()=>{}}
+                  getMovieDetails={()=>{}}
+                  type="series"
+          />
+        {/* <MovieCarousel 
           title="Popular Shows" 
           data={DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : PopularShowsData}
           onMoviePress={(movie) => console.log('Popular show selected:', movie.title)}
-        />
+        /> */}
+        <View style={{marginBottom: verticalScale(-35)}}/>
         <ContinueWatchingCarousel 
           data={ContinueWatchingData}
           onItemPress={(item) => console.log('Continue watching selected:', item.title)}
         />
-        <MovieCarousel 
+        {/* <MovieCarousel 
           title="Recently Added" 
           data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : RecentlyAddedData}
           onMoviePress={(movie) => console.log('Recently added selected:', movie.title)}
-        />
+        /> */}
+        <View style={{marginBottom: verticalScale(35)}}/>
+        <ShowCatCarousel
+                  title="Recently Added"
+                  data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : RecentlyAddedData}
+                  onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
+                  onFocus={()=>{}}
+                  getMovieDetails={()=>{}}
+                  type="movies"
+          />
       </ScrollView>
     </View>
   )
