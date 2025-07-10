@@ -103,9 +103,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   const handleItemFocus = (index: number, item: ShowData) => {
     onFocus?.()
     debouncedGetMovieDetails?.(item?.title)
-    if(numColumns>1 || true){
-      scrollToRow(index)
-    }
+    scrollToRow(index)
   }
   
 
@@ -135,7 +133,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
           estimatedItemSize={horizontal ? scale(250) : verticalScale(400)}
         />
         {/* Overlay to hide partially visible second row - only for grid layout */}
-        {!horizontal && (
+        {!horizontal && numColumns>7 && (
           <LinearGradient
             colors={[
               'transparent',
