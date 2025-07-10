@@ -1,5 +1,5 @@
-// export const API_BASE_URL = "https://api-ott.netsolutionindia.com/api";
-export const API_BASE_URL = "http://192.168.102.208:3001/api";
+export const API_BASE_URL = "https://api-ott.netsolutionindia.com/api";
+// export const API_BASE_URL = "http://192.168.102.208:3001/api";
 
 export const getApiUrl = (endpoint: string) => API_BASE_URL + endpoint;
 

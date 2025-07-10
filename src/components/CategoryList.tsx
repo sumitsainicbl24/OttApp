@@ -10,14 +10,12 @@ import { CommonColors } from '../styles/Colors'
 interface CategoryListProps {
   categories?: string[]
   selectedCategory?: string
-  onCategoryPress?: (category: string) => void
   onFocus?: (category: string) => void
 }
 
 const CategoryList: React.FC<CategoryListProps> = ({ 
   categories, 
   selectedCategory, 
-  onCategoryPress, 
   onFocus 
 }) => {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
@@ -26,20 +24,6 @@ const CategoryList: React.FC<CategoryListProps> = ({
   
   // Use provided categories or fallback to sample data
   const categoryData = categories && categories.length > 0 ? categories : samepleCategoryData
-
-  const handleCategoryPress = (category: string, index: number) => {
-    setFocusedIndex(index)
-    onCategoryPress?.(category)
-    
-    // Center the pressed item
-    if (flashListRef.current) {
-      flashListRef.current.scrollToIndex({
-        index,
-        animated: true,
-        viewPosition: 0.5, // 0.5 centers the item
-      })
-    }
-  }
 
   const handleFocus = (index: number, category: string) => {
     setFocusedIndex(index)
@@ -53,6 +37,12 @@ const CategoryList: React.FC<CategoryListProps> = ({
         viewPosition: 0.5, // 0.5 centers the item
       })
     }
+  }
+
+  const gettingIndexForSelectedCategory = () => {
+    const index = categoryData.findIndex((item) => item === selectedCategory)
+    console.log('index',index);
+    return index
   }
 
   return (
@@ -79,10 +69,10 @@ const CategoryList: React.FC<CategoryListProps> = ({
                     styles.categoryItem,
                     (isFocused || isSelected) && styles.categoryItemFocused
                   ]}
-                  onPress={() => handleCategoryPress(item, index)}
+                  // onPress={() => handleCategoryPress(item, index)}
                   onFocus={() =>{ 
+                    // gettingIndexForSelectedCategory()
                     handleFocus(index, item)
-                    handleCategoryPress(item, index)
                   }}
                   onBlur={() => setFocusedIndex(null)}
                   activeOpacity={1}

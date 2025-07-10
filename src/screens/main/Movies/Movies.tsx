@@ -37,7 +37,7 @@ const Movies = () => {
   const { activeScreen } = route.params
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true)
   const [movieCategories, setMovieCategories] = useState<string[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedMovieName, setSelectedMovieName] = useState<string>('')
