@@ -7,7 +7,7 @@ interface AuthState {
     auth_token: string
     isplaylistprocessed: boolean
     seriesData: any
-    moviesData: any
+    moviesData: string[]
     channelsData: any
     userToken: string
 }
@@ -17,7 +17,7 @@ const initialState: AuthState = {
     auth_token: '',
     isplaylistprocessed: false,
     seriesData: null,
-    moviesData: null,
+    moviesData: [],
     channelsData: null,
     userToken: '',
 }
@@ -38,7 +38,7 @@ const authSlice = createSlice({
         setSeriesData: (state, action: PayloadAction<any>) => {
             state.seriesData = action.payload
         },
-        setMoviesData: (state, action: PayloadAction<any>) => {
+        setMoviesData: (state, action: PayloadAction<string[]>) => {
             state.moviesData = action.payload
         },
         setChannelsData: (state, action: PayloadAction<any>) => {

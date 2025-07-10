@@ -25,6 +25,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
   // Use provided categories or fallback to sample data
   const categoryData = categories && categories.length > 0 ? categories : samepleCategoryData
 
+  console.log(categoryData,'categoryDatacategoryDatacategoryDatacategoryData',categories);
+
   const handleFocus = (index: number, category: string) => {
     setFocusedIndex(index)
     onFocus?.(category)
@@ -69,7 +71,6 @@ const CategoryList: React.FC<CategoryListProps> = ({
                     styles.categoryItem,
                     (isFocused || isSelected) && styles.categoryItemFocused
                   ]}
-                  // onPress={() => handleCategoryPress(item, index)}
                   onFocus={() =>{ 
                     // gettingIndexForSelectedCategory()
                     handleFocus(index, item)

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { MainStackParamList } from './NavigationsTypes';
 import Home from '../screens/main/Home/Home';
@@ -19,10 +19,43 @@ import LoginScreen from '../screens/appAuth/LoginScreen';
 import SignupScreen from '../screens/appAuth/SignupScreen';
 import VerifyOtp from '../screens/appAuth/VerifyOtp/VerifyOtp';
 import BuySubscription from '../screens/main/BuySubscription/BuySubscription';
+import { getChannelsDataFromMMKV, getMoviesDataFromMMKV, getSeriesDataFromMMKV } from '../localStorage/mmkv';
+import { setChannelsData, setMoviesData, setSeriesData } from '../redux/reducers/auth';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from '../redux/hooks';
+import { RootState } from '../redux/store';
 
-const Stack = createNativeStackNavigator<MainStackParamList>();
 
 const Mainstack = () => {
+  const dispatch = useDispatch();
+  const Stack = createNativeStackNavigator<MainStackParamList>();
+
+useEffect(()=>{
+   const loadAllData = async () => {
+    const {channelsData, moviesData, seriesData} = useAppSelector((state: RootState) => state.rootReducer.auth);
+    if(!channelsData){
+      const channelsData = await getChannelsDataFromMMKV();
+      if(channelsData){
+        dispatch(setChannelsData(channelsData))
+      }
+    }
+    if(!moviesData){
+      const moviesData = await getMoviesDataFromMMKV();
+      if(moviesData){
+        dispatch(setMoviesData(moviesData))
+      }
+    }
+    if(!seriesData){
+      const seriesData = await getSeriesDataFromMMKV();
+      if(seriesData){
+        dispatch(setSeriesData(seriesData))
+      }
+    }
+  }
+  loadAllData();
+},[])
+
+
   return (
     <Stack.Navigator 
     screenOptions={{ headerShown: false, animation: 'fade' }}

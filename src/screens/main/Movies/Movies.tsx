@@ -36,8 +36,7 @@ const Movies = () => {
   const { moviesData } = useSelector((state: RootState) => state.rootReducer.auth)
   const { activeScreen } = route.params
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true)
-  const [movieCategories, setMovieCategories] = useState<string[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedMovieName, setSelectedMovieName] = useState<string>('')
@@ -51,7 +50,6 @@ const Movies = () => {
     try {
       setLoading(true)
 
-      setMovieCategories(moviesData)
       setSelectedCategory(moviesData[0])
 
     } catch (error) {
@@ -75,25 +73,6 @@ const Movies = () => {
 
   const getMovieData = async (category: string) => {
     try {
-      // Create a cache key specific to this category
-      const cacheKey = `movies_${category}`
-      
-      // First, try to get cached data
-      const cachedData = await getMoviesDataFromMMKV()
-      const cachedCategoryData = cachedData?.[cacheKey]
-      
-      if (cachedCategoryData && cachedCategoryData.length > 0) {
-        // Use cached data
-        setSelectedCategoryData(cachedCategoryData)
-        setLoading(false)
-        
-        if (cachedCategoryData[0]?.title) {
-          setSelectedMovieName(cachedCategoryData[0]?.title)
-        }
-        return
-      }
-      
-      // If no cached data, fetch from API
       const res = await getCategoryData('movies', category)
       const movieData = res?.data?.data?.data?.movies
       
@@ -101,13 +80,6 @@ const Movies = () => {
         // Update state
         setSelectedCategoryData(movieData)
         
-        // Save to cache
-        const existingCache = await getMoviesDataFromMMKV() || {}
-        const updatedCache = {
-          ...existingCache,
-          [cacheKey]: movieData
-        }
-        await saveMoviesDataToMMKV(updatedCache)
         
         if (movieData[0]?.title) {
           setSelectedMovieName(movieData[0]?.title)
@@ -148,7 +120,7 @@ const Movies = () => {
         {(
           <View style={[styles.categoryListContainer, !showCategoryAndSidebar && { width: 0, overflow: 'hidden' }]} nativeID="categoryList">
             <CategoryList
-              categories={movieCategories}
+              categories={Object.values(moviesData)}
               selectedCategory={selectedCategory}
               onFocus={handleCategoryListFocus}
             />
