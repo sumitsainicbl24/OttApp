@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useCallback } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import LinearGradient from 'react-native-linear-gradient'
 import { CommonColors } from '../styles/Colors'
@@ -25,6 +25,7 @@ interface ShowCatCarouselProps {
   getMovieDetails?: (movie: any) => void
   horizontal?: boolean
   type?: string
+  mainStyle?: StyleProp<ViewStyle>;
 }
 
 const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({ 
@@ -34,7 +35,8 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   onFocus,
   getMovieDetails,
   horizontal = false,
-  type
+  type,
+  mainStyle
 }) => {
   const flashListRef = useRef<FlashList<ShowData>>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
@@ -79,23 +81,31 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
       }, 100)
     } else {
       // For grid scroll, scroll to the row
+
       const rowIndex = Math.floor(itemIndex / numColumns)
       const scrollToIndex = rowIndex * numColumns
-      
-      setTimeout(() => {
-        flashListRef.current?.scrollToIndex({
+      flashListRef.current?.scrollToIndex({
           index: scrollToIndex,
           animated: true,
           viewPosition: 0, // Scroll to top
         })
-      }, 100)
+      
+      // setTimeout(() => {
+      //   flashListRef.current?.scrollToIndex({
+      //     index: scrollToIndex,
+      //     animated: true,
+      //     viewPosition: 0, // Scroll to top
+      //   })
+      // }, 100)
     }
   }, [numColumns, horizontal])
 
   const handleItemFocus = (index: number, item: ShowData) => {
     onFocus?.()
     debouncedGetMovieDetails?.(item?.title)
-    scrollToRow(index)
+    if(numColumns>1 || true){
+      scrollToRow(index)
+    }
   }
   
 
@@ -109,7 +119,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   )
 
   return (
-    <View style={[styles.sectionContainer, horizontal && styles.horizontalSectionContainer]}>
+    <View style={[styles.sectionContainer, horizontal && styles.horizontalSectionContainer, mainStyle]}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <View style={styles.carouselWrapper}>
         <FlashList
@@ -156,7 +166,7 @@ const styles = StyleSheet.create({
     fontSize: scale(38),
     color: CommonColors.white,
     marginLeft: moderateScale(20),
-    marginBottom: verticalScale(20),
+    // marginBottom: verticalScale(20),
   },
   carouselWrapper: {
     flex: 1,
