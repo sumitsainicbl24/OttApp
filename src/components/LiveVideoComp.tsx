@@ -585,7 +585,7 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
       )}
 
       {/* Exit Instructions */}
-      {showControls && Platform.isTV && (
+      {showControls && !loading && !error && Platform.isTV && (
         <View style={styles.exitInstructions}>
           <Text style={styles.exitText}>
             ← → to seek • MENU/BACK to hide • Press twice to exit
