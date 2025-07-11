@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 import Video from 'react-native-video';
 import imagepath from '../constants/imagepath';
+import { moderateScale, scale } from '../styles/scaling';
+import FontFamily from '../constants/FontFamily';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -24,7 +26,6 @@ interface LiveVideoCompProps {
 }
 
 const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
-  console.log('fjsklfjdklsjfkldsjkl', streamUrl)
   // State management
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -338,7 +339,7 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
       </Pressable>
 
       {/* Controls Overlay */}
-      {showControls && (
+      {showControls && !loading && !error && (
         <View style={styles.controlsOverlay}>
           {/* Center Controls */}
           <TVFocusGuideView style={styles.centerControlsGuide} autoFocus>
@@ -412,9 +413,60 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
             </View>
           </TVFocusGuideView>
 
+          
+
           {/* Bottom Controls */}
           <View style={styles.bottomControls}>
             <TVFocusGuideView style={styles.bottomControlsGuide}>
+
+               {/* Control Buttons */}
+               <View style={styles.bottomButtons}>
+                  <Pressable 
+                    ref={volumeRef}
+                    style={[
+                      styles.bottomButton,
+                      focused === 'volume' && styles.focusedButton
+                    ]}
+                    onPress={toggleMute}
+                    onFocus={() => handleFocus('volume')}
+                    onBlur={handleBlur}
+                    accessible={true}
+                    accessibilityRole="button"
+                    accessibilityLabel={muted ? "Unmute" : "Mute"}
+                    accessibilityHint="Press to toggle sound"
+                    nextFocusUp={playPauseRef.current}
+                    nextFocusRight={fullscreenRef.current}
+                  >
+                    {/* <Text style={styles.controlIconText}>
+                      {muted ? '🔇' : '🔊'}
+                    </Text> */}
+                    <Image source={muted ? imagepath.muteIcon : imagepath.unmuteIcon} style={styles.controlIconBottom}/>
+                    {focused === 'volume' && <View style={styles.focusIndicator} />}
+                  </Pressable>
+                  
+                  {/* <Pressable 
+                    ref={fullscreenRef}
+                    style={[
+                      styles.bottomButton,
+                      focused === 'fullscreen' && styles.focusedButton
+                    ]}
+                    onPress={() => {
+                      // Fullscreen toggle logic can be added here
+                      Alert.alert('Fullscreen', 'Fullscreen toggle would be implemented here');
+                    }}
+                    onFocus={() => handleFocus('fullscreen')}
+                    onBlur={handleBlur}
+                    accessible={true}
+                    accessibilityRole="button"
+                    accessibilityLabel="Toggle fullscreen"
+                    accessibilityHint="Press to toggle fullscreen mode"
+                    nextFocusUp={forwardRef.current}
+                    nextFocusLeft={volumeRef.current}
+                  >
+                    <Image source={imagepath.maximizeIcon} style={styles.controlIcon}/>
+                    {focused === 'fullscreen' && <View style={styles.focusIndicator} />}
+                  </Pressable> */}
+                </View>
               {/* Progress Bar */}
               <View style={styles.progressBarWrapper}>
                 <View style={styles.progressBarContainer}>
@@ -441,61 +493,17 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
                   </Text>
                   <View style={styles.remainingTimeContainer}>
                     <Text style={styles.remainingTimePrefix}>
-                      {duration > 0 ? '-' : ''}
+                      {/* {duration > 0 ? '-' : ''} */}
                     </Text>
                     <Text style={styles.remainingTime}>
-                      {duration > 0 ? formatTime(getRemainingTime()) : formatTime(currentTime)}
+                      {/* {duration > 0 ? formatTime(getRemainingTime()) : formatTime(currentTime)}
+                       */}
+                       {formatTime(duration)}
                     </Text>
                   </View>
                 </View>
 
-                {/* Control Buttons */}
-                <View style={styles.bottomButtons}>
-                  <Pressable 
-                    ref={volumeRef}
-                    style={[
-                      styles.bottomButton,
-                      focused === 'volume' && styles.focusedButton
-                    ]}
-                    onPress={toggleMute}
-                    onFocus={() => handleFocus('volume')}
-                    onBlur={handleBlur}
-                    accessible={true}
-                    accessibilityRole="button"
-                    accessibilityLabel={muted ? "Unmute" : "Mute"}
-                    accessibilityHint="Press to toggle sound"
-                    nextFocusUp={playPauseRef.current}
-                    nextFocusRight={fullscreenRef.current}
-                  >
-                    <Text style={styles.controlIconText}>
-                      {muted ? '🔇' : '🔊'}
-                    </Text>
-                    {focused === 'volume' && <View style={styles.focusIndicator} />}
-                  </Pressable>
-                  
-                  <Pressable 
-                    ref={fullscreenRef}
-                    style={[
-                      styles.bottomButton,
-                      focused === 'fullscreen' && styles.focusedButton
-                    ]}
-                    onPress={() => {
-                      // Fullscreen toggle logic can be added here
-                      Alert.alert('Fullscreen', 'Fullscreen toggle would be implemented here');
-                    }}
-                    onFocus={() => handleFocus('fullscreen')}
-                    onBlur={handleBlur}
-                    accessible={true}
-                    accessibilityRole="button"
-                    accessibilityLabel="Toggle fullscreen"
-                    accessibilityHint="Press to toggle fullscreen mode"
-                    nextFocusUp={forwardRef.current}
-                    nextFocusLeft={volumeRef.current}
-                  >
-                    <Image source={imagepath.maximizeIcon} style={styles.controlIcon}/>
-                    {focused === 'fullscreen' && <View style={styles.focusIndicator} />}
-                  </Pressable>
-                </View>
+               
               </View>
             </TVFocusGuideView>
           </View>
@@ -536,6 +544,7 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
                 </Text>
                 <Text style={styles.progressRemainingTime}>
                   {duration > 0 ? formatTime(getRemainingTime()) : formatTime(currentTime)}
+                  {/* {formatTime(getRemainingTime())} */}
                 </Text>
               </View>
             </View>
@@ -569,7 +578,7 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
             accessibilityHint="Press to retry loading the video stream"
             hasTVPreferredFocus={true}
           >
-            <Text style={styles.retryButtonText}>🔄 Retry</Text>
+            <Text style={styles.retryButtonText}> Retry</Text>
             {focused === 'retry' && <View style={styles.focusIndicator} />}
           </Pressable>
         </View>
@@ -615,30 +624,26 @@ const styles = StyleSheet.create({
   },
   centerControls: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 80,
-    gap: 40,
+    paddingHorizontal: moderateScale(150),
   },
   centerButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    minWidth: 80,
-    minHeight: 80,
+    borderRadius: moderateScale(50),
+    // backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: moderateScale(35),
+    width: moderateScale(40),
+    height: moderateScale(40),
   },
   playPauseButton: {
-    minWidth: 100,
-    minHeight: 100,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: moderateScale(40),
+    height: moderateScale(40),
+    // backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   focusedButton: {
-    backgroundColor: 'rgba(255, 223, 40, 0.3)',
-    borderWidth: 3,
-    borderColor: '#FFDF28',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     transform: [{ scale: 1.1 }],
   },
   focusIndicator: {
@@ -647,19 +652,26 @@ const styles = StyleSheet.create({
     left: -5,
     right: -5,
     bottom: -5,
-    borderWidth: 3,
-    borderColor: '#FFDF28',
-    borderRadius: 15,
+    // borderWidth: moderateScale(1),
+    // borderColor: '#FFDF28',
+    // borderColor:'#FFFFFF',
+    borderRadius: moderateScale(50),
   },
   controlIcon: {
-    width: 36,
-    height: 36,
+    width: moderateScale(45),
+    height: moderateScale(45),
+    resizeMode: 'contain',
+    tintColor: '#FFFFFF',
+  },
+  controlIconBottom: {
+    width: moderateScale(32),
+    height: moderateScale(32),
     resizeMode: 'contain',
     tintColor: '#FFFFFF',
   },
   playPauseIcon: {
-    width: 40,
-    height: 40,
+    width: moderateScale(32),
+    height: moderateScale(32),
     resizeMode: 'contain',
     tintColor: '#FFFFFF',
   },
@@ -670,24 +682,26 @@ const styles = StyleSheet.create({
     right: 0,
   },
   bottomControlsGuide: {
-    paddingHorizontal: 40,
-    paddingVertical: 30,
+    paddingHorizontal: moderateScale(40),
+    paddingVertical: moderateScale(25),
   },
   progressBarWrapper: {
-    marginBottom: 20,
+    marginBottom: moderateScale(15
+
+    ),
   },
   progressBarContainer: {
     width: '100%',
   },
   progressBarBackground: {
-    height: 8,
+    height: moderateScale(5),
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#FFDF28',
+    backgroundColor: '#FFFFFF',
     borderRadius: 4,
   },
   bottomControlRow: {
@@ -698,14 +712,13 @@ const styles = StyleSheet.create({
   timeIndicators: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    width: '100%',
   },
   currentTime: {
-    fontFamily: 'PublicSans-Regular',
-    fontSize: 24,
-    lineHeight: 28,
+    fontFamily: FontFamily.PublicSans_Light,
+    fontSize: scale(45),
     color: '#FFFFFF',
-    opacity: 0.9,
   },
   remainingTimeContainer: {
     flexDirection: 'row',
@@ -716,28 +729,27 @@ const styles = StyleSheet.create({
     fontFamily: 'PublicSans-Regular',
     fontSize: 14,
     color: '#FFFFFF',
-    opacity: 0.7,
   },
   remainingTime: {
-    fontFamily: 'PublicSans-Regular',
-    fontSize: 24,
-    lineHeight: 28,
+    fontFamily: FontFamily.PublicSans_Light,
+    fontSize: scale(45),
     color: '#FFFFFF',
-    opacity: 0.7,
   },
   bottomButtons: {
     flexDirection: 'row',
-    gap: 20,
+    gap: moderateScale(20),
+    justifyContent: 'flex-end',
+    marginBottom: moderateScale(15),
+
   },
   bottomButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    minWidth: 60,
-    minHeight: 60,
+    paddingVertical: moderateScale(13),
+    paddingHorizontal: moderateScale(13),
+    borderRadius: moderateScale(50),
+    width: moderateScale(50),
+    height: moderateScale(50),
   },
   controlIconText: {
     color: '#FFFFFF',
@@ -775,17 +787,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   retryButton: {
-    backgroundColor: 'rgba(255, 71, 71, 0.8)',
-    paddingHorizontal: 40,
-    paddingVertical: 15,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    // paddingHorizontal: 40,
+    paddingVertical: moderateScale(10),
+    paddingHorizontal: moderateScale(25),
     borderRadius: 8,
-    minWidth: 160,
     alignItems: 'center',
   },
   retryButtonText: {
     color: '#FFFFFF',
-    fontSize: 20,
-    fontFamily: 'PublicSans-SemiBold',
+    fontSize: scale(32),
+    fontFamily: FontFamily.PublicSans_SemiBold,
   },
   exitInstructions: {
     position: 'absolute',
@@ -815,22 +827,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   focusedProgressWrapper: {
-    borderWidth: 2,
-    borderColor: '#FFDF28',
-    borderRadius: 8,
-    padding: 4,
+    borderWidth: moderateScale(1),
+    borderColor: '#FFFFFF',
+    borderRadius: moderateScale(50),
+    padding: moderateScale(4),
   },
   progressTimeIndicators: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
+    // marginTop: 12,
   },
   progressCurrentTime: {
-    fontFamily: 'PublicSans-Regular',
-    fontSize: 20,
+    fontFamily: FontFamily.PublicSans_Light,
+    fontSize: scale(45),
     color: '#FFFFFF',
-    opacity: 0.9,
   },
   progressRemainingTimeContainer: {
     flexDirection: 'row',
@@ -838,23 +849,20 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   progressRemainingTimePrefix: {
-    fontFamily: 'PublicSans-Regular',
-    fontSize: 12,
+    fontFamily: FontFamily.PublicSans_Light,
+    fontSize: scale(45),
     color: '#FFFFFF',
-    opacity: 0.7,
   },
   progressRemainingTime: {
-    fontFamily: 'PublicSans-Regular',
-    fontSize: 20,
+    fontFamily: FontFamily.PublicSans_Light,
+    fontSize: scale(45),
     color: '#FFFFFF',
-    opacity: 0.7,
   },
   seekingIndicator: {
-    fontFamily: 'PublicSans-Regular',
-    fontSize: 14,
-    color: '#FFDF28',
-    opacity: 0.8,
-    fontStyle: 'italic',
+      fontFamily: FontFamily.PublicSans_Light,
+      fontSize: scale(14),
+      color: '#FFFFFF',
+      opacity: 0.8,
   },
 });
 

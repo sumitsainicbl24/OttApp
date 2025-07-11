@@ -34,11 +34,13 @@ export default{
     movieTrailerIcon:require('../assets/images/movieTrailer.png'),
     wishlistIcon:require('../assets/images/wishlist.png'),
     pauseIcon:require('../assets/images/pause.png'),
-    skip10SecIcon:require('../assets/images/skip10Sec.png'),
-    prev10SecIcon:require('../assets/images/prev10Sec.png'),
+    skip10SecIcon:require('../assets/images/skip10SecIcon.png'),
+    prev10SecIcon:require('../assets/images/prev10SecIcon.png'),
     LoginBg:require('../assets/images/LoginBg.png'),
     SubscitionIcon:require('../assets/images/SubscitionIcon.gif'),
     SubscitionIcon1:require('../assets/images/SubscitionIcon.png'),
+    muteIcon:require('../assets/images/mute.png'),
+    unmuteIcon:require('../assets/images/unmute.png'),
 
     //sample data
     popularMovie1:require('../assets/images/popularMovie1.jpg'),
