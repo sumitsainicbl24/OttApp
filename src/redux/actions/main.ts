@@ -10,7 +10,7 @@ const {dispatch} = store
 //api
 const apiKeyForShowDetails = "79c065d3";
 
-const apiKeyTMDB= "ab0623f200520bab43cd0b39873cbad8";
+const apiKeyTMDB= "fef93770cb1687ee264adbfcfa83b13d";
 
 
 export const getShowDetailsApi = async (title: string, season?: number, episode?: number) => {
