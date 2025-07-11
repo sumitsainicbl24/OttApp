@@ -31,7 +31,7 @@ import { styles } from './styles'
 import LiveVideoComp from '../../../components/LiveVideoComp'
 import { getSeriesEpisodes } from '../../../redux/actions/main'
 import ShowCatCard from '../../../components/ShowCatCard'
-import { getEpisodeAndSeasonNumber } from '../../../utils/CommonFunctions'
+import { getEpisodeAndSeasonNumber, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
 
 type MoviePlayScreenRouteProp = RouteProp<MainStackParamList, 'MoviePlayScreen'>
 
@@ -122,7 +122,7 @@ const MoviePlayScreen = () => {
       >
         <Image 
           source={episode?.logo && episode.logo.includes('https://') 
-            ? { uri: episode.logo } 
+            ? { uri: imageResolutionHandlerForUrl(episode.logo) } 
             : imagepath.VideoPlaceHolder
           } 
           style={styles.episodeImage}
