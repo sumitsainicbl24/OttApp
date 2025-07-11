@@ -26,6 +26,8 @@ const Home = () => {
   const [DynamicPopularMovieData, setDynamicPopularMovieData] = useState<any>(null)
   const [DynamicPopularShowsData, setDynamicPopularShowsData] = useState<any>(null)
   const [DynamicRecentlyAddedMovieData, setDynamicRecentlyAddedMovieData] = useState<any>(null)
+  const [LiveChannelData, setLiveChannelData] = useState<any>(null)
+  const [selectedMovieName, setSelectedMovieName] = useState<string>('')
   
   const handleTabPress = (tab: string) => {
     // Handle navigation to different tabs
@@ -65,10 +67,15 @@ const Home = () => {
     }
   }
 
+  const loadLiveChannelData = async () => {
+    setLiveChannelData(channelsData?.slice(0, 8))
+  }
+
 
   useEffect(() => {
     loadMovieData()
     loadShowsData()
+    loadLiveChannelData()
   }, [])
 
   return (
