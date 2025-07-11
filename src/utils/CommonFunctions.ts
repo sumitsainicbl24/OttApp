@@ -140,7 +140,7 @@ export const getSeriesShowDetails = async (show: any) => {
         }
 
         return {
-            title: res2?.data?.name || 'Not Available',
+            title: res2?.data?.original_name || 'Not Available',
             rating: res2?.data?.vote_average ? Number(res2?.data?.vote_average).toFixed(1) : 'N/A',
             Year: res2?.data?.release_date || 'Not Available',
             Runtime: res2?.data?.runtime ? res2?.data?.runtime + ' mins' : 'Not Available',
