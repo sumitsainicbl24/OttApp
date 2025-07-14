@@ -86,6 +86,12 @@ const Home = () => {
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
+        <View style={{position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000}}>
+        <TopNavigation
+            activeTab="Home"
+            // hasTVPreferredFocus={true}
+          />
+          </View>
         <ImageBackground source={imagepath.guardianOfGalaxyMovie} style={styles.backgroundImagePlaceholder} resizeMode='cover'>
           {/* Horizontal gradient overlay - dark on left, transparent on right */}
           <LinearGradient
@@ -94,10 +100,7 @@ const Home = () => {
             end={{ x: 1, y: 0 }}
             style={styles.horizontalGradientOverlay}
           />
-          <TopNavigation
-            activeTab="Home"
-            // hasTVPreferredFocus={true}
-          />
+          
           <ShowDetails 
             onPlayPress={handlePlayPress}
             onMyListPress={handleMyListPress}

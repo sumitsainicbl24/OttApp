@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   // Featured Content Styles
   featuredContainer: {
     width: scale(665),
-    height: verticalScale(350),
+    height: verticalScale(450),
     zIndex: 10,
     marginLeft: moderateScale(40),
     justifyContent: 'space-between',

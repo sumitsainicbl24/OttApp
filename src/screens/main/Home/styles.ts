@@ -15,7 +15,8 @@ export const styles = StyleSheet.create({
     resizeMode: 'contain',
     width: '100%',
     height: height/1.3,
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
+    justifyContent:'center',
     paddingTop: verticalScale(40),
   },
   gradientOverlay1: {

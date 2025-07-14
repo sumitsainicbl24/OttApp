@@ -18,7 +18,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   hasTVPreferredFocus = false,
 }) => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-  const menuItems = ['Home', 'Search', 'Tv', 'Movies', 'Shows', 'Favorites']
+  const menuItems = ['Home', 'Search', 'Tv', 'Movies', 'Shows']
   
   const [focusedItem, setFocusedItem] = useState<string | null>(null)
 
