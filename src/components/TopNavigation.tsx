@@ -62,7 +62,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
       </View>
       
       <View style={styles.userActionsContainer}>
-        <TouchableOpacity 
+        {/* <TouchableOpacity 
           style={[
             styles.iconButton,
             focusedItem === 'Notification' && styles.focusedIconButton
@@ -73,7 +73,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           activeOpacity={0.8}
         >
           <Image source={imagepath.BellIcon} style={styles.bellIconPlaceholder} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity 
           style={[
             styles.iconButton,
@@ -86,7 +86,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
         >
           <Image source={imagepath.settingIcon} style={styles.settingsIconPlaceholder} />
         </TouchableOpacity>
-        <TouchableOpacity 
+        {/* <TouchableOpacity 
           style={[
             styles.profileIcon,
             focusedItem === 'Profile' && styles.focusedProfileIcon
@@ -97,7 +97,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           activeOpacity={0.8}
         >
           <View style={styles.profileImagePlaceholder} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   )
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: moderateScale(40),
-    paddingVertical: verticalScale(20),
+    paddingVertical: verticalScale(40),
     zIndex: 10,
   },
   
