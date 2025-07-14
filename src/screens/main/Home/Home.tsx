@@ -18,6 +18,9 @@ import { RootState } from '../../../redux/store'
 import { getCategoryData } from '../../../redux/actions/auth'
 import ShowCatCarousel from '../../../components/ShowCatCarousel'
 import { verticalScale } from '../../../styles/scaling'
+import { getMovieDetails } from '../../../utils/CommonFunctions'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 
 
 const Home = () => {
@@ -27,7 +30,9 @@ const Home = () => {
   const [DynamicPopularShowsData, setDynamicPopularShowsData] = useState<any>(null)
   const [DynamicRecentlyAddedMovieData, setDynamicRecentlyAddedMovieData] = useState<any>(null)
   const [LiveChannelData, setLiveChannelData] = useState<any>(null)
-  const [selectedMovieName, setSelectedMovieName] = useState<string>('')
+  const [PosterMovieName, setPosterMovieName] = useState<string>('')
+  const [PosterMovieData, setPosterMovieData] = useState<any>(null)
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
   
   const handleTabPress = (tab: string) => {
     // Handle navigation to different tabs
@@ -35,7 +40,7 @@ const Home = () => {
   }
 
   const handlePlayPress = () => {
-    console.log('Play button pressed')
+    navigation.navigate('MoviePlayScreen', { movie: PosterMovieName })
   }
 
   const handleMyListPress = () => {
@@ -52,6 +57,8 @@ const Home = () => {
       console.log('response from getCategoryData for movies', res?.data?.data?.data?.movies)
       setDynamicPopularMovieData(res?.data?.data?.data?.movies?.slice(0, 7))
       setDynamicRecentlyAddedMovieData(res?.data?.data?.data?.movies?.slice(7, 14))
+      //select ramndom data from dynamicPopularMovieData  
+      setPosterMovieName(res?.data?.data?.data?.movies[Math.floor(Math.random() * 5)])
     }catch(error){
       console.log('error in loadMovieData', error)
     }
@@ -78,6 +85,15 @@ const Home = () => {
     loadLiveChannelData()
   }, [])
 
+  useEffect(() => {
+    if (PosterMovieName) {
+      getMovieDetails(PosterMovieName?.title).then((res) => {
+        console.log('details for poseter movie', res)
+        setPosterMovieData(res)
+      })
+    }
+  }, [PosterMovieName])
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
@@ -92,7 +108,7 @@ const Home = () => {
             // hasTVPreferredFocus={true}
           />
           </View>
-        <ImageBackground source={imagepath.guardianOfGalaxyMovie} style={styles.backgroundImagePlaceholder} resizeMode='cover'>
+        <ImageBackground source={PosterMovieData?.Poster ? {uri: PosterMovieData?.Poster } : imagepath.guardianOfGalaxyMovie } style={styles.backgroundImagePlaceholder} resizeMode='cover'>
           {/* Horizontal gradient overlay - dark on left, transparent on right */}
           <LinearGradient
             colors={['rgba(11, 24, 48, 0.95)', 'rgba(11, 24, 48, 0.7)', 'rgba(11, 24, 48, 0.3)', 'transparent']}
@@ -104,7 +120,7 @@ const Home = () => {
           <ShowDetails 
             onPlayPress={handlePlayPress}
             onMyListPress={handleMyListPress}
-            showDetails={ShowDetailsData}
+            showDetails={PosterMovieData}
           />
         </ImageBackground>
         {/* <MovieCarousel 

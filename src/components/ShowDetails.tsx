@@ -18,7 +18,7 @@ interface ShowData {
 interface ShowDetailsProps {
   onPlayPress?: () => void
   onMyListPress?: () => void
-  showDetails?: ShowData
+  showDetails?: any
   onFocus?: () => void
 }
 
@@ -41,12 +41,12 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
 
   return (
     <View style={styles.featuredContainer}>
-      <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} />
-
+      {/* <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} /> */}
+      <Text style={styles.title}>{showDetails?.title}</Text>
       <View style={styles.metadataContainer}>
-        <Text style={styles.metadataText}>{showDetails?.year}</Text>
-        <Text style={styles.metadataText}>{showDetails?.duration}</Text>
-        <Text style={styles.metadataText}>{showDetails?.genre}</Text>
+        <Text style={styles.metadataText}>{showDetails?.Year}</Text>
+        <Text style={styles.metadataText}>{showDetails?.Runtime}</Text>
+        <Text style={styles.metadataText}>{showDetails?.Genre}</Text>
         <Text style={styles.metadataText}>{showDetails?.rating}</Text>
       </View>
 
@@ -76,7 +76,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
 
       <View style={styles.descriptionContainer}>
         <Text style={styles.description}>
-          {showDetails?.description}
+          {showDetails?.Plot}
         </Text>
       </View>
     </View>
@@ -86,11 +86,14 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
 const styles = StyleSheet.create({
   // Featured Content Styles
   featuredContainer: {
-    width: scale(665),
+    // width: scale(665),
+    paddingTop: verticalScale(50),
+    width: '40%',
     height: verticalScale(450),
     zIndex: 10,
     marginLeft: moderateScale(40),
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
+    gap: verticalScale(35), 
   },
   
   featuredImagePlaceholder: {
@@ -108,6 +111,11 @@ const styles = StyleSheet.create({
   metadataText: {
     fontFamily: FontFamily.PublicSans_Medium,
     fontSize: scale(20),
+    color: CommonColors.white,
+  },
+  title: {
+    fontFamily: FontFamily.PublicSans_ExtraBold,
+    fontSize: scale(55),
     color: CommonColors.white,
   },
   
@@ -197,8 +205,8 @@ const styles = StyleSheet.create({
   },
   
   description: {
-    fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: scale(20),
+    fontFamily: FontFamily.PublicSans_Light,
+    fontSize: scale(25),
     lineHeight: scale(30),
     color: CommonColors.white,
     textAlign: 'left',
