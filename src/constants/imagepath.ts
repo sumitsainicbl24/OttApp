@@ -37,7 +37,6 @@ export default{
     skip10SecIcon:require('../assets/images/skip10SecIcon.png'),
     prev10SecIcon:require('../assets/images/prev10SecIcon.png'),
     LoginBg:require('../assets/images/LoginBg.png'),
-    SubscitionIcon:require('../assets/images/SubscitionIcon.gif'),
     SubscitionIcon1:require('../assets/images/SubscitionIcon.png'),
     muteIcon:require('../assets/images/mute.png'),
     unmuteIcon:require('../assets/images/unmute.png'),
