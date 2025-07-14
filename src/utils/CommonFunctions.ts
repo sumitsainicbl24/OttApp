@@ -34,13 +34,17 @@ export const imageResolutionHandlerForUrl = (url: string, resolution?: number) =
     // Convert http to https if needed
     let processedUrl = url.replace('http://', 'https://')
     
-    // Handle TMDB image URLs - replace w{number} with original
+    // Handle TMDB image URLs - replace w{number} with resolution if provided, otherwise original
     if (processedUrl.includes('image.tmdb.org/t/p/')) {
-        processedUrl = processedUrl.replace(/\/w\d+\//, '/original/')
+        processedUrl = resolution ? processedUrl.replace(/\/w\d+\//, `/w${resolution}/`) : processedUrl.replace(/\/w\d+\//, '/original/')
     }
     
-    // Remove the _V1_SX{number} pattern entirely to get original quality (for IMDb URLs)
-    processedUrl = processedUrl.replace(/_V1_SX\d+/, '')
+    // For IMDb URLs: if resolution is provided, replace _V1_SX{number} with _V1_SX{resolution}, otherwise remove the pattern
+    if (resolution) {
+        processedUrl = processedUrl.replace(/_V1_SX\d+/, `_V1_SX${resolution}`)
+    } else {
+        processedUrl = processedUrl.replace(/_V1_SX\d+/, '')
+    }
     return processedUrl
 }
 

@@ -61,7 +61,7 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
     }
     
     if(show?.logo?.toString().includes('https://')){
-      return {uri: imageResolutionHandlerForUrl(show?.logo?.toString())}
+      return {uri: imageResolutionHandlerForUrl(show?.logo?.toString(), 500)}
     }
     return imagepath.VideoPlaceHolder
   }
