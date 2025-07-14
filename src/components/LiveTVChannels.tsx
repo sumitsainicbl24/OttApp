@@ -74,7 +74,7 @@ const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress })
 
 const styles = StyleSheet.create({
   sectionContainerLiveChannels: {
-    height: '30%',
+    // height: '30%',
     justifyContent: 'space-between',
     paddingHorizontal: moderateScale(40),
     zIndex: 10,

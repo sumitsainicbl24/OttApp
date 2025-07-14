@@ -103,10 +103,6 @@ const Home = () => {
             onMyListPress={handleMyListPress}
             showDetails={ShowDetailsData}
           />
-          <LiveTVChannels 
-            data={liveTVChannelsData}
-            onChannelPress={handleChannelPress}
-          />
         </ImageBackground>
         {/* <MovieCarousel 
           title="Popular movies" 
@@ -114,6 +110,12 @@ const Home = () => {
           onMoviePress={(movie) => console.log('Popular movie selected:', movie.title)}
         /> */}
         <View style={{marginBottom: verticalScale(55)}}/>
+
+        <LiveTVChannels 
+            data={liveTVChannelsData}
+            onChannelPress={handleChannelPress}
+          />
+          <View style={{marginBottom: verticalScale(55)}}/>
          <ShowCatCarousel
                   title="Popular movies"
                   data={DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : PopularMovieData}
