@@ -27,7 +27,7 @@ const Search = () => {
   const [searchedShows, setSearchedShows] = useState<any[]>([])
   const [searchedChannels, setSearchedChannels] = useState<any[]>([])
   const [microphoneFocused, setMicrophoneFocused] = useState(false)
-
+  const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true)
   // Filter data based on search text
   const filteredComedyData = useMemo(() => {
     if (!searchText.trim()) return ComedyMovieData;
@@ -82,6 +82,10 @@ const Search = () => {
     }
   }
 
+  const handleScrollViewFocus = () => {
+    setShowCategoryAndSidebar(false)
+  }
+
   const handleSearchSubmit = () => {
     if (searchText.trim()) {
       loadSearchData()
@@ -98,12 +102,13 @@ const Search = () => {
   // }, [searchText])
 
   return (
-    <MainLayout activeScreen={activeScreen || "Search"}>
+    <MainLayout activeScreen={activeScreen || "Search"} hideSidebar={!showCategoryAndSidebar}>
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
 
       <ScrollView
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
+        onFocus={handleScrollViewFocus}
       >
 
         {/* Search Bar */}
@@ -145,8 +150,9 @@ const Search = () => {
           <ShowCatCarousel 
             title="Movies" 
             data={searchedMovies}
-            horizontal={true}
+            // horizontal={true}
             onShowPress={(show) => console.log('Movie selected:', show.title)}
+            type='movies'
           />
         )}
 
@@ -154,8 +160,8 @@ const Search = () => {
           <ShowCatCarousel 
             title="Shows" 
             data={searchedShows}
-            horizontal={true}
             onShowPress={(show) => console.log('Show selected:', show.title)}
+            type='series'
           />
         )}
 
@@ -163,8 +169,8 @@ const Search = () => {
           <ShowCatCarousel 
             title="Channels" 
             data={searchedChannels}
-            horizontal={true}
             onShowPress={(show) => console.log('Channel selected:', show.title)}
+            type='channels'
           />
         )}
 
