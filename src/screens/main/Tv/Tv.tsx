@@ -1,19 +1,14 @@
 // 1. React Native core imports
-import React, { useState, useRef, useEffect } from 'react'
-import { Image, ImageBackground, ScrollView, StatusBar, Text, View, FlatList, TouchableOpacity } from 'react-native'
-import LinearGradient from 'react-native-linear-gradient'
+import React, { useState, useEffect } from 'react'
+import { Image, ScrollView, StatusBar, Text, View, FlatList, TouchableOpacity } from 'react-native'
 
 import { styles } from './styles'
 import imagepath from '../../../constants/imagepath'
-import MovieCatCarousel from '../../../components/MovieCatCarousel'
-import ShowDetails from '../../../components/ShowDetails'
 import MainLayout from '../../../components/MainLayout'
 import CategoryList from '../../../components/CategoryList'
-import { ActionMovieData, ComedyMovieData, DramaMovieData, ShowDetailsData } from './DummyData'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 import LiveVideoComp from '../../../components/LiveVideoComp'
-import ShowCatCarousel from '../../../components/ShowCatCarousel'
 import { getMoviesFromMMKV } from '../../../utils/m3uParseAndGet'
 import { moderateScale } from '../../../styles/scaling'
 
@@ -76,64 +71,11 @@ const Tv = () => {
           setSelectedCategory(categories[0])
         }
       } else {
-        console.log('No movie data found in MMKV, using dummy data')
-        // Fallback to dummy data structure
-        const dummyData: MovieData = {
-          'Action': ActionMovieData.map(movie => ({
-            type: 'movie' as const,
-            groupTitle: 'Action',
-            name: movie.title,
-            logo: movie.image || imagepath.guardianOfGalaxyMovie,
-            url: ''
-          })),
-          'Comedy': ComedyMovieData.map(movie => ({
-            type: 'movie' as const,
-            groupTitle: 'Comedy', 
-            name: movie.title,
-            logo: movie.image || imagepath.guardianOfGalaxyMovie,
-            url: ''
-          })),
-          'Drama': DramaMovieData.map(movie => ({
-            type: 'movie' as const,
-            groupTitle: 'Drama',
-            name: movie.title,
-            logo: movie.image || imagepath.guardianOfGalaxyMovie,
-            url: ''
-          }))
-        }
-        setMovieData(dummyData)
-        setMovieCategories(['Action', 'Comedy', 'Drama'])
-        setSelectedCategory('Action')
+        
       }
     } catch (error) {
       console.error('Error loading movie data:', error)
       // Use dummy data as fallback
-      const dummyData: MovieData = {
-        'Action': ActionMovieData.map(movie => ({
-          type: 'movie' as const,
-          groupTitle: 'Action',
-          name: movie.title,
-          logo: movie.image || imagepath.guardianOfGalaxyMovie,
-          url: ''
-        })),
-        'Comedy': ComedyMovieData.map(movie => ({
-          type: 'movie' as const,
-          groupTitle: 'Comedy',
-          name: movie.title,
-          logo: movie.image || imagepath.guardianOfGalaxyMovie,
-          url: ''
-        })),
-        'Drama': DramaMovieData.map(movie => ({
-          type: 'movie' as const,
-          groupTitle: 'Drama',
-          name: movie.title,
-          logo: movie.image || imagepath.guardianOfGalaxyMovie,
-          url: ''
-        }))
-      }
-      setMovieData(dummyData)
-      setMovieCategories(['Action', 'Comedy', 'Drama'])
-      setSelectedCategory('Action')
     } finally {
       setLoading(false)
     }
@@ -168,7 +110,7 @@ const Tv = () => {
     return movies.map((movie, index) => ({
       id: index + 1, // ShowData expects number id
       title: movie.name,
-      image: movie.logo || imagepath.guardianOfGalaxyMovie, // ShowData expects 'image' not 'poster'
+      image: movie.logo || '', // ShowData expects 'image' not 'poster'
       category: movie.groupTitle
     }))
   }

@@ -1,15 +1,11 @@
 // 1. React Native core imports
-import React, { useState, useRef, useMemo, useEffect } from 'react'
-import { ImageBackground, ScrollView, StatusBar, View, TextInput, TouchableOpacity, Text, Image } from 'react-native'
-import LinearGradient from 'react-native-linear-gradient'
+import React, { useState } from 'react'
+import { ScrollView, StatusBar, View, TouchableOpacity, Text, Image } from 'react-native'
 
 import { styles } from './styles'
 import imagepath from '../../../constants/imagepath'
-import MovieCatCarousel from '../../../components/MovieCatCarousel'
-import ShowDetails from '../../../components/ShowDetails'
 import MainLayout from '../../../components/MainLayout'
 import InputComp from '../../../components/InputComp'
-import { ActionMovieData, ComedyMovieData, DramaMovieData, ShowDetailsData } from './DummyData'
 import { CommonColors } from '../../../styles/Colors'
 import ShowCatCarousel from '../../../components/ShowCatCarousel'
 import { RouteProp, useRoute } from '@react-navigation/native'
@@ -28,27 +24,6 @@ const Search = () => {
   const [searchedChannels, setSearchedChannels] = useState<any[]>([])
   const [microphoneFocused, setMicrophoneFocused] = useState(false)
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true)
-  // Filter data based on search text
-  const filteredComedyData = useMemo(() => {
-    if (!searchText.trim()) return ComedyMovieData;
-    return ComedyMovieData.filter(item => 
-      item.title.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [searchText]);
-
-  const filteredDramaData = useMemo(() => {
-    if (!searchText.trim()) return DramaMovieData;
-    return DramaMovieData.filter(item => 
-      item.title.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [searchText]);
-
-  const filteredActionData = useMemo(() => {
-    if (!searchText.trim()) return ActionMovieData;
-    return ActionMovieData.filter(item => 
-      item.title.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [searchText]);
 
   const handleMicrophonePress = () => {
     console.log('Microphone button pressed')

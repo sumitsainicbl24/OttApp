@@ -1,26 +1,22 @@
 // 1. React Native core imports
 import React, { useEffect, useState } from 'react'
-import { Image, ImageBackground, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native'
+import { ImageBackground, ScrollView, StatusBar, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
-import { styles } from './styles'
-import imagepath from '../../../constants/imagepath'
-import TopNavigation from '../../../components/TopNavigation'
-import MovieCarousel from '../../../components/MovieCarousel'
-import ContinueWatchingCarousel from '../../../components/ContinueWatchingCarousel'
-import ShowDetails from '../../../components/ShowDetails'
-import LiveTVChannels from '../../../components/LiveTVChannels'
-import { ContinueWatchingData, liveTVChannelsData, PopularMovieData, PopularShowsData, RecentlyAddedData } from './DummyData'
-import { ShowDetailsData } from '../Movies/DummyData'
-import { getMoviesFromMMKV, getSeriesFromMMKV } from '../../../utils/m3uParseAndGet'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { useSelector } from 'react-redux'
-import { RootState } from '../../../redux/store'
-import { getCategoryData } from '../../../redux/actions/auth'
+import ContinueWatchingCarousel from '../../../components/ContinueWatchingCarousel'
+import LiveTVChannels from '../../../components/LiveTVChannels'
 import ShowCatCarousel from '../../../components/ShowCatCarousel'
+import ShowDetails from '../../../components/ShowDetails'
+import TopNavigation from '../../../components/TopNavigation'
+import { MainStackParamList } from '../../../navigation/NavigationsTypes'
+import { getCategoryData } from '../../../redux/actions/auth'
+import { RootState } from '../../../redux/store'
 import { verticalScale } from '../../../styles/scaling'
 import { getMovieDetails } from '../../../utils/CommonFunctions'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { MainStackParamList } from '../../../navigation/NavigationsTypes'
+import { ContinueWatchingData, liveTVChannelsData } from './DummyData'
+import { styles } from './styles'
 
 
 const Home = () => {
@@ -108,7 +104,7 @@ const Home = () => {
             // hasTVPreferredFocus={true}
           />
           </View>
-        <ImageBackground source={PosterMovieData?.Poster ? {uri: PosterMovieData?.Poster } : imagepath.guardianOfGalaxyMovie } style={styles.backgroundImagePlaceholder} resizeMode='cover'>
+        <ImageBackground source={PosterMovieData?.Poster ? {uri: PosterMovieData?.Poster } : '' } style={styles.backgroundImagePlaceholder} resizeMode='cover'>
           {/* Horizontal gradient overlay - dark on left, transparent on right */}
           <LinearGradient
             colors={['rgba(11, 24, 48, 0.95)', 'rgba(11, 24, 48, 0.7)', 'rgba(11, 24, 48, 0.3)', 'transparent']}
@@ -137,7 +133,7 @@ const Home = () => {
           <View style={{marginBottom: verticalScale(55)}}/>
          <ShowCatCarousel
                   title="Popular movies"
-                  data={DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : PopularMovieData}
+                  data={DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : []}
                   onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
                   onFocus={()=>{}}
                   getMovieDetails={()=>{}}
@@ -146,7 +142,7 @@ const Home = () => {
           <View style={{marginBottom: verticalScale(-35)}}/>
           <ShowCatCarousel
                   title="Popular Shows"
-                  data={DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : PopularShowsData}
+                  data={DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : []}
                   onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
                   onFocus={()=>{}}
                   getMovieDetails={()=>{}}
@@ -170,7 +166,7 @@ const Home = () => {
         <View style={{marginBottom: verticalScale(35)}}/>
         <ShowCatCarousel
                   title="Recently Added"
-                  data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : RecentlyAddedData}
+                  data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : []}
                   onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
                   onFocus={()=>{}}
                   getMovieDetails={()=>{}}

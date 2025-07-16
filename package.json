@@ -35,7 +35,6 @@
     "react-native-toast-message": "^2.3.3",
     "react-native-tvos": "^0.79.2-0",
     "react-native-video": "^6.15.0",
-    "react-native-vlc-media-player": "^1.0.89",
     "react-redux": "^9.2.0"
   },
   "devDependencies": {

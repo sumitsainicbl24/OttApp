@@ -202,7 +202,7 @@ const MoviePlayScreen = () => {
               ]}>Play {selectedEpisode? getEpisodeAndSeasonNumber(selectedEpisode?.title) : ''}</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity 
+            {/* <TouchableOpacity 
               style={[
                 styles.externalPlayerButton,
                 focusedButton === 'externalPlayer' && { backgroundColor: CommonColors.white }
@@ -221,7 +221,7 @@ const MoviePlayScreen = () => {
                 styles.externalPlayerButtonText,
                 focusedButton === 'externalPlayer' && { color: CommonColors.black }
               ]}>Open in external player</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             
             <TouchableOpacity 
               style={[

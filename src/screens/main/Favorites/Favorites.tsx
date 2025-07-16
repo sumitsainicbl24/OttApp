@@ -6,7 +6,6 @@ import { styles } from './styles'
 import FavListCarousel from '../../../components/FavListCarousel'
 import MainLayout from '../../../components/MainLayout'
 import CategoryList from '../../../components/CategoryList'
-import { FavListData } from './DummyData'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 
@@ -53,7 +52,7 @@ const Favorites = () => {
       >
         <FavListCarousel 
           title="My List" 
-          data={FavListData}
+          data={[]}
           onShowPress={(show) => console.log('Fantasy show selected:', show.title)}
           onFocus={handleScrollViewFocus}
         />
