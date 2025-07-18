@@ -12,9 +12,7 @@ import imagepath from '../../../constants/imagepath'
 import { AuthStackParamList } from '../../../navigation/NavigationsTypes'
 
 // 4. Local styles import (ALWAYS LAST)
-import RNFS from 'react-native-fs'
 import { getCategoryApi, LoginApi, setAuthTokenAction, setIsPlaylistProcessedAction } from '../../../redux/actions/auth'
-import { checkResumeAvailable, generateResumeKey, M3UStreamParser } from '../../../utils/m3uParseAndGet'
 import { styles } from './styles'
 
 const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'PlaylistProcessed'> }) => {
@@ -47,7 +45,6 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
     setErrorMessage(null)
     setRetryCount(0)
     setLoading(true)
-    downloadAndParseM3U()
   }
 
   const handleDoneFocus = () => {
@@ -62,232 +59,10 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
     setFocused(null)
   }
 
-  const downloadAndParseM3U = async (currentRetry: number = 0) => {
-    let parser: M3UStreamParser | null = null;
-    let resumeKey = generateResumeKey(playlistUrl);
-    
-    try {
-      const url = playlistUrl;
-      const baseDir = RNFS.DocumentDirectoryPath;
-      console.log(`Starting streaming fetch and parse... (Attempt ${currentRetry + 1})`);
-      
-      // Check if we can resume a previous download
-      const existingResumeState = await checkResumeAvailable(resumeKey);
-      let startByte = 0;
-      
-      if (existingResumeState && existingResumeState.url === url) {
-        console.log('Found resumable download:', existingResumeState);
-        startByte = existingResumeState.bytesDownloaded;
-        setIsResuming(true);
-        setResumeAttempt(prev => prev + 1);
-      }
-      
-      // Create streaming parser with stats callback
-      parser = new M3UStreamParser(baseDir, (newStats) => {
-        setStats(newStats);
-      }, resumeKey);
-
-      // Load previous state if resuming
-      if (existingResumeState) {
-        await parser.loadResumeState();
-      }
-
-      // Use streaming fetch with resume capability
-      await streamFetchAndParseWithResume(url, parser, startByte, (progress, downloaded, total) => {
-        setDownloadProgress(progress);
-        // Save resume state periodically
-        parser?.saveResumeState(url, downloaded, total);
-      });
-
-      // Finalize parsing
-      const finalStats = await parser.finalize();
-      setStats(finalStats);
-      
-      console.log('✅ Processing completed');
-      console.log('Final stats:', finalStats);
-      
-    } catch (err) {
-      console.error('Streaming fetch/parse error:', err);
-      
-      if (parser) {
-        // Save current state for potential resume
-        await parser.saveResumeState(playlistUrl, parser.getResumePosition(), parser.getTotalBytesExpected());
-      }
-      
-      if (err instanceof Error) {
-        if (err.message.includes('Network error') || err.message.includes('timeout')) {
-          console.log('Network error detected. Resume data saved for later.');
-          
-          // Automatic retry with exponential backoff
-          if (currentRetry < maxRetries) {
-            const delay = Math.pow(2, currentRetry) * 1000; // 1s, 2s, 4s
-            console.log(`Retrying in ${delay}ms... (${currentRetry + 1}/${maxRetries})`);
-            setRetryCount(currentRetry + 1);
-            
-            setTimeout(() => {
-              downloadAndParseM3U(currentRetry + 1);
-            }, delay);
-            return; // Don't set loading to false yet
-          } else {
-            setErrorMessage('Failed to download playlist after multiple attempts. You can try again later.');
-          }
-        } else {
-          setErrorMessage(err.message);
-        }
-      }
-    } finally {
-      // Clean up parser
-      if (parser) {
-        parser.cleanup();
-      }
-      
-      setLoading(false);
-      setIsResuming(false);
-    }
-  };
-
-  const streamFetchAndParseWithResume = (
-    url: string, 
-    parser: M3UStreamParser, 
-    startByte: number = 0,
-    onProgress: (progress: number, downloaded: number, total: number) => void
-  ): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      
-      xhr.open('GET', url, true);
-      xhr.timeout = 120000; // 2 minute timeout
-      
-      // Set Range header for resume
-      if (startByte > 0) {
-        xhr.setRequestHeader('Range', `bytes=${startByte}-`);
-        console.log(`Resuming download from byte ${startByte}`);
-      }
-      
-      let receivedBytes = startByte;
-      let totalBytes = startByte;
-      let lastProcessedLength = 0;
-      let lastResumeStateSave = 0;
-      
-      xhr.onloadstart = () => {
-        if (startByte > 0) {
-          console.log(`Resuming streaming fetch from byte ${startByte}...`);
-        } else {
-          console.log('Starting streaming fetch...');
-        }
-      };
-      
-      xhr.onprogress = async (event) => {
-        try {
-          // Handle both full download and partial content (resume)
-          const contentLength = startByte > 0 
-            ? parseInt(xhr.getResponseHeader('Content-Range')?.split('/')[1] || '0') 
-            : event.total;
-          
-          totalBytes = contentLength || event.total;
-          receivedBytes = startByte + event.loaded;
-          
-          parser.updateDownloadProgress(receivedBytes, totalBytes);
-          
-          if (totalBytes > 0) {
-            const progress = Math.round((receivedBytes / totalBytes) * 100);
-            onProgress(progress, receivedBytes, totalBytes);
-          }
-          
-          // Get the response text up to this point
-          const currentText = xhr.responseText;
-          
-          if (currentText && currentText.length > lastProcessedLength) {
-            // Extract only the new chunk since last processing
-            const newChunk = currentText.substring(lastProcessedLength);
-            lastProcessedLength = currentText.length;
-            
-            if (newChunk) {
-              // Clean and process the new chunk
-              const cleanChunk = cleanM3UContent(newChunk);
-              await parser.processChunk(cleanChunk);
-            }
-          }
-          
-          // Save resume state every 5 seconds
-          const currentTime = Date.now();
-          if (currentTime - lastResumeStateSave > 5000) {
-            await parser.saveResumeState(url, receivedBytes, totalBytes);
-            lastResumeStateSave = currentTime;
-          }
-          
-        } catch (error) {
-          console.error('Error during progress processing:', error);
-          // Continue processing even if one chunk fails
-        }
-      };
-      
-      xhr.onload = async () => {
-        try {
-          const isSuccess = xhr.status === 200 || xhr.status === 206; // 206 for partial content
-          
-          if (isSuccess) {
-            // Process any remaining data
-            const finalText = xhr.responseText;
-            if (finalText && finalText.length > lastProcessedLength) {
-              const finalChunk = finalText.substring(lastProcessedLength);
-              if (finalChunk) {
-                const cleanChunk = cleanM3UContent(finalChunk);
-                await parser.processChunk(cleanChunk);
-              }
-            }
-            
-            onProgress(100, receivedBytes, totalBytes);
-            console.log('✅ Streaming fetch completed');
-            resolve();
-          } else {
-            reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
-          }
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      xhr.onerror = () => {
-        console.error('XMLHttpRequest error. Status:', xhr.status, 'Ready state:', xhr.readyState);
-        console.error('Response headers:', xhr.getAllResponseHeaders());
-        reject(new Error(`Network error occurred during streaming fetch. Status: ${xhr.status}, Ready state: ${xhr.readyState}`));
-      };
-      
-      xhr.ontimeout = () => {
-        console.error('XMLHttpRequest timeout. Status:', xhr.status, 'Ready state:', xhr.readyState);
-        reject(new Error(`Request timeout during streaming fetch. Status: ${xhr.status}`));
-      };
-      
-      xhr.send();
-    });
-  };
-
-  // Helper function to clean M3U content of problematic characters
-  const cleanM3UContent = (content: string): string => {
-    try {
-      // Remove or replace problematic characters that might cause encoding issues
-      return content
-        // Replace common problematic chars with safe alternatives
-        .replace(/[""]/g, '"')  // Replace smart quotes
-        .replace(/['']/g, "'")  // Replace smart apostrophes
-        .replace(/[–—]/g, '-')  // Replace em/en dashes
-        .replace(/[…]/g, '...') // Replace ellipsis
-        // Remove null bytes and other control characters except newlines and tabs
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-        // Ensure line endings are consistent
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n');
-    } catch (error) {
-      console.error('Error cleaning M3U content:', error);
-      // Return original content if cleaning fails
-      return content;
-    }
-  };
-
   const login = async () => {
     try {
-      let res = await LoginApi(playlistUrl)
+      // let res = await LoginApi(playlistUrl)
+      let res = await LoginApi("http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts")
       console.log('login response:', res)
       
       await setAuthTokenAction(res?.data?.token)
@@ -343,7 +118,6 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
   
   useEffect(() => {
     login()
-    // downloadAndParseM3U();
     
   }, [])
 
