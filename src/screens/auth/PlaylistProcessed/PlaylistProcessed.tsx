@@ -14,6 +14,7 @@ import { AuthStackParamList } from '../../../navigation/NavigationsTypes'
 // 4. Local styles import (ALWAYS LAST)
 import { getCategoryApi, LoginApi, setAuthTokenAction, setIsPlaylistProcessedAction } from '../../../redux/actions/auth'
 import { styles } from './styles'
+import Toast from 'react-native-toast-message'
 
 const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'PlaylistProcessed'> }) => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>()
@@ -61,8 +62,8 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
 
   const login = async () => {
     try {
-      // let res = await LoginApi(playlistUrl)
-      let res = await LoginApi("http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts")
+      let res = await LoginApi(playlistUrl)
+      // let res = await LoginApi("http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts")
       console.log('login response:', res)
       
       await setAuthTokenAction(res?.data?.token)
@@ -96,6 +97,17 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
 
     } catch (error: any) {
       console.log('Login error details:',error)
+
+      if(error?.response?.data?.error){
+        Toast.show({
+          text1: error?.response?.data?.error,
+          type: 'error',
+        })
+        setLoading(false)
+        navigation.goBack()
+        return
+      }
+     
       let res = await getCategoryApi('live')
       setStats(prev => ({
         ...prev,
