@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#2A2D32',
     resizeMode: 'contain',
     width: '100%',
-    height: height/1.3,
+    height: height/1.5,
     // justifyContent: 'space-between',
     justifyContent:'center',
     paddingTop: verticalScale(40),
