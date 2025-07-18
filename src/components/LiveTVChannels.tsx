@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     padding: moderateScale(16),
-    marginRight: moderateScale(20),
+    marginRight: moderateScale(7.5),
   },
   channelLogoContainerFocused: {
     transform: [{ scale: 1.05 }],

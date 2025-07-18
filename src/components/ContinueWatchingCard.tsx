@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     width: scale(388),
     overflow: 'hidden',
     position: 'relative',
-    marginRight: moderateScale(24),
+    marginRight: moderateScale(7.5),
     borderWidth: 2,
     borderColor: 'transparent',
   },
