@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '90%',
     resizeMode: 'cover',
-    borderTopLeftRadius: scale(12),
-    borderTopRightRadius: scale(12),
+    borderTopLeftRadius: scale(21),
+    borderTopRightRadius: scale(21),
   },
   showImageFocused: {
     // Additional image styling when focused if needed
