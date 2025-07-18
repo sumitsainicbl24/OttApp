@@ -1,6 +1,6 @@
 // 1. React Native core imports
 import React, { useEffect, useState } from 'react'
-import { ImageBackground, ScrollView, StatusBar, View } from 'react-native'
+import { ActivityIndicator, ImageBackground, ScrollView, StatusBar, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
 import { NavigationProp, useNavigation } from '@react-navigation/native'
@@ -26,7 +26,7 @@ const Home = () => {
   const [DynamicPopularShowsData, setDynamicPopularShowsData] = useState<any>(null)
   const [DynamicRecentlyAddedMovieData, setDynamicRecentlyAddedMovieData] = useState<any>(null)
   const [LiveChannelData, setLiveChannelData] = useState<any>(null)
-  const [PosterMovieName, setPosterMovieName] = useState<string>('')
+  const [PosterMovieName, setPosterMovieName] = useState<any>(null)
   const [PosterMovieData, setPosterMovieData] = useState<any>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
   
@@ -104,7 +104,7 @@ const Home = () => {
             // hasTVPreferredFocus={true}
           />
           </View>
-        <ImageBackground source={PosterMovieData?.Poster ? {uri: PosterMovieData?.Poster } : '' } style={styles.backgroundImagePlaceholder} resizeMode='cover'>
+        <ImageBackground source={PosterMovieData?.Poster ? {uri: PosterMovieData?.Poster } : undefined } style={styles.backgroundImagePlaceholder} resizeMode='cover'>
           {/* Horizontal gradient overlay - dark on left, transparent on right */}
           <LinearGradient
             colors={['rgba(11, 24, 48, 0.95)', 'rgba(11, 24, 48, 0.7)', 'rgba(11, 24, 48, 0.3)', 'transparent']}
@@ -131,16 +131,26 @@ const Home = () => {
             onChannelPress={handleChannelPress}
           />
           <View style={{marginBottom: verticalScale(55)}}/>
-         <ShowCatCarousel
+          {
+            DynamicPopularMovieData?.length > 0 ? (
+              <ShowCatCarousel
                   title="Popular movies"
                   data={DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : []}
                   onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
                   onFocus={()=>{}}
                   getMovieDetails={()=>{}}
                   type="movies"
-          />
+          />):
+          (<View style={{marginBottom: verticalScale(55), alignItems: 'center', justifyContent: 'center'}}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>)
+          }
+         
           <View style={{marginBottom: verticalScale(-35)}}/>
-          <ShowCatCarousel
+
+          {
+            DynamicPopularShowsData?.length > 0 ? (
+              <ShowCatCarousel
                   title="Popular Shows"
                   data={DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : []}
                   onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
@@ -148,6 +158,12 @@ const Home = () => {
                   getMovieDetails={()=>{}}
                   type="series"
           />
+            ):
+            (<View style={{marginBottom: verticalScale(55), alignItems: 'center', justifyContent: 'center'}}>
+              <ActivityIndicator size="large" color="#fff" />
+            </View>)
+          }
+          
         {/* <MovieCarousel 
           title="Popular Shows" 
           data={DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : PopularShowsData}
@@ -164,7 +180,10 @@ const Home = () => {
           onMoviePress={(movie) => console.log('Recently added selected:', movie.title)}
         /> */}
         <View style={{marginBottom: verticalScale(35)}}/>
-        <ShowCatCarousel
+
+        {
+          DynamicRecentlyAddedMovieData?.length > 0 ? (
+            <ShowCatCarousel
                   title="Recently Added"
                   data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : []}
                   onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
@@ -172,6 +191,12 @@ const Home = () => {
                   getMovieDetails={()=>{}}
                   type="movies"
           />
+          ):
+          (<View style={{marginBottom: verticalScale(55), alignItems: 'center', justifyContent: 'center'}}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>)
+        }
+        
       </ScrollView>
     </View>
   )
