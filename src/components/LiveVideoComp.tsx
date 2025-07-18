@@ -11,7 +11,8 @@ import {
   BackHandler,
   TVFocusGuideView,
   Pressable,
-  useTVEventHandler
+  useTVEventHandler,
+  ActivityIndicator
 } from 'react-native';
 import Video from 'react-native-video';
 import imagepath from '../constants/imagepath';
@@ -554,10 +555,10 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
 
       {/* Loading Overlay */}
       {loading && (
-        <View style={styles.overlay}>
-          <Text style={styles.overlayText}>Loading stream...</Text>
-          <Text style={styles.overlaySubText}>Please wait while we prepare your content</Text>
-        </View>
+       //loader
+       <View style={styles.overlay}>
+        <ActivityIndicator size="large" color="#FFFFFF" />
+       </View>
       )}
 
       {/* Error Overlay */}
