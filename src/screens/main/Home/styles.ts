@@ -11,13 +11,14 @@ export const styles = StyleSheet.create({
   
   backgroundImagePlaceholder: {
     flex: 1,
-    backgroundColor: '#2A2D32',
+    // backgroundColor: '#2A2D32',
     resizeMode: 'contain',
     width: '100%',
     height: height/1.5,
     // justifyContent: 'space-between',
     justifyContent:'center',
     paddingTop: verticalScale(40),
+    // marginBottom: verticalScale(55),
   },
   gradientOverlay1: {
     position: 'absolute',
@@ -44,10 +45,12 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1,
+    height: height/1.5,
   },
   
   scrollContainer: {
     flex: 1,
+    zIndex: 20,
   },
   
   // Top Navigation Styles

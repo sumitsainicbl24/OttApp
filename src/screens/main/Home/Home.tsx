@@ -14,9 +14,10 @@ import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 import { getCategoryData } from '../../../redux/actions/auth'
 import { RootState } from '../../../redux/store'
 import { verticalScale } from '../../../styles/scaling'
-import { getMovieDetails } from '../../../utils/CommonFunctions'
+import { getMovieDetails, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
 import { ContinueWatchingData, liveTVChannelsData } from './DummyData'
 import { styles } from './styles'
+import { CommonColors } from '../../../styles/Colors'
 
 
 const Home = () => {
@@ -94,17 +95,19 @@ const Home = () => {
     <View style={styles.container}>
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
 
-      <ScrollView
-        style={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={{position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000}}>
+      <View style={{position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000}}>
         <TopNavigation
             activeTab="Home"
             // hasTVPreferredFocus={true}
           />
           </View>
-        <ImageBackground source={PosterMovieData?.Poster ? {uri: PosterMovieData?.Poster } : undefined } style={styles.backgroundImagePlaceholder} resizeMode='cover'>
+          
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        
+        <ImageBackground source={PosterMovieData?.Poster ? {uri: imageResolutionHandlerForUrl(PosterMovieData?.Poster, 1000) } : undefined } style={styles.backgroundImagePlaceholder}>
           {/* Horizontal gradient overlay - dark on left, transparent on right */}
           <LinearGradient
             colors={['rgba(11, 24, 48, 0.95)', 'rgba(11, 24, 48, 0.7)', 'rgba(11, 24, 48, 0.3)', 'transparent']}
@@ -112,6 +115,13 @@ const Home = () => {
             end={{ x: 1, y: 0 }}
             style={styles.horizontalGradientOverlay}
           />
+
+        <LinearGradient
+                colors={[CommonColors.themeMain, 'transparent', 'transparent', 'transparent']}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 0, y: 0 }}
+                style={styles.horizontalGradientOverlay}
+              />
           
           <ShowDetails 
             onPlayPress={handlePlayPress}
@@ -124,13 +134,13 @@ const Home = () => {
           data={DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : PopularMovieData}
           onMoviePress={(movie) => console.log('Popular movie selected:', movie.title)}
         /> */}
-        <View style={{marginBottom: verticalScale(55)}}/>
+        <View style={{marginBottom: verticalScale(-105)}}/>
 
         <LiveTVChannels 
             data={liveTVChannelsData}
             onChannelPress={handleChannelPress}
           />
-          <View style={{marginBottom: verticalScale(55)}}/>
+          <View style={{marginBottom: verticalScale(35)}}/>
           {
             DynamicPopularMovieData?.length > 0 ? (
               <ShowCatCarousel

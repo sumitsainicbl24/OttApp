@@ -42,7 +42,9 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   return (
     <View style={styles.featuredContainer}>
       {/* <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} /> */}
-      <Text style={styles.title}>{showDetails?.title}</Text>
+      <Text style={styles.title}>
+        {showDetails?.title}
+      </Text>
       <View style={styles.metadataContainer}>
         <Text style={styles.metadataText}>{showDetails?.Year}</Text>
         <Text style={styles.metadataText}>{showDetails?.Runtime}</Text>
@@ -74,11 +76,11 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
         </TouchableOpacity>
       </View>
 
-      <View style={styles.descriptionContainer}>
+      {/* <View style={styles.descriptionContainer}>
         <Text style={styles.description}>
           {showDetails?.Plot}
         </Text>
-      </View>
+      </View> */}
     </View>
   )
 }
