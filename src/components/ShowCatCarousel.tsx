@@ -9,6 +9,8 @@ import ShowCatCard from './ShowCatCard'
 import { debounce } from '../utils/CommonFunctions'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainStackParamList } from '../navigation/NavigationsTypes'
+import { setCurrentlyPlaying } from '../redux/reducers/main'
+import { useAppDispatch } from '../redux/hooks'
 
 interface ShowData {
   group?: string
@@ -40,7 +42,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
 }) => {
   const flashListRef = useRef<FlashList<ShowData>>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-  
+  const dispatch = useAppDispatch()
   // Calculate number of columns based on screen width and card width
   const numColumns = useMemo(() => {
     if (horizontal) return 1
@@ -62,9 +64,11 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
 
   const handleShowPress = (show: ShowData) => {
     if(type === 'series'){
+      dispatch(setCurrentlyPlaying(show))
       navigation.navigate('MoviePlayScreen', { show: show })
     }
     if(type === 'movies'){
+      dispatch(setCurrentlyPlaying(show))
       navigation.navigate('MoviePlayScreen', { movie: show })
     }
   }

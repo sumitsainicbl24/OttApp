@@ -18,10 +18,13 @@ import { getMovieDetails, imageResolutionHandlerForUrl } from '../../../utils/Co
 import { ContinueWatchingData, liveTVChannelsData } from './DummyData'
 import { styles } from './styles'
 import { CommonColors } from '../../../styles/Colors'
+import { setCurrentlyPlaying } from '../../../redux/reducers/main'
+import { useAppDispatch } from '../../../redux/hooks'
 
 
 const Home = () => {
   const {moviesData, channelsData, seriesData} = useSelector((state: RootState) => state.rootReducer.auth)
+  const dispatch = useAppDispatch()
 
   const [DynamicPopularMovieData, setDynamicPopularMovieData] = useState<any>(null)
   const [DynamicPopularShowsData, setDynamicPopularShowsData] = useState<any>(null)
@@ -38,6 +41,7 @@ const Home = () => {
   }
 
   const handlePlayPress = () => {
+    dispatch(setCurrentlyPlaying(PosterMovieName))
     navigation.navigate('MoviePlayScreen', { movie: PosterMovieName })
   }
 

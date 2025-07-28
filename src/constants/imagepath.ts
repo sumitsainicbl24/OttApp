@@ -36,6 +36,10 @@ export default{
     SubscitionIcon1:require('../assets/images/SubscitionIcon.png'),
     muteIcon:require('../assets/images/mute.png'),
     unmuteIcon:require('../assets/images/unmute.png'),
+    fast_forward:require('../assets/images/fast_forward.png'),
+    rewind_button:require('../assets/images/rewind_button.png'),
+    next:require('../assets/images/next.png'),
+    previous:require('../assets/images/previous.png'),
 
     //sample data
 
