@@ -29,6 +29,7 @@ const Home = () => {
   const [LiveChannelData, setLiveChannelData] = useState<any>(null)
   const [PosterMovieName, setPosterMovieName] = useState<any>(null)
   const [PosterMovieData, setPosterMovieData] = useState<any>(null)
+  const [hasScrolled, setHasScrolled] = useState<boolean>(false)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
   
   const handleTabPress = (tab: string) => {
@@ -46,6 +47,11 @@ const Home = () => {
 
   const handleChannelPress = (channel: any) => {
     console.log('Channel pressed:', channel.name)
+  }
+
+  const handleScroll = (event: any) => {
+    const scrollY = event.nativeEvent.contentOffset.y
+    setHasScrolled(scrollY > 50) // Change background after scrolling 50 pixels
   }
 
   const loadMovieData = async () => {
@@ -98,6 +104,7 @@ const Home = () => {
       <View style={{position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000}}>
         <TopNavigation
             activeTab="Home"
+            hasScrolled={hasScrolled}
             // hasTVPreferredFocus={true}
           />
           </View>
@@ -105,6 +112,8 @@ const Home = () => {
       <ScrollView
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         
         <ImageBackground source={PosterMovieData?.Poster ? {uri: imageResolutionHandlerForUrl(PosterMovieData?.Poster, 1000) } : undefined } style={styles.backgroundImagePlaceholder}>
@@ -135,6 +144,7 @@ const Home = () => {
           onMoviePress={(movie) => console.log('Popular movie selected:', movie.title)}
         /> */}
         <View style={{marginBottom: verticalScale(-105)}}/>
+        <View style={{marginBottom: verticalScale(75)}}/>
 
         <LiveTVChannels 
             data={liveTVChannelsData}

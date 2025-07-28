@@ -11,19 +11,21 @@ import { MainStackParamList } from '../navigation/NavigationsTypes'
 interface TopNavigationProps {
   activeTab?: string
   hasTVPreferredFocus?: boolean
+  hasScrolled?: boolean
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({
   activeTab = 'Home',
   hasTVPreferredFocus = false,
+  hasScrolled = false,
 }) => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-  const menuItems = ['Home', 'Search', 'Tv', 'Movies', 'Shows']
+  const menuItems = ['Home', 'Search', 'Tv', 'Movies', 'Shows','Favorites']
   
   const [focusedItem, setFocusedItem] = useState<string | null>(null)
 
   const handleTabPress = (tab: string) => {
-    navigation.navigate(tab as keyof MainStackParamList,{activeScreen:tab})
+    navigation.navigate(tab as any, {activeScreen: tab})
   }
 
   const handleFocus = (item: string) => {
@@ -35,7 +37,10 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   }
 
   return (
-    <View style={styles.topNavContainer}>
+    <View style={[
+      styles.topNavContainer,
+      hasScrolled && styles.scrolledBackground
+    ]}>
       <View style={styles.navMenuContainer}>
         {menuItems.map((item, index) => (
           <TouchableOpacity
@@ -55,7 +60,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
               item === activeTab ? styles.activeMenuText : styles.menuText,
               focusedItem === item && styles.focusedMenuText
             ]}>
-              {item}
+              { item === 'Favorites' ? 'My List' : item}
             </Text>
           </TouchableOpacity>
         ))}
@@ -235,6 +240,10 @@ const styles = StyleSheet.create({
     height: moderateScale(40),
     borderRadius: moderateScale(20),
     backgroundColor: '#C4C4C4',
+  },
+  
+  scrolledBackground: {
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
   },
 })
 

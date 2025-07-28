@@ -76,11 +76,11 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* <View style={styles.descriptionContainer}>
+      <View style={styles.descriptionContainer}>
         <Text style={styles.description}>
           {showDetails?.Plot}
         </Text>
-      </View> */}
+      </View>
     </View>
   )
 }
