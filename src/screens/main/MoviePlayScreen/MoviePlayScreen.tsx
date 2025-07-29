@@ -32,6 +32,7 @@ import LiveVideoComp from '../../../components/LiveVideoComp'
 import { getSeriesEpisodes } from '../../../redux/actions/main'
 import ShowCatCard from '../../../components/ShowCatCard'
 import { getEpisodeAndSeasonNumber, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
+import { setCurrentSeriesEpisodes } from '../../../redux/reducers/main'
 
 type MoviePlayScreenRouteProp = RouteProp<MainStackParamList, 'MoviePlayScreen'>
 
@@ -50,6 +51,7 @@ interface MovieData {
 
 const MoviePlayScreen = () => {
   const navigation = useNavigation()
+  const dispatch = useAppDispatch()
   const route = useRoute<MoviePlayScreenRouteProp>()
   const { show, movie } = route.params
   const [movieTitle, setMovieTitle] = useState(movie?.title || movie?.name )
@@ -139,6 +141,7 @@ const MoviePlayScreen = () => {
   useEffect(() => {
     if(movie){
       console.log('moviedata in play screen', movie)
+      dispatch(setCurrentSeriesEpisodes([]))
       setMovieTitle(movie?.title || movie?.name)
       setStreamUrl(movie?.url)
     }
@@ -147,6 +150,7 @@ const MoviePlayScreen = () => {
       try {
         const res = await getSeriesEpisodes(show?.title || show?.name)
         console.log('res from series episodes', res)
+        dispatch(setCurrentSeriesEpisodes(res?.data?.data?.data?.episodes || []))
         setSeriesEpisodes(res?.data?.data?.data?.episodes || [])
         setStreamUrl(res?.data?.data?.data?.episodes[0]?.url)
         } catch (error) {

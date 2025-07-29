@@ -3,11 +3,13 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../store'
 
 interface MainState {
-    currentlyPlaying: string
+    currentlyPlaying: any,
+    currentSeriesEpisodes: any,
 }
 
 const initialState: MainState = {
-    currentlyPlaying: ''
+    currentlyPlaying: '',
+    currentSeriesEpisodes: []
 }
 
 const mainSlice = createSlice({
@@ -17,8 +19,11 @@ const mainSlice = createSlice({
         setCurrentlyPlaying: (state, action: PayloadAction<any>) => {
             state.currentlyPlaying = action.payload
         },
+        setCurrentSeriesEpisodes: (state, action: PayloadAction<any>) => {
+            state.currentSeriesEpisodes = action.payload
+        },
     },
 })
 
-export const { setCurrentlyPlaying } = mainSlice.actions
+export const { setCurrentlyPlaying, setCurrentSeriesEpisodes } = mainSlice.actions
 export default mainSlice.reducer

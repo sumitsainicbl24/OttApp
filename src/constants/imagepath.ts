@@ -40,6 +40,7 @@ export default{
     rewind_button:require('../assets/images/rewind_button.png'),
     next:require('../assets/images/next.png'),
     previous:require('../assets/images/previous.png'),
+    reload:require('../assets/images/reload.png'),
 
     //sample data
 

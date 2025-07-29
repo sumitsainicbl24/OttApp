@@ -31,8 +31,15 @@ interface LiveVideoCompProps {
 const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
 
   //get currently playing from redux
-  const currentlyPlaying = useSelector((state: RootState) => state.rootReducer.main.currentlyPlaying)
-  console.log('currentlyPlaying', currentlyPlaying)
+  const {currentlyPlaying, currentSeriesEpisodes}:any = useSelector((state: RootState) => state.rootReducer.main)
+  
+  // Use state for currentEpisodeIndex instead of calculating it each time
+  const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(() => {
+    return currentSeriesEpisodes.findIndex((episode:any) => episode.url === streamUrl)
+  })
+
+  const [VideoUrl, setVideoUrl] = useState(currentSeriesEpisodes[currentEpisodeIndex]?.url || streamUrl)
+
 
   // State management
   const [loading, setLoading] = useState(true);
@@ -47,17 +54,23 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
   const [initialFocus, setInitialFocus] = useState(true);
   const [showProgressOnly, setShowProgressOnly] = useState(false);
   const [pendingSeekTime, setPendingSeekTime] = useState<number | null>(null);
+  const [notification, setNotification] = useState<{
+    message: string;
+    visible: boolean;
+  }>({ message: '', visible: false });
   
   // Refs for focus management
   const videoRef = useRef<any>(null);
   const playPauseRef = useRef<any>(null);
   const rewindRef = useRef<any>(null);
   const forwardRef = useRef<any>(null);
+  const previousRef = useRef<any>(null);
+  const nextRef = useRef<any>(null);
+  const watchFromStartRef = useRef<any>(null);
   const volumeRef = useRef<any>(null);
   const fullscreenRef = useRef<any>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const progressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   // Auto-hide controls after 5 seconds
   const resetControlsTimeout = () => {
     if (controlsTimeoutRef.current) {
@@ -86,6 +99,38 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
     setFocused('progressBar');
     resetProgressTimeout();
   };
+
+  // Show notification temporarily
+  const showNotification = (message: string) => {
+    setNotification({ message, visible: true });
+    setTimeout(() => {
+      setNotification({ message: '', visible: false });
+    }, 3000);
+  };
+
+  const handleNextEpisode = () => {
+    if (currentEpisodeIndex < currentSeriesEpisodes.length - 1) {
+      const nextIndex = currentEpisodeIndex + 1
+      setVideoUrl(currentSeriesEpisodes[nextIndex]?.url)
+      setCurrentEpisodeIndex(nextIndex)
+      setCurrentTime(0)
+    }
+    else{
+      showNotification('This is the last episode');
+    }
+  }
+
+  const handlePreviousEpisode = () => {
+    if (currentEpisodeIndex > 0) {
+      const prevIndex = currentEpisodeIndex - 1
+      setVideoUrl(currentSeriesEpisodes[prevIndex]?.url)
+      setCurrentEpisodeIndex(prevIndex)
+      setCurrentTime(0)
+    }
+    else {
+      showNotification('This is the first episode');
+    }
+  }
 
   const seekTo = (seconds: number) => {
     // Calculate new time based on current time (even if video isn't loaded)
@@ -317,7 +362,7 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
         <Video
           ref={videoRef}
           source={{ 
-            uri: streamUrl,
+            uri: VideoUrl,
             headers: {
               'User-Agent': 'React-Native-TV-Player/1.0.0'
             }
@@ -351,7 +396,8 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
         <View style={styles.controlsOverlay}>
           
           {/* show movie name */}
-          <Text style={styles.movieName}>{currentlyPlaying?.title}</Text>
+          <Text style={styles.movieName}>{`${currentlyPlaying?.title}${currentSeriesEpisodes?.length > 1 ? ' EP ' + (currentEpisodeIndex+1) : ''}`}
+          </Text>
           
 
           {/* Bottom Controls */}
@@ -426,6 +472,7 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
                     {pendingSeekTime !== null && (
                       <Text style={styles.seekingIndicator}> (seeking)</Text>
                     )}
+                    {' /'}
                   </Text>
                   <View style={styles.remainingTimeContainer}>
                     <Text style={styles.remainingTimePrefix}>
@@ -446,6 +493,32 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
           {/* Center Controls */}
           <TVFocusGuideView style={styles.centerControlsGuide} autoFocus>
             <View style={styles.centerControls}>
+              {/* previous button */}
+              {currentSeriesEpisodes.length > 1 && 
+              <Pressable 
+                ref={previousRef}
+                style={[
+                  styles.centerButton,
+                  focused === 'previous' && styles.focusedButton
+                ]}
+                onPress={()=>handlePreviousEpisode()}
+                onFocus={() => handleFocus('previous')}
+                onBlur={handleBlur}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Previous"
+                accessibilityHint="Press to go to previous video"
+                hasTVPreferredFocus={false}
+                nextFocusRight={playPauseRef.current}
+                nextFocusDown={volumeRef.current}
+              >
+                <Image source={imagepath.previous} 
+                style={{...styles.controlIcon, height: moderateScale(23), width: moderateScale(23),
+                  ...(currentEpisodeIndex === 0 && {opacity: 0.5})
+                }}/>
+                {focused === 'previous' && <View style={styles.focusIndicator} />}
+              </Pressable>
+              }
               <Pressable 
                 ref={rewindRef}
                 style={[
@@ -512,6 +585,72 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
                 <Image source={imagepath.fast_forward} style={styles.controlIcon}/>
                 {focused === 'forward' && <View style={styles.focusIndicator} />}
               </Pressable>
+
+              {/* next button */}
+              {currentSeriesEpisodes.length > 1 && 
+              <Pressable 
+                ref={nextRef}
+                style={[
+                  styles.centerButton,
+                  focused === 'next' && styles.focusedButton,
+                ]}
+                onPress={()=>handleNextEpisode()}
+                onFocus={() => handleFocus('next')}
+                onBlur={handleBlur}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Next"
+                accessibilityHint="Press to go to next video"
+                nextFocusLeft={forwardRef.current}
+                nextFocusDown={fullscreenRef.current}
+              >
+                <Image source={imagepath.next} 
+                style={{
+                  ...styles.controlIcon,
+                  height: moderateScale(23),
+                  width: moderateScale(23),
+                  ...(currentEpisodeIndex === currentSeriesEpisodes.length - 1 && {opacity: 0.5})
+                  }}/>
+                {focused === 'next' && <View style={styles.focusIndicator} />}
+              </Pressable>
+              }
+
+              {/* watch from start button */}
+              <View style={styles.watchFromStartContainer}>
+              <Pressable 
+                ref={watchFromStartRef}
+                style={[
+                  styles.centerButton,
+                  focused === 'watchFromStart' && styles.focusedButton
+                ]}
+                onPress={() => {
+                  // Directly seek to beginning using video ref
+                  if (videoRef.current) {
+                    videoRef.current.seek(0);
+                  }
+                  setCurrentTime(0);
+                  setPendingSeekTime(null);
+                  
+                  // Show controls and reset timeout
+                  setShowControls(true);
+                  resetControlsTimeout();
+                }}
+                onFocus={() => handleFocus('watchFromStart')}
+                onBlur={handleBlur}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Watch from start"
+                accessibilityHint="Press to watch from start"
+                nextFocusLeft={nextRef.current}
+                nextFocusDown={fullscreenRef.current}
+              >
+                <Image source={imagepath.reload} style={{...styles.controlIcon, height: moderateScale(25), width: moderateScale(25)}}/>
+                {focused === 'watchFromStart' && <View style={styles.focusIndicator} />}
+              </Pressable>
+              {focused === 'watchFromStart' &&
+              <Text style={styles.watchFromStartText}>Watch from start</Text>
+              }
+              </View>
             </View>
           </TVFocusGuideView>
         </View>
@@ -599,6 +738,15 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
           </Text>
         </View>
       )} */}
+
+      {/* Custom Notification Overlay */}
+      {notification.visible && (
+        <View style={styles.notificationOverlay}>
+          <View style={styles.notificationContainer}>
+            <Text style={styles.notificationText}>{notification.message}</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -616,17 +764,17 @@ const styles = StyleSheet.create({
   },
   controlsOverlay: {
     position: 'absolute',
-    height: moderateScale(150),
+    height: moderateScale(165),
     width:'100%',
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.85)',
   },
   centerControlsGuide: {
     position: 'absolute',
     bottom:0,
     left: 0,
     right: 0,
-    marginBottom:moderateScale(15),
+    marginBottom:moderateScale(25),
   },
   centerControls: {
     flexDirection: 'row',
@@ -664,6 +812,21 @@ const styles = StyleSheet.create({
     // borderColor:'#FFFFFF',
     borderRadius: moderateScale(50),
   },
+  watchFromStartContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: moderateScale(0),
+    width: moderateScale(125),
+  },
+  watchFromStartText: {
+    position: 'absolute',
+    bottom: moderateScale(-20),
+    fontFamily: FontFamily.PublicSans_Medium,
+    fontSize: scale(20),
+    color: '#FFFFFF',
+    textAlign: 'left',
+    right: moderateScale(50),
+  },
   controlIcon: {
     width: moderateScale(23),
     height: moderateScale(23),
@@ -691,10 +854,6 @@ const styles = StyleSheet.create({
     marginTop: moderateScale(10),
   },
   bottomControls: {
-    // position: 'absolute',
-    // bottom: 0,
-    // left: 0,
-    // right: 0,
   },
   bottomControlsGuide: {
     paddingHorizontal: moderateScale(40),
@@ -725,7 +884,7 @@ const styles = StyleSheet.create({
   timeIndicators: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     width: '100%',
   },
   currentTime: {
@@ -876,6 +1035,42 @@ const styles = StyleSheet.create({
       fontSize: scale(14),
       color: '#FFFFFF',
       opacity: 0.8,
+  },
+  // Custom Notification Overlay Styles
+  notificationOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 1000, // Ensure it's on top
+  },
+  notificationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingVertical: moderateScale(10),
+    paddingHorizontal: moderateScale(20),
+    borderRadius: moderateScale(10),
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+  },
+  notificationIconContainer: {
+    marginRight: moderateScale(10),
+  },
+  notificationIcon: {
+    width: moderateScale(25),
+    height: moderateScale(25),
+    tintColor: '#FFFFFF',
+  },
+  notificationText: {
+    color: '#FFFFFF',
+    fontSize: scale(20),
+    fontFamily: FontFamily.PublicSans_Regular,
+    flexShrink: 1,
   },
 });
 
