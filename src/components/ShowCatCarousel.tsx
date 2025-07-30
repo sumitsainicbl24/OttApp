@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useCallback } from 'react'
-import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native'
+import { StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import LinearGradient from 'react-native-linear-gradient'
 import { CommonColors } from '../styles/Colors'
@@ -28,6 +28,8 @@ interface ShowCatCarouselProps {
   horizontal?: boolean
   type?: string
   mainStyle?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
+  disableScroll?: boolean;
 }
 
 const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({ 
@@ -38,7 +40,9 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   getMovieDetails,
   horizontal = false,
   type,
-  mainStyle
+  mainStyle,
+  titleStyle,
+  disableScroll = false
 }) => {
   const flashListRef = useRef<FlashList<ShowData>>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
@@ -88,12 +92,13 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
 
       const rowIndex = Math.floor(itemIndex / numColumns)
       const scrollToIndex = rowIndex * numColumns
+      if(!disableScroll){
       flashListRef.current?.scrollToIndex({
           index: scrollToIndex,
           animated: true,
           viewPosition: 0, // Scroll to top
         })
-      
+      }
       // setTimeout(() => {
       //   flashListRef.current?.scrollToIndex({
       //     index: scrollToIndex,
@@ -122,7 +127,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
 
   return (
     <View style={[styles.sectionContainer, horizontal && styles.horizontalSectionContainer, mainStyle]}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={[styles.sectionTitle, titleStyle]}>{title}</Text>
       <View style={styles.carouselWrapper}>
         <FlashList
           ref={flashListRef}
@@ -135,6 +140,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={horizontal ? styles.horizontalGridContainer : styles.gridContainer}
           estimatedItemSize={horizontal ? scale(250) : verticalScale(400)}
+          scrollEnabled={!disableScroll}
         />
         {/* Overlay to hide partially visible second row - only for grid layout */}
         {!horizontal && numColumns>7 && (

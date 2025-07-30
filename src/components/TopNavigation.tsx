@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Image, Text, TouchableOpacity, View } from 'react-native'
+import React, { useState, useRef } from 'react'
+import { Image, Text, TouchableOpacity, View, TVFocusGuideView, useTVEventHandler } from 'react-native'
 import { StyleSheet } from 'react-native'
 import { CommonColors } from '../styles/Colors'
 import { moderateScale, scale, verticalScale } from '../styles/scaling'
@@ -20,51 +20,83 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   hasScrolled = false,
 }) => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-  const menuItems = ['Home', 'Search', 'Tv', 'Movies', 'Shows','Favorites']
+  const menuItems = ['Home',
+     'Search', 
+     'Tv', 
+     'Movies', 
+     'Shows',
+     'Favorites',
+    ]
   
   const [focusedItem, setFocusedItem] = useState<string | null>(null)
-
+  const [initialFocus, setInitialFocus] = useState(true)
+  
+  // Refs for focus management
+  const menuRefs = useRef<{[key: string]: any}>({})
+  const settingsRef = useRef<any>(null)
+  
   const handleTabPress = (tab: string) => {
     navigation.navigate(tab as any, {activeScreen: tab})
   }
 
   const handleFocus = (item: string) => {
     setFocusedItem(item)
+    if (initialFocus) {
+      setInitialFocus(false)
+    }
   }
 
   const handleBlur = () => {
     setFocusedItem(null)
   }
 
+  // TV remote event handler
+  useTVEventHandler((evt: any) => {
+    if (evt && evt.eventType === 'select') {
+      if (focusedItem) {
+        if (focusedItem === 'Settings') {
+          handleTabPress('Settings')
+        } else {
+          handleTabPress(focusedItem)
+        }
+      }
+    }
+  })
+
   return (
     <View style={[
       styles.topNavContainer,
       hasScrolled && styles.scrolledBackground
     ]}>
-      <View style={styles.navMenuContainer}>
-        {menuItems.map((item, index) => (
-          <TouchableOpacity
-            key={item}
-            style={[
-              item === activeTab ? styles.activeMenuItem : undefined,
-              styles.menuItem,
-              focusedItem === item && styles.focusedMenuItem
-            ]}
-            onPress={() => handleTabPress(item)}
-            onFocus={() => handleFocus(item)}
-            onBlur={handleBlur}
-            activeOpacity={0.8}
-            hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
-          >
-            <Text style={[
-              item === activeTab ? styles.activeMenuText : styles.menuText,
-              focusedItem === item && styles.focusedMenuText
-            ]}>
-              { item === 'Favorites' ? 'My List' : item}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <TVFocusGuideView style={styles.navFocusGuideView} autoFocus>
+        <View style={styles.navMenuContainer}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={item}
+              ref={el => menuRefs.current[item] = el}
+              style={[
+                item === activeTab ? styles.activeMenuItem : undefined,
+                styles.menuItem,
+                focusedItem === item && styles.focusedMenuItem
+              ]}
+              onPress={() => handleTabPress(item)}
+              onFocus={() => handleFocus(item)}
+              onBlur={handleBlur}
+              activeOpacity={1}
+              hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+              nextFocusRight={index < menuItems.length - 1 ? menuRefs.current[menuItems[index + 1]] : settingsRef.current}
+              nextFocusLeft={index > 0 ? menuRefs.current[menuItems[index - 1]] : undefined}
+            >
+              <Text style={[
+                item === activeTab ? styles.activeMenuText : styles.menuText,
+                focusedItem === item && styles.focusedMenuText
+              ]}>
+                { item === 'Favorites' ? 'My List' : item}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </TVFocusGuideView>
       
       <View style={styles.userActionsContainer}>
         {/* <TouchableOpacity 
@@ -80,6 +112,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           <Image source={imagepath.BellIcon} style={styles.bellIconPlaceholder} />
         </TouchableOpacity> */}
         <TouchableOpacity 
+          ref={settingsRef}
           style={[
             styles.iconButton,
             focusedItem === 'Settings' && styles.focusedIconButton
@@ -88,6 +121,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           onFocus={() => handleFocus('Settings')}
           onBlur={handleBlur}
           activeOpacity={0.8}
+          nextFocusLeft={menuRefs.current[menuItems[menuItems.length - 1]]}
         >
           <Image source={imagepath.settingIcon} style={styles.settingsIconPlaceholder} />
         </TouchableOpacity>
@@ -118,23 +152,29 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   
+  navFocusGuideView: {
+    flex: 1,
+  },
+
   navMenuContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: moderateScale(5),
+    gap: moderateScale(15),
   },
   
   activeMenuItem: {
     backgroundColor: CommonColors.white,
-    paddingHorizontal: moderateScale(20),
-    paddingVertical: verticalScale(6),
-    borderRadius: moderateScale(36),
+    // paddingHorizontal: moderateScale(20),
+    // paddingVertical: verticalScale(6),
+    // borderRadius: moderateScale(36),
   },
 
   menuItem: {
     paddingHorizontal: moderateScale(20),
     paddingVertical: verticalScale(6),
     borderRadius: moderateScale(36),
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   
   focusedMenuItem: {
@@ -152,7 +192,7 @@ const styles = StyleSheet.create({
   },
   
   activeMenuText: {
-    fontFamily: FontFamily.PublicSans_SemiBold,
+    fontFamily: FontFamily.PublicSans_Regular,
     fontSize: scale(26),
     color: CommonColors.themeMain,
   },
@@ -164,7 +204,7 @@ const styles = StyleSheet.create({
   },
   
   focusedMenuText: {
-    fontFamily: FontFamily.PublicSans_SemiBold,
+    fontFamily: FontFamily.PublicSans_Regular,
     fontSize: scale(26),
     color: CommonColors.white,
   },

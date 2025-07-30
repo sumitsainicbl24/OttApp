@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.PublicSans_Bold,
     fontSize: scale(30),
     color: CommonColors.white,
-    marginBottom: verticalScale(24),
+    marginBottom: verticalScale(-15),
     marginLeft: moderateScale(20),
   },
   carouselContainer: {

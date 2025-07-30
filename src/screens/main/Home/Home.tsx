@@ -13,13 +13,14 @@ import TopNavigation from '../../../components/TopNavigation'
 import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 import { getCategoryData } from '../../../redux/actions/auth'
 import { RootState } from '../../../redux/store'
-import { verticalScale } from '../../../styles/scaling'
+import { moderateScale, scale, verticalScale } from '../../../styles/scaling'
 import { getMovieDetails, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
 import { ContinueWatchingData, liveTVChannelsData } from './DummyData'
 import { styles } from './styles'
 import { CommonColors } from '../../../styles/Colors'
 import { setCurrentlyPlaying } from '../../../redux/reducers/main'
 import { useAppDispatch } from '../../../redux/hooks'
+import FontFamily from '../../../constants/FontFamily'
 
 
 const Home = () => {
@@ -62,8 +63,8 @@ const Home = () => {
     try{
       const res= await getCategoryData('movies', moviesData[0])
       console.log('response from getCategoryData for movies', res?.data?.data?.data?.movies)
-      setDynamicPopularMovieData(res?.data?.data?.data?.movies?.slice(0, 7))
-      setDynamicRecentlyAddedMovieData(res?.data?.data?.data?.movies?.slice(7, 14))
+      setDynamicPopularMovieData(res?.data?.data?.data?.movies?.slice(0, 14))
+      setDynamicRecentlyAddedMovieData(res?.data?.data?.data?.movies?.slice(14, 28))
       //select ramndom data from dynamicPopularMovieData  
       setPosterMovieName(res?.data?.data?.data?.movies[Math.floor(Math.random() * 5)])
     }catch(error){
@@ -75,7 +76,7 @@ const Home = () => {
     try{
       const res= await getCategoryData('series', seriesData[7])
       console.log('response from getCategoryData for series', res?.data?.data?.data?.series)
-      setDynamicPopularShowsData(res?.data?.data?.data?.series?.slice(0, 7))
+      setDynamicPopularShowsData(res?.data?.data?.data?.series?.slice(0, 14))
     }catch(error){
       console.log('error', error)
     }
@@ -155,6 +156,29 @@ const Home = () => {
             onChannelPress={handleChannelPress}
           />
           <View style={{marginBottom: verticalScale(35)}}/>
+        
+          {
+          DynamicRecentlyAddedMovieData?.length > 0 ? (
+            <ShowCatCarousel
+                  title="Recently Added"
+                  data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : []}
+                  onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
+                  onFocus={()=>{}}
+                  getMovieDetails={()=>{}}
+                  type="movies"
+                  titleStyle={styles.carouselTitle}
+                  mainStyle={{height: verticalScale(905)}}
+                  disableScroll={true}
+          />
+          ):
+          (<View style={{marginBottom: verticalScale(55), alignItems: 'center', justifyContent: 'center'}}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>)
+        }
+
+        <View style={{marginBottom: verticalScale(25)}}/>
+
+        {/* Popular movies carousel */}
           {
             DynamicPopularMovieData?.length > 0 ? (
               <ShowCatCarousel
@@ -164,13 +188,16 @@ const Home = () => {
                   onFocus={()=>{}}
                   getMovieDetails={()=>{}}
                   type="movies"
+                  titleStyle={styles.carouselTitle}
+                  mainStyle={{height: verticalScale(905)}}
+                  disableScroll={true}
           />):
           (<View style={{marginBottom: verticalScale(55), alignItems: 'center', justifyContent: 'center'}}>
             <ActivityIndicator size="large" color="#fff" />
           </View>)
           }
          
-          <View style={{marginBottom: verticalScale(-35)}}/>
+          <View style={{marginBottom: verticalScale(25)}}/>
 
           {
             DynamicPopularShowsData?.length > 0 ? (
@@ -181,6 +208,9 @@ const Home = () => {
                   onFocus={()=>{}}
                   getMovieDetails={()=>{}}
                   type="series"
+                  titleStyle={styles.carouselTitle}
+                  mainStyle={{height: verticalScale(905)}}
+                  disableScroll={true}
           />
             ):
             (<View style={{marginBottom: verticalScale(55), alignItems: 'center', justifyContent: 'center'}}>
@@ -193,7 +223,7 @@ const Home = () => {
           data={DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : PopularShowsData}
           onMoviePress={(movie) => console.log('Popular show selected:', movie.title)}
         /> */}
-        <View style={{marginBottom: verticalScale(-35)}}/>
+        <View style={{marginBottom: verticalScale(25)}}/>
         <ContinueWatchingCarousel 
           data={ContinueWatchingData}
           onItemPress={(item) => console.log('Continue watching selected:', item.title)}
@@ -205,21 +235,7 @@ const Home = () => {
         /> */}
         <View style={{marginBottom: verticalScale(35)}}/>
 
-        {
-          DynamicRecentlyAddedMovieData?.length > 0 ? (
-            <ShowCatCarousel
-                  title="Recently Added"
-                  data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : []}
-                  onShowPress={(show) => console.log(`Featured Popular movies selected:`, show.title)}
-                  onFocus={()=>{}}
-                  getMovieDetails={()=>{}}
-                  type="movies"
-          />
-          ):
-          (<View style={{marginBottom: verticalScale(55), alignItems: 'center', justifyContent: 'center'}}>
-            <ActivityIndicator size="large" color="#fff" />
-          </View>)
-        }
+        
         
       </ScrollView>
     </View>

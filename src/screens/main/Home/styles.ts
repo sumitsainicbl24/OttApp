@@ -8,6 +8,11 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: CommonColors.themeMain,
   },
+
+  carouselTitle: {
+    marginBottom: moderateScale(-15),
+    fontSize: scale(30),
+  },
   
   backgroundImagePlaceholder: {
     flex: 1,
