@@ -1,6 +1,7 @@
 // 1. React Native core imports
 import React, { useState, useEffect } from 'react'
-import { Image, ScrollView, StatusBar, Text, View, FlatList, TouchableOpacity } from 'react-native'
+import { Image, StatusBar, Text, View, FlatList, TouchableOpacity } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 
 import { styles } from './styles'
 import imagepath from '../../../constants/imagepath'
@@ -10,7 +11,9 @@ import { RouteProp, useRoute } from '@react-navigation/native'
 import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 import LiveVideoComp from '../../../components/LiveVideoComp'
 import { getMoviesFromMMKV } from '../../../utils/m3uParseAndGet'
-import { moderateScale } from '../../../styles/scaling'
+import { height, moderateScale } from '../../../styles/scaling'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../redux/store'
 
 type MoviesScreenRouteProp = RouteProp<MainStackParamList, 'Movies'>
 
@@ -28,6 +31,7 @@ type MovieData = {
 
 const Tv = () => {
   const route = useRoute<MoviesScreenRouteProp>()
+  const { channelsData } = useSelector((state: RootState) => state.rootReducer.auth)
   const { activeScreen } = route.params
   const [isLiveVideo, setIsLiveVideo] = useState(false)
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true)
@@ -187,17 +191,15 @@ const Tv = () => {
       {(
         <View style={[styles.categoryListContainer, !showCategoryAndSidebar && {width: 0}] } nativeID="categoryList">
           <CategoryList 
-            categories={movieCategories}
+            categories={channelsData}
             selectedCategory={selectedCategory}
-            onCategoryPress={handleCategoryPress}
             onFocus={handleCategoryListFocus}
           />
         </View>
       )}
 
-      <ScrollView
+      <View
         style={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
       >
        <View style={styles.ShowDetailsContainer}>
         <View style={styles.ShowImageContainer}>
@@ -246,7 +248,7 @@ const Tv = () => {
           />
         )} */}
 
-        <View>
+        <View style={{ flex: 1, height: height/2 }}>
           {/* Date/Time Header */}
           <View style={styles.tvGuideHeader}>
             <Text style={styles.dateTimeText}>Tue, May 13, 2:36 PM</Text>
@@ -254,12 +256,13 @@ const Tv = () => {
           </View>
 
           {/* TV Guide Channels */}
-          <View style={styles.tvGuideContainer}>
-            {[...Array(9)].map((_, channelIndex) => (
-              <View key={channelIndex} style={styles.channelRow}>
+          <FlashList
+            data={Array.from({ length: 9 }, (_, index) => ({ channelIndex: index }))}
+            renderItem={({ item }) => (
+              <View style={styles.channelRow}>
                 {/* Channel Info */}
                 <View style={styles.channelInfo}>
-                  <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
+                  <Text style={styles.channelNumber}>{item.channelIndex + 1}</Text>
                   <View style={styles.channelLogo}>
                     <View style={styles.channelLogoPlaceholder} />
                   </View>
@@ -273,26 +276,26 @@ const Tv = () => {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   data={[...Array(4)]}
-                  keyExtractor={(_, index) => `${channelIndex}-program-${index}`}
-                  renderItem={({ item, index: programIndex }) => (
+                  keyExtractor={(_, index) => `${item.channelIndex}-program-${index}`}
+                  renderItem={({ item: programItem, index: programIndex }) => (
                     <TouchableOpacity
                       style={[
                         styles.programSlot,
                         {
-                          // backgroundColor: getProgramBackgroundColor(channelIndex, programIndex),
-                          borderColor: focusedChannel === channelIndex && focusedProgram === programIndex ? '#FFFFFF' : 'transparent',
-                          width: getProgramWidth(channelIndex, programIndex),
+                          // backgroundColor: getProgramBackgroundColor(item.channelIndex, programIndex),
+                          borderColor: focusedChannel === item.channelIndex && focusedProgram === programIndex ? '#FFFFFF' : 'transparent',
+                          width: getProgramWidth(item.channelIndex, programIndex),
                         }
                       ]}
-                      onPress={() => handleProgramPress(channelIndex, programIndex)}
-                      onFocus={() => handleProgramFocus(channelIndex, programIndex)}
+                      onPress={() => handleProgramPress(item.channelIndex, programIndex)}
+                      onFocus={() => handleProgramFocus(item.channelIndex, programIndex)}
                       activeOpacity={1}
                       {...({ isTVSelectable: true } as any)}
                     >
                       <Text 
                         style={[
                           styles.programText,
-                          { color: getProgramTextColor(channelIndex, programIndex) }
+                          { color: getProgramTextColor(item.channelIndex, programIndex) }
                         ]} 
                         numberOfLines={1}
                       >
@@ -304,11 +307,14 @@ const Tv = () => {
                   contentContainerStyle={styles.programListContent}
                 />
               </View>
-            ))}
-          </View>
+            )}
+            keyExtractor={(item) => `channel-${item.channelIndex}`}
+            estimatedItemSize={80}
+            style={[styles.tvGuideContainer, { flex: 1 }]}
+          />
         </View>
 
-      </ScrollView>
+      </View>
 
       </View>
     </MainLayout>

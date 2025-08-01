@@ -10,6 +10,7 @@ export const styles = StyleSheet.create({
     backgroundColor: CommonColors.themeMain,
   },
   ShowDetailsContainer: {
+    height: height/2,
     width: '100%',
     flexDirection: 'row',
     alignItems:'flex-start',
