@@ -1,16 +1,18 @@
 import { StyleSheet } from 'react-native'
-import { CommonColors } from '../../../styles/Colors'
-import { moderateScale, scale, verticalScale } from '../../../styles/scaling'
-import FontFamily from '../../../constants/FontFamily'
+import { CommonColors } from '../../../../styles/Colors'
+import { moderateScale, scale, verticalScale } from '../../../../styles/scaling'
+import FontFamily from '../../../../constants/FontFamily'
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: CommonColors.themeMain,
+    justifyContent: 'center',
   },
   contentContainer: {
-    width: '50%',
-    height: '35%',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: verticalScale(75),
   },
@@ -28,7 +30,7 @@ export const styles = StyleSheet.create({
     backgroundColor: CommonColors.buttonSecondary,
     paddingHorizontal: moderateScale(20),
     paddingVertical: verticalScale(15),
-    borderRadius: moderateScale(12),
+    borderRadius: moderateScale(5),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -38,7 +40,7 @@ export const styles = StyleSheet.create({
   },
   addPlaylistButtonText: {
     color: CommonColors.white,
-    fontSize: scale(32),
+    fontSize: scale(10),
     fontFamily: FontFamily.PublicSans_Medium,
   },
   addPlaylistButtonTextFocused: {
@@ -48,7 +50,7 @@ export const styles = StyleSheet.create({
     backgroundColor: CommonColors.buttonSecondary,
     paddingHorizontal: moderateScale(20),
     paddingVertical: verticalScale(15),
-    borderRadius: moderateScale(12),
+    borderRadius: moderateScale(5),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -58,10 +60,22 @@ export const styles = StyleSheet.create({
   },
   settingsButtonText: {
     color: CommonColors.white,
-    fontSize: scale(32),
+    fontSize: scale(10),
     fontFamily: FontFamily.PublicSans_Medium,
   },
   settingsButtonTextFocused: {
     color: CommonColors.textBlack,
   },
+  Title: {
+    fontFamily: FontFamily.PublicSans_Medium,
+    fontSize: scale(10),
+    textAlign: "center",
+    color: CommonColors.textWhite,
+},
+SubTitle: {
+    fontFamily: FontFamily.PublicSans_Regular,
+    fontSize: scale(10),
+    textAlign: "center",
+    color: CommonColors.textSecondary,
+},
 })

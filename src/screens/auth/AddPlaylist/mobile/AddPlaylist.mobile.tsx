@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Text, View, TouchableOpacity } from 'react-native'
-import ButtonComp from '../../../components/ButtonComp'
-import CommonStyles from '../../../styles/CommonStyles'
+import ButtonComp from '../../../../components/ButtonComp'
+import CommonStyles from '../../../../styles/CommonStyles'
 import { styles } from './styles'
-import { AuthStackParamList } from '../../../navigation/NavigationsTypes'
+import { AuthStackParamList } from '../../../../navigation/NavigationsTypes'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
-import WrapperContainer from '../../../components/WrapperContainer'
+import MobileWrapper from '../../../../components/MobileWrapper'
 
 const AddPlaylist = () => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>()
@@ -13,11 +13,11 @@ const AddPlaylist = () => {
   const [isSettingsFocused, setIsSettingsFocused] = useState(false)
   
   return (
-    <WrapperContainer containerStyle={styles.container}>
+    <MobileWrapper>
       <View style={styles.contentContainer}>
         <View style={styles.textContainer}>
-          <Text style={CommonStyles.Title}>Start streaming with Lora Digital!</Text>
-          <Text style={CommonStyles.SubTitle}>
+          <Text style={styles.Title}>Start streaming with Lora Digital!</Text>
+          <Text style={styles.SubTitle}>
             Just add a playlist from your IPTV provider to unlock{'\n'}your channels.
           </Text>
         </View>
@@ -68,7 +68,7 @@ const AddPlaylist = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </WrapperContainer>
+    </MobileWrapper>
   )
 }
 

@@ -1,10 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import AddPlaylist from '../screens/auth/AddPlaylist/AddPlaylist'
+
 import PlaylistType from '../screens/auth/PlaylistType/PlaylistType';
 import PlaylistSetup from '../screens/auth/PlaylistSetup/PlaylistSetup';
-import PlaylistProcessed from '../screens/auth/PlaylistProcessed/PlaylistProcessed';
 import { AuthStackParamList } from './NavigationsTypes';
 import GeneralSettings from '../screens/main/GeneralSettings/GeneralSettings';
 import PlaylistSettings from '../screens/main/PlaylistSettings/PlaylistSettings';
@@ -13,6 +12,7 @@ import PlaybackSettings from '../screens/main/PlaybackSettings/PlaybackSettings'
 import RemoteControlSettings from '../screens/main/RemoteControlSettings/RemoteControlSettings';
 import OtherSettings from '../screens/main/OtherSettings/OtherSettings';
 import Settings from '../screens/main/Settings/Settings';
+import { AddPlaylist,PlaylistProcessed } from '../screens/auth';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 

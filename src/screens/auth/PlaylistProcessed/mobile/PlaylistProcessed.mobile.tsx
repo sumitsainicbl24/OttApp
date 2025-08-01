@@ -3,16 +3,16 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Animated, Image, Text, TouchableOpacity, View } from 'react-native'
 
 // 2. Global styles and utilities
-import CommonStyles from '../../../styles/CommonStyles'
+import CommonStyles from '../../../../styles/CommonStyles'
 
 // 3. Component imports
 import { NavigationProp, RouteProp, useNavigation } from '@react-navigation/native'
-import WrapperContainer from '../../../components/WrapperContainer'
-import imagepath from '../../../constants/imagepath'
-import { AuthStackParamList } from '../../../navigation/NavigationsTypes'
+import WrapperContainer from '../../../../components/WrapperContainer'
+import imagepath from '../../../../constants/imagepath'
+import { AuthStackParamList } from '../../../../navigation/NavigationsTypes'
 
 // 4. Local styles import (ALWAYS LAST)
-import { getCategoryApi, LoginApi, setAuthTokenAction, setIsPlaylistProcessedAction } from '../../../redux/actions/auth'
+import { getCategoryApi, LoginApi, setAuthTokenAction, setIsPlaylistProcessedAction } from '../../../../redux/actions/auth'
 import { styles } from './styles'
 import Toast from 'react-native-toast-message'
 
