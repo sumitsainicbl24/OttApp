@@ -25,5 +25,6 @@ export const CommonColors= {
 
     //background colors
     backgroundGrey: '#34393F',
+    backgroundBlue:'#1d4389',
 
 }
