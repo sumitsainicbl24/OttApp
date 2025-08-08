@@ -68,11 +68,7 @@ const PlaylistProcessed = ({ route }: { route: RouteProp<AuthStackParamList, 'Pl
       
       await setAuthTokenAction(res?.data?.token)
 
-      // setLoading(false)
-      // res = await getMediaData()
-      // console.log('getMediaData response:', res)
-      // await getMediaData('series')
-      // await getMediaData('movies')
+      
 
       res =await getCategoryApi('live')
 
