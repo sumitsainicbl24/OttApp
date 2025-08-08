@@ -35,16 +35,6 @@ const Favorites = () => {
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
 
       <View style={styles.container}>
-      
-      {/* category list */}
-      {(
-        <View style={[styles.categoryListContainer, !showCategoryAndSidebar && {width: 0}] } nativeID="categoryList">
-          <CategoryList 
-            onCategoryPress={handleCategoryPress}
-            onFocus={handleCategoryListFocus}
-          />
-        </View>
-      )}
 
       <ScrollView
         style={styles.scrollContainer}

@@ -29,10 +29,12 @@ import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 // 8. Local styles import (ALWAYS LAST)
 import { styles } from './styles'
 import LiveVideoComp from '../../../components/LiveVideoComp'
-import { getSeriesEpisodes } from '../../../redux/actions/main'
+import { addToMyListApi, continueWatchingUpdateApi, getMyListApi, getSeriesEpisodes, removeFromMyList } from '../../../redux/actions/main'
 import ShowCatCard from '../../../components/ShowCatCard'
 import { getEpisodeAndSeasonNumber, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
 import { setCurrentSeriesEpisodes } from '../../../redux/reducers/main'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../redux/store'
 
 type MoviePlayScreenRouteProp = RouteProp<MainStackParamList, 'MoviePlayScreen'>
 
@@ -53,6 +55,8 @@ const MoviePlayScreen = () => {
   const navigation = useNavigation()
   const dispatch = useAppDispatch()
   const route = useRoute<MoviePlayScreenRouteProp>()
+
+  const {currentlyPlaying} = useSelector((state: RootState) => state.rootReducer.main)
   const { show, movie } = route.params
   const [movieTitle, setMovieTitle] = useState(movie?.title || movie?.name )
   const [showTitle, setShowTitle] = useState(show?.title || show?.name )
@@ -62,6 +66,7 @@ const MoviePlayScreen = () => {
   const [isMoviePlaying, setIsMoviePlaying] = useState(false)
   const [selectedEpisode, setSelectedEpisode] = useState<any>(null)
   const [streamUrl, setStreamUrl] = useState<string | null>(null)
+  const [addedToMyList, setAddedToMyList] = useState<boolean>(false)
 
   console.log(show, movie, "show and movie");
   
@@ -76,7 +81,18 @@ const MoviePlayScreen = () => {
     setFocusedButton(null)
   }
 
-  const handlePlayPress = () => {
+  const handlePlayPress = async() => {
+    if(currentlyPlaying){
+      const currentPlayingData = {
+        ...currentlyPlaying, 
+        type: route?.params.show? 'series': 'movies',
+        progress: 5,
+        last_watched: new Date().toISOString(),
+        duration: 1454,
+        currentTime: 1454,
+      };
+      await continueWatchingUpdateApi(currentPlayingData)
+    }
     setIsMoviePlaying(true)
   }
 
@@ -90,9 +106,19 @@ const MoviePlayScreen = () => {
     // Handle trailer action
   }
 
-  const handleAddToListPress = () => {
-    console.log('Add to My list pressed')
-    // Handle add to list action
+  const handleAddToListPress = async() => {
+    if(currentlyPlaying){
+      const currentPlayingData = {...currentlyPlaying, type: route?.params.show? 'series': 'movies'};
+      if(addedToMyList){
+        const res = await removeFromMyList(currentPlayingData)
+        console.log('res from remove from my list', res)
+        setAddedToMyList(false)
+      }else{
+        const res = await addToMyListApi(currentPlayingData)
+        console.log('res from add to my list', res)
+        setAddedToMyList(true)
+      }
+    }
   }
 
   // Episode card component
@@ -159,6 +185,20 @@ const MoviePlayScreen = () => {
       })()
     }
   }, [movie, show])
+
+
+  useEffect(() => {
+    (async () => {
+      const res = await getMyListApi()
+      console.log('res from get my list', res)
+      if(currentlyPlaying){
+        const found = res?.data?.data?.data?.videos?.find((item: any) => item.title === currentlyPlaying.title && item.url === currentlyPlaying.url)
+        if(found){
+          setAddedToMyList(true)
+        }
+      }
+    })()
+  }, [currentlyPlaying])
 
   return (
     <MainLayout activeScreen="MoviePlayScreen" hideSidebar={true}>
@@ -251,7 +291,8 @@ const MoviePlayScreen = () => {
             <TouchableOpacity 
               style={[
                 styles.addToListButton,
-                focusedButton === 'addToList' && { backgroundColor: CommonColors.white }
+                addedToMyList && {backgroundColor: CommonColors.backgroundBlue},
+                focusedButton === 'addToList' && {backgroundColor: CommonColors.white}
               ]}
               onPress={handleAddToListPress}
               onFocus={() => handleFocus('addToList')}
@@ -259,14 +300,14 @@ const MoviePlayScreen = () => {
               activeOpacity={1}
             >
               <Image 
-                source={imagepath.wishlistIcon} 
-                style={styles.addToListIconPlaceholder} 
+                source={addedToMyList ? focusedButton === 'addToList' ? imagepath.remove : imagepath.check : imagepath.wishlistIcon} 
+                style={[styles.addToListIconPlaceholder]} 
                 tintColor={focusedButton === 'addToList' ? CommonColors.black : CommonColors.white}
               />
               <Text style={[
                 styles.addToListButtonText,
                 focusedButton === 'addToList' && { color: CommonColors.black }
-              ]}>Add to My list</Text>
+              ]}>{addedToMyList ? focusedButton === 'addToList' ? 'Remove from My list' : 'Added to My list' : 'Add to My list'}</Text>
             </TouchableOpacity>
           </View>
         </View>

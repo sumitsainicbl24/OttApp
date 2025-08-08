@@ -7,6 +7,8 @@ import FontFamily from '../constants/FontFamily'
 import imagepath from '../constants/imagepath'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainStackParamList } from '../navigation/NavigationsTypes'
+import { useSelector } from 'react-redux'
+import { RootState } from '../redux/store'
 
 interface TopNavigationProps {
   activeTab?: string
@@ -20,6 +22,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   hasScrolled = false,
 }) => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
+  const {userToken} = useSelector((state: RootState) => state.rootReducer.auth)
   const menuItems = ['Home',
      'Search', 
      'Tv', 
@@ -56,12 +59,22 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
       if (focusedItem) {
         if (focusedItem === 'Settings') {
           handleTabPress('Settings')
+        } else if (focusedItem === 'Profile') {
+          handleProfilePress()
         } else {
           handleTabPress(focusedItem)
         }
       }
     }
   })
+
+  const handleProfilePress = () => {
+    if(userToken){
+      navigation.navigate('Settings')
+    }else{
+      navigation.navigate('LoginScreen')
+    }
+  }
 
   return (
     <View style={[
@@ -110,7 +123,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           activeOpacity={0.8}
         >
           <Image source={imagepath.BellIcon} style={styles.bellIconPlaceholder} />
-        </TouchableOpacity> */}
+        </TouchableOpacity> */} 
         <TouchableOpacity 
           ref={settingsRef}
           style={[
@@ -130,12 +143,12 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
             styles.profileIcon,
             focusedItem === 'Profile' && styles.focusedProfileIcon
           ]} 
-          onPress={()=>handleTabPress('Profile')}
+          onPress={()=>handleProfilePress()}
           onFocus={() => handleFocus('Profile')}
           onBlur={handleBlur}
           activeOpacity={0.8}
         >
-          <View style={styles.profileImagePlaceholder} />
+          <Image source={imagepath.Defaultuser} style={styles.profileImagePlaceholder} />
         </TouchableOpacity> */}
       </View>
     </View>

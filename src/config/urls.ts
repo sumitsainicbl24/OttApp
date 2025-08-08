@@ -23,6 +23,16 @@ export const signInUrl = getApiUrl("/signin");
 
 export const verifyOtpUrl = getApiUrl("/verify-otp");
 
+export const addToMyListUrl = getApiUrl("/mylist/add");
+
+export const removeFromMyListUrl = getApiUrl("/mylist/remove");
+
+export const getMyListUrl = getApiUrl("/mylist");
+
+export const continueWatchingUpdateUrl = getApiUrl("/continue-watching/update");
+
+export const continueWatchingGetUrl = getApiUrl("/continue-watching");
+
 
 
 // movie details urls

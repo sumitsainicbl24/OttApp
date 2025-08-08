@@ -16,7 +16,6 @@ export type MainStackParamList = {
     Home: {activeScreen: string};
     Notification: undefined;
     Settings: undefined;
-    Profile: undefined;
     Movies: {activeScreen: string};
     Shows: {activeScreen: string};
     Favorites: {activeScreen: string};

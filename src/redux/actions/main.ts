@@ -1,9 +1,11 @@
 import { apiGet, apiPost } from "../../utils/utils"
 import { store } from "../store"
 
-import { getSeriesEpisodesUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
+import { addToMyListUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, getMyListUrl, getSeriesEpisodesUrl, removeFromMyListUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
 import { getUserTokenLocalStorage, setUserDataLocalStorage, setUserTokenLocalStorage } from "../../localStorage/mmkv"
 import { setUserData, setUserToken } from "../reducers/auth"
+import { useSelector } from "react-redux"
+import { RootState } from "../store"
 
 const {dispatch} = store
 
@@ -110,4 +112,32 @@ export const setUserAction = async (user: any) => {
 
     //saving user data to redux
     dispatch(setUserData(user))
+}
+
+
+//my list apis
+export const addToMyListApi = async (data: any) => {
+    const response = await apiPost(addToMyListUrl, data, undefined, true);
+    return response;
+}
+
+export const removeFromMyList = async (data: any) => {
+    const response = await apiPost(removeFromMyListUrl, data, undefined, true);
+    return response;
+}
+
+export const getMyListApi = async () => {
+    const response = await apiGet(getMyListUrl, undefined, true);
+    return response;
+}
+
+//continue watching apis
+export const continueWatchingUpdateApi = async (data: any) => {
+    const response = await apiPost(continueWatchingUpdateUrl, data, undefined, true);
+    return response;
+}
+
+export const continueWatchingGetApi = async () => {
+    const response = await apiGet(continueWatchingGetUrl, undefined, true);
+    return response;
 }

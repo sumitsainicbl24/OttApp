@@ -41,6 +41,9 @@ export default{
     next:require('../assets/images/next.png'),
     previous:require('../assets/images/previous.png'),
     reload:require('../assets/images/reload.png'),
+    Defaultuser:require('../assets/images/Defaultuser.png'),
+    check:require('../assets/images/check.png'),
+    remove:require('../assets/images/remove.png'),
 
     //sample data
 

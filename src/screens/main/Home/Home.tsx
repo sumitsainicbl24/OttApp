@@ -21,10 +21,12 @@ import { CommonColors } from '../../../styles/Colors'
 import { setCurrentlyPlaying } from '../../../redux/reducers/main'
 import { useAppDispatch } from '../../../redux/hooks'
 import FontFamily from '../../../constants/FontFamily'
+import { continueWatchingGetApi } from '../../../redux/actions/main'
 
 
 const Home = () => {
   const {moviesData, channelsData, seriesData} = useSelector((state: RootState) => state.rootReducer.auth)
+  const {userToken} = useSelector((state: RootState) => state.rootReducer.auth)
   const dispatch = useAppDispatch()
 
   const [DynamicPopularMovieData, setDynamicPopularMovieData] = useState<any>(null)
@@ -35,7 +37,7 @@ const Home = () => {
   const [PosterMovieData, setPosterMovieData] = useState<any>(null)
   const [hasScrolled, setHasScrolled] = useState<boolean>(false)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-  
+  const [ContinueWatchingDynamicData, setContinueWatchingDynamicData] = useState<any>(null)
   const handleTabPress = (tab: string) => {
     // Handle navigation to different tabs
     console.log('Tab pressed:', tab)
@@ -86,6 +88,18 @@ const Home = () => {
     setLiveChannelData(channelsData?.slice(0, 8))
   }
 
+  const loadContinueWatchingData = async () => {
+    setTimeout( async () => {
+    if(userToken){
+      const res = await continueWatchingGetApi()
+      console.log('res from continue watching get', res?.data?.data?.data)
+      if(res?.data?.data?.data?.videos?.length > 0){
+        setContinueWatchingDynamicData(res?.data?.data?.data?.videos)
+        }
+      }
+    }, 1000);
+  }
+
 
   useEffect(() => {
     loadMovieData()
@@ -101,6 +115,10 @@ const Home = () => {
       })
     }
   }, [PosterMovieName])
+
+ useEffect(() => {
+  loadContinueWatchingData()
+ }, [userToken])
 
   return (
     <View style={styles.container}>
@@ -225,7 +243,7 @@ const Home = () => {
         /> */}
         <View style={{marginBottom: verticalScale(25)}}/>
         <ContinueWatchingCarousel 
-          data={ContinueWatchingData}
+          data={ContinueWatchingDynamicData ||ContinueWatchingData}
           onItemPress={(item) => console.log('Continue watching selected:', item.title)}
         />
         {/* <MovieCarousel 

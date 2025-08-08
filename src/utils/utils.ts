@@ -2,6 +2,9 @@ import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 import { API_BASE_URL } from '../config/urls';
 import { store } from '../redux/store';
 
+// Extended AxiosRequestConfig type alias for consistency
+type ExtendedAxiosRequestConfig = AxiosRequestConfig;
+
 // Create axios instance with base configuration
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -20,8 +23,18 @@ apiClient.interceptors.request.use(
     config.headers['ngrok-skip-browser-warning'] = 'true';
     
     const state = store.getState();
-    const token = state.rootReducer.auth.auth_token;
+    const authState = state.rootReducer.auth;
     
+    // Check if usertoken flag is set in custom header
+    const useUserToken = config.headers?.['x-use-usertoken'] === 'true';
+    const token = useUserToken ? authState.userToken : authState.auth_token;
+    
+    // Remove the custom header so it doesn't get sent to the API
+    if (config.headers && 'x-use-usertoken' in config.headers) {
+      delete config.headers['x-use-usertoken'];
+    }
+    
+    console.log('Request interceptor - Using userToken:', useUserToken);
     console.log('Request interceptor - Current token:', token ? '***TOKEN_SET***' : 'NO_TOKEN');
     console.log('Request interceptor - URL:', config.url);
     console.log('Request interceptor - Method:', config.method?.toUpperCase());
@@ -78,7 +91,7 @@ const makeRequest = async <T = any>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   data?: any,
-  config?: AxiosRequestConfig
+  config?: ExtendedAxiosRequestConfig
 ): Promise<AxiosResponse<T>> => {
   try {
     const response = await apiClient.request<T>({
@@ -97,42 +110,75 @@ const makeRequest = async <T = any>(
 // GET request
 export const apiGet = async <T = any>(
   url: string,
-  config?: AxiosRequestConfig
+  config?: ExtendedAxiosRequestConfig,
+  usertoken?: boolean
 ): Promise<AxiosResponse<T>> => {
-  return makeRequest<T>('GET', url, undefined, config);
+  const requestConfig: ExtendedAxiosRequestConfig = {
+    ...config,
+    headers: {
+      ...config?.headers,
+      'x-use-usertoken': usertoken ? 'true' : 'false'
+    }
+  };
+  return makeRequest<T>('GET', url, undefined, requestConfig);
 };
 
 // POST request
 export const apiPost = async <T = any>(
   url: string,
   data?: any,
-  config?: AxiosRequestConfig
+  config?: ExtendedAxiosRequestConfig,
+  usertoken?: boolean
 ): Promise<AxiosResponse<T>> => {
-  return makeRequest<T>('POST', url, data, config);
+  const requestConfig: ExtendedAxiosRequestConfig = {
+    ...config,
+    headers: {
+      ...config?.headers,
+      'x-use-usertoken': usertoken ? 'true' : 'false'
+    }
+  };
+  return makeRequest<T>('POST', url, data, requestConfig);
 };
 
 // PUT request
 export const apiPut = async <T = any>(
   url: string,
   data?: any,
-  config?: AxiosRequestConfig
+  config?: ExtendedAxiosRequestConfig,
+  usertoken?: boolean
 ): Promise<AxiosResponse<T>> => {
-  return makeRequest<T>('PUT', url, data, config);
+  const requestConfig: ExtendedAxiosRequestConfig = {
+    ...config,
+    headers: {
+      ...config?.headers,
+      'x-use-usertoken': usertoken ? 'true' : 'false'
+    }
+  };
+  return makeRequest<T>('PUT', url, data, requestConfig);
 };
 
 // DELETE request
 export const apiDelete = async <T = any>(
   url: string,
-  config?: AxiosRequestConfig
+  config?: ExtendedAxiosRequestConfig,
+  usertoken?: boolean
 ): Promise<AxiosResponse<T>> => {
-  return makeRequest<T>('DELETE', url, undefined, config);
+  const requestConfig: ExtendedAxiosRequestConfig = {
+    ...config,
+    headers: {
+      ...config?.headers,
+      'x-use-usertoken': usertoken ? 'true' : 'false'
+    }
+  };
+  return makeRequest<T>('DELETE', url, undefined, requestConfig);
 };
 
 // File upload helper
 export const uploadFile = async <T = any>(
   url: string,
   formData: FormData,
-  onUploadProgress?: (progressEvent: any) => void
+  onUploadProgress?: (progressEvent: any) => void,
+  usertoken?: boolean
 ): Promise<AxiosResponse<T>> => {
   return apiPost<T>(url, formData, {
     headers: {
@@ -140,16 +186,17 @@ export const uploadFile = async <T = any>(
       'Content-Type': 'multipart/form-data',
     },
     onUploadProgress,
-  });
+  }, usertoken);
 };
 
 // Download file helper for React Native
 export const downloadFile = async (
-  url: string
+  url: string,
+  usertoken?: boolean
 ): Promise<Blob> => {
   const response = await apiGet(url, {
     responseType: 'blob',
-  });
+  }, usertoken);
   
   return response.data;
 };
@@ -201,12 +248,13 @@ export const createQueryString = (params: Record<string, any>): string => {
 export const apiGetWithParams = async <T = any>(
   url: string,
   params?: Record<string, any>,
-  config?: AxiosRequestConfig
+  config?: ExtendedAxiosRequestConfig,
+  usertoken?: boolean
 ): Promise<AxiosResponse<T>> => {
   const queryString = params ? createQueryString(params) : '';
   const fullUrl = queryString ? `${url}?${queryString}` : url;
   
-  return apiGet<T>(fullUrl, config);
+  return apiGet<T>(fullUrl, config, usertoken);
 };
 
 export default apiClient;

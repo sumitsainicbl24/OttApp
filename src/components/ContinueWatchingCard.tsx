@@ -7,6 +7,7 @@ interface ContinueWatchingData {
   id: number
   title: string
   image: ImageSourcePropType
+  logo?: ImageSourcePropType
 }
 
 interface ContinueWatchingCardProps extends TouchableOpacityProps {
@@ -43,6 +44,8 @@ const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
     onPress?.()
   }
 
+  console.log('data from continue watching card', data);
+
   return (
     <TouchableOpacity 
       style={[
@@ -58,7 +61,7 @@ const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
       {...props}
     >
       <Image 
-        source={data.image} 
+        source={data.image? data.image : {uri: data.logo}} 
         style={[
           styles.continueWatchingImage,
           isFocused && styles.continueWatchingImageFocused

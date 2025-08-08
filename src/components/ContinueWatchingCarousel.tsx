@@ -16,6 +16,8 @@ interface ContinueWatchingCarouselProps {
   onItemPress?: (item: ContinueWatchingData) => void
 }
 
+
+
 const ContinueWatchingCarousel: React.FC<ContinueWatchingCarouselProps> = ({ 
   data, 
   onItemPress 
@@ -24,6 +26,9 @@ const ContinueWatchingCarousel: React.FC<ContinueWatchingCarouselProps> = ({
     console.log('Continue watching selected:', item.title)
     onItemPress?.(item)
   }
+
+console.log('data from continue watching carousel', data);
+
 
   return (
     <View style={styles.sectionContainer}>
