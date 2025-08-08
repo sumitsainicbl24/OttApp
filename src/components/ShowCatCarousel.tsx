@@ -174,6 +174,7 @@ const styles = StyleSheet.create({
     fontSize: scale(38),
     color: CommonColors.white,
     marginLeft: moderateScale(20),
+    marginTop: verticalScale(25),
     // marginBottom: verticalScale(20),
   },
   carouselWrapper: {

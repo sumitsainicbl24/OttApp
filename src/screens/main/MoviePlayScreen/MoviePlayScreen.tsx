@@ -108,7 +108,7 @@ const MoviePlayScreen = () => {
 
   const handleAddToListPress = async() => {
     if(currentlyPlaying){
-      const currentPlayingData = {...currentlyPlaying, type: route?.params.show? 'series': 'movies'};
+      const currentPlayingData = {...currentlyPlaying, type: route?.params.show? 'series': 'movies', url: streamUrl};
       if(addedToMyList){
         const res = await removeFromMyList(currentPlayingData)
         console.log('res from remove from my list', res)
