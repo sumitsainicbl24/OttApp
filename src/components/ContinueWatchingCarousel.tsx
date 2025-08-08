@@ -27,8 +27,6 @@ const ContinueWatchingCarousel: React.FC<ContinueWatchingCarouselProps> = ({
     onItemPress?.(item)
   }
 
-console.log('data from continue watching carousel', data);
-
 
   return (
     <View style={styles.sectionContainer}>

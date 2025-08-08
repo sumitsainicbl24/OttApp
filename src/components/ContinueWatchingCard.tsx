@@ -2,12 +2,15 @@ import React, { useState } from 'react'
 import { Image, ImageSourcePropType, StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native'
 import { CommonColors } from '../styles/Colors'
 import { moderateScale, scale, verticalScale } from '../styles/scaling'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { MainStackParamList } from '../navigation/NavigationsTypes'
 
 interface ContinueWatchingData {
   id: number
   title: string
   image: ImageSourcePropType
   logo?: ImageSourcePropType
+  type?: string
 }
 
 interface ContinueWatchingCardProps extends TouchableOpacityProps {
@@ -28,6 +31,7 @@ const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
   ...props 
 }) => {
   const [isFocused, setIsFocused] = useState(false)
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
 
   const handleFocus = (event: any) => {
     setIsFocused(true)
@@ -41,7 +45,12 @@ const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
 
   const handlePress = () => {
     console.log('Continue watching pressed:', data.title)
-    onPress?.()
+    if(data?.type== 'series'){
+      navigation.navigate('MoviePlayScreen', { show: data })
+    }else{
+      navigation.navigate('MoviePlayScreen', { movie: data })
+    }
+    // onPress?.()
   }
 
   console.log('data from continue watching card', data);
