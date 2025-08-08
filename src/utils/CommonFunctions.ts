@@ -4,7 +4,9 @@ import { getMovieCastAndCrewWithTMDB_ID, getMovieDetailsWithTMDB_ID, getSeriesSh
 export const cleanMovieName = (name: string) => {
     return name
         .replace(/^┃[^┃]*┃\s*/, '') // Remove ┃...┃ from beginning
+        .replace(/^\s*\[[^\]]*\]\s*/, '') // Remove [...] from beginning
         .replace(/\s*\[[^\]]*\]\s*$/, '') // Remove [...] from end
+        .replace(/\s*\(\d{4}\)$/, '') // Remove (YYYY) from end
         .replace(/\s+\d{4}-\d{2}-\d{2}$/, '') // Remove date patterns (YYYY-MM-DD) from end
         .replace(/\s+(4K|HD|1080p|720p|480p|UHD|HDTV|BluRay|BRRip|WEBRip|DVDRip|HEVC)$/i, '') // Remove quality indicators
         .trim()
