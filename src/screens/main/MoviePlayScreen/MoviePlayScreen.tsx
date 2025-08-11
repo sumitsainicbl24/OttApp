@@ -6,7 +6,7 @@ import { Text, View, TouchableOpacity, ScrollView, StatusBar, Image, FlatList } 
 import LinearGradient from 'react-native-linear-gradient'
 
 // 3. Navigation imports
-import { useNavigation, RouteProp, useRoute } from '@react-navigation/native'
+import { useNavigation, RouteProp, useRoute, NavigationProp } from '@react-navigation/native'
 
 // 4. Redux imports
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks'
@@ -52,11 +52,12 @@ interface MovieData {
 }
 
 const MoviePlayScreen = () => {
-  const navigation = useNavigation()
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
   const dispatch = useAppDispatch()
   const route = useRoute<MoviePlayScreenRouteProp>()
 
   const {currentlyPlaying} = useSelector((state: RootState) => state.rootReducer.main)
+  const {userToken} = useSelector((state: RootState) => state.rootReducer.auth)
   const { show, movie } = route.params
   const [movieTitle, setMovieTitle] = useState(movie?.title || movie?.name )
   const [showTitle, setShowTitle] = useState(show?.title || show?.name )
@@ -114,6 +115,11 @@ const MoviePlayScreen = () => {
         console.log('res from remove from my list', res)
         setAddedToMyList(false)
       }else{
+
+        if(!userToken){
+          navigation.navigate('LoginScreen')
+          return
+        }
         const res = await addToMyListApi(currentPlayingData)
         console.log('res from add to my list', res)
         setAddedToMyList(true)

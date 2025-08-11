@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Text, View, TouchableOpacity, ImageBackground, Image } from 'react-native'
 
 // 2. Navigation imports
-import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 
 // 3. Redux imports (if needed for future login logic)
 // import { useAppSelector, useAppDispatch } from '../../../redux/hooks'
@@ -25,9 +25,11 @@ import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 import { setUserAction, setUserTokenAction, signinApi } from '../../../redux/actions/main'
 import Toast from 'react-native-toast-message'
 
+type LoginScreenRouteProp = RouteProp<MainStackParamList, 'LoginScreen'>
+
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-  
+  const route = useRoute<LoginScreenRouteProp>()
   // State management
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -50,7 +52,11 @@ const LoginScreen = () => {
 
           setUserAction(response?.data?.data?.user)
           setUserTokenAction(response?.data?.data?.token)
-          navigation.navigate('Home', {activeScreen: 'Home'})
+          if(route?.params?.from !== 'settings'){
+            navigation.goBack()
+          }else{
+            navigation.navigate('Home', {activeScreen: 'Home'})
+          }
         }
         console.log(response);
     } catch (error:any) {

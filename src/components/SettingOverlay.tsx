@@ -20,7 +20,7 @@ const SettingOverlay = ({children, topTitle}: {children: React.ReactNode, topTit
         if(userToken){
           navigation.navigate('BuySubscription')
         }else{
-            navigation.navigate('LoginScreen')
+            navigation.navigate('LoginScreen', {from: 'settings'})
         }
     }
 

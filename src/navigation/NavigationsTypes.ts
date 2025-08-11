@@ -29,7 +29,7 @@ export type MainStackParamList = {
     Tv: {activeScreen: string};
     MoviePlayScreen: {show?: any, movie?: any};
     BuySubscription: undefined;
-    LoginScreen: undefined;
+    LoginScreen: {from?: string} | undefined;
     SignupScreen: undefined;
     VerifyOtp: {data: any};
 };
