@@ -29,7 +29,7 @@ import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 // 8. Local styles import (ALWAYS LAST)
 import { styles } from './styles'
 import LiveVideoComp from '../../../components/LiveVideoComp'
-import { addToMyListApi, continueWatchingUpdateApi, getMyListApi, getSeriesEpisodes, removeFromMyList } from '../../../redux/actions/main'
+import { addToMyListApi, continueWatchingUpdateApi, getMyListApi, getSeriesEpisodes, mylistCheckApi, removeFromMyList } from '../../../redux/actions/main'
 import ShowCatCard from '../../../components/ShowCatCard'
 import { getEpisodeAndSeasonNumber, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
 import { setCurrentSeriesEpisodes } from '../../../redux/reducers/main'
@@ -195,14 +195,17 @@ const MoviePlayScreen = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getMyListApi()
+      const res = await mylistCheckApi(currentlyPlaying)
       console.log('res from get my list', res)
-      if(currentlyPlaying){
-        const found = res?.data?.data?.data?.videos?.find((item: any) => item.title === currentlyPlaying.title && item.url === currentlyPlaying.url)
-        if(found){
-          setAddedToMyList(true)
-        }
+      if(res?.data?.data?.exists){
+        setAddedToMyList(true)
       }
+      // if(currentlyPlaying){
+      //   const found = res?.data?.data?.data?.videos?.find((item: any) => item.title === currentlyPlaying.title && item.url === currentlyPlaying.url)
+      //   if(found){
+      //     setAddedToMyList(true)
+      //   }
+      // }
     })()
   }, [currentlyPlaying])
 

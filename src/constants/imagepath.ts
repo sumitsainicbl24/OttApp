@@ -44,6 +44,10 @@ export default{
     Defaultuser:require('../assets/images/Defaultuser.png'),
     check:require('../assets/images/check.png'),
     remove:require('../assets/images/remove.png'),
+    menubar:require('../assets/images/menubar.png'),
+    caption_icon:require('../assets/images/caption_icon.png'),
+    videoQuality:require('../assets/images/videoQuality.png'),
+    buttons:require('../assets/images/buttons.png'),
 
     //sample data
 
