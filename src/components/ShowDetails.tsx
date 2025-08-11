@@ -5,6 +5,10 @@ import { CommonColors } from '../styles/Colors'
 import { moderateScale, verticalScale, scale } from '../styles/scaling'
 import FontFamily from '../constants/FontFamily'
 import { addToMyListApi, mylistCheckApi, removeFromMyList } from '../redux/actions/main'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { MainStackParamList } from '../navigation/NavigationsTypes'
+import { useSelector } from 'react-redux'
+import { RootState } from '../redux/store'
 
 interface ShowData {
   title: string
@@ -33,7 +37,8 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
 }) => {
   const [focused, setFocused] = useState<string | null>(null)
   const [isInMyList, setIsInMyList] = useState<boolean>(false)
-
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
+  const userToken = useSelector((state: RootState) => state.rootReducer.auth.userToken)
   const handleFocus = (item: string) => {
     setFocused(item)
     onFocus?.()
@@ -44,6 +49,10 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   }
 
   const handleMyListPress = () => {
+    if(!userToken){
+      navigation.navigate('LoginScreen')
+    }
+
     if (!PosterMovieName) {
       console.log('PosterMovieName is null, cannot perform my list action')
       return
