@@ -1,7 +1,7 @@
 import { apiGet, apiPost } from "../../utils/utils"
 import { store } from "../store"
 
-import { addToMyListUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, getMyListUrl, getSeriesEpisodesUrl, mylistCheckUrl, removeFromMyListUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
+import { addToMyListUrl, clearMyListUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, getMyListUrl, getSeriesEpisodesUrl, mylistCheckUrl, removeFromMyListUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
 import { getUserTokenLocalStorage, setUserDataLocalStorage, setUserTokenLocalStorage } from "../../localStorage/mmkv"
 import { setUserData, setUserToken } from "../reducers/auth"
 import { useSelector } from "react-redux"
@@ -123,6 +123,11 @@ export const addToMyListApi = async (data: any) => {
 
 export const removeFromMyList = async (data: any) => {
     const response = await apiPost(removeFromMyListUrl, data, undefined, true);
+    return response;
+}
+
+export const clearMyListApi = async () => {
+    const response = await apiPost(clearMyListUrl, undefined, undefined, true);
     return response;
 }
 

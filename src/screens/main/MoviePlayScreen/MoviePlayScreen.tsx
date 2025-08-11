@@ -115,7 +115,6 @@ const MoviePlayScreen = () => {
         console.log('res from remove from my list', res)
         setAddedToMyList(false)
       }else{
-
         if(!userToken){
           navigation.navigate('LoginScreen')
           return
@@ -196,7 +195,6 @@ const MoviePlayScreen = () => {
   useEffect(() => {
     (async () => {
       const res = await mylistCheckApi(currentlyPlaying)
-      console.log('res from get my list', res)
       if(res?.data?.data?.exists){
         setAddedToMyList(true)
       }

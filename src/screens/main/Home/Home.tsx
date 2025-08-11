@@ -159,6 +159,7 @@ const Home = () => {
             onPlayPress={handlePlayPress}
             onMyListPress={handleMyListPress}
             showDetails={PosterMovieData}
+            PosterMovieName={PosterMovieName}
           />
         </ImageBackground>
         {/* <MovieCarousel 

@@ -27,6 +27,8 @@ export const addToMyListUrl = getApiUrl("/mylist/add");
 
 export const removeFromMyListUrl = getApiUrl("/mylist/remove");
 
+export const clearMyListUrl = getApiUrl("/mylist/clear");
+
 export const getMyListUrl = getApiUrl("/mylist");
 
 export const continueWatchingUpdateUrl = getApiUrl("/continue-watching/update");

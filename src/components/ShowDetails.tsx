@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import imagepath from '../constants/imagepath'
 import { CommonColors } from '../styles/Colors'
 import { moderateScale, verticalScale, scale } from '../styles/scaling'
 import FontFamily from '../constants/FontFamily'
+import { addToMyListApi, mylistCheckApi, removeFromMyList } from '../redux/actions/main'
 
 interface ShowData {
   title: string
@@ -20,15 +21,18 @@ interface ShowDetailsProps {
   onMyListPress?: () => void
   showDetails?: any
   onFocus?: () => void
+  PosterMovieName?: any
 }
 
 const ShowDetails: React.FC<ShowDetailsProps> = ({ 
   onPlayPress, 
   onMyListPress,
   showDetails,
-  onFocus
+  onFocus,
+  PosterMovieName
 }) => {
   const [focused, setFocused] = useState<string | null>(null)
+  const [isInMyList, setIsInMyList] = useState<boolean>(false)
 
   const handleFocus = (item: string) => {
     setFocused(item)
@@ -38,6 +42,44 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   const handleBlur = () => {
     setFocused(null)
   }
+
+  const handleMyListPress = () => {
+    if (!PosterMovieName) {
+      console.log('PosterMovieName is null, cannot perform my list action')
+      return
+    }
+    
+    const movieData = {...PosterMovieName, type: 'movies'}
+    if(isInMyList){
+      removeFromMyList(movieData)
+      setIsInMyList(false)
+    }else{
+      addToMyListApi(movieData)
+      setIsInMyList(true)
+    }
+  }
+
+  useEffect(() => {
+    console.log('checking useeffect 1', PosterMovieName)
+    
+    if (!PosterMovieName) {
+      console.log('PosterMovieName is null, skipping API call')
+      return
+    }
+    
+    const checkMyList = async () => {
+      console.log('checking useeffect 2', PosterMovieName)
+      const movieData = {...PosterMovieName, type: 'movies'}
+      const res = await mylistCheckApi(movieData)
+      if(res?.data?.data?.exists){
+        console.log('PosterMovieName', PosterMovieName)
+        console.log('res', res)
+        setIsInMyList(res?.data?.data?.exists)
+      }
+    }
+    
+    checkMyList()
+  }, [PosterMovieName])
 
   return (
     <View style={styles.featuredContainer}>
@@ -66,13 +108,16 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
 
         <TouchableOpacity 
         style={[styles.myListButton, focused === 'myList' && styles.myListButtonFocused]} 
-        onPress={onMyListPress}
+        onPress={
+          // onMyListPress
+          handleMyListPress
+        }
         activeOpacity={1}
         onFocus={() => handleFocus('myList')}
         onBlur={handleBlur}
         >
-          <Text style={styles.plusSymbol}>+</Text>
-          <Text style={styles.myListButtonText}>My List</Text>
+          <Text style={styles.plusSymbol}>{isInMyList ? '-' : '+'}</Text>
+          <Text style={styles.myListButtonText}>{isInMyList ? 'Remove from My List' : 'Add to My List'}</Text>
         </TouchableOpacity>
       </View>
 
