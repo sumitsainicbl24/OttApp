@@ -1,7 +1,7 @@
 import { apiGet, apiPost } from "../../utils/utils"
 import { store } from "../store"
 
-import { addToMyListUrl, clearMyListUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, getMyListUrl, getSeriesEpisodesUrl, mylistCheckUrl, removeFromMyListUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
+import { addToMyListUrl, clearMyListUrl, continueWatchingCurrentUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, getMyListUrl, getSeriesEpisodesUrl, mylistCheckUrl, removeFromMyListUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
 import { getUserTokenLocalStorage, setUserDataLocalStorage, setUserTokenLocalStorage } from "../../localStorage/mmkv"
 import { setUserData, setUserToken } from "../reducers/auth"
 import { useSelector } from "react-redux"
@@ -149,5 +149,10 @@ export const continueWatchingUpdateApi = async (data: any) => {
 
 export const continueWatchingGetApi = async () => {
     const response = await apiGet(continueWatchingGetUrl, undefined, true);
+    return response;
+}
+
+export const continueWatchingCurrentApi = async ( data: any) => {
+    const response = await apiPost(continueWatchingCurrentUrl, data, undefined, true);
     return response;
 }

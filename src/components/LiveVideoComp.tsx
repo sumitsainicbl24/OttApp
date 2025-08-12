@@ -22,15 +22,17 @@ import { RootState } from '../redux/store';
 import { useSelector } from 'react-redux';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { MainStackParamList } from '../navigation/NavigationsTypes';
+import { continueWatchingUpdateApi } from '../redux/actions/main';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 interface LiveVideoCompProps {
   streamUrl: string;
   onExit?: () => void;
+  timing?: any;
 }
 
-const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
+const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
 
   //get currently playing from redux
   const {currentlyPlaying, currentSeriesEpisodes}:any = useSelector((state: RootState) => state.rootReducer.main)
@@ -41,7 +43,6 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
   })
 
   const [VideoUrl, setVideoUrl] = useState(currentSeriesEpisodes[currentEpisodeIndex]?.url || streamUrl)
-
 
   // State management
   const [loading, setLoading] = useState(true);
@@ -195,6 +196,32 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
     setTimeout(() => {
       setNotification({ message: '', visible: false });
     }, 3000);
+  };
+
+  // Handle exit with continue watching API call
+  const handleExit = async () => {
+    if (currentlyPlaying) {
+      try {
+        const currentPlayingData = {
+          ...currentlyPlaying,
+          type: currentSeriesEpisodes?.length > 1 ? 'series' : 'movies',
+          progress: Math.round((currentTime / duration) * 100) || 5,
+          last_watched: new Date().toISOString(),
+          duration: Math.round(duration) || 1454,
+          currentTime: Math.round(currentTime) || 0,
+        };
+        await continueWatchingUpdateApi(currentPlayingData);
+      } catch (error) {
+        console.log('Error updating continue watching data:', error);
+      }
+      finally{
+        navigation.goBack()
+      }
+    }
+    
+    if (onExit) {
+      onExit();
+    }
   };
 
   // Context menu handlers
@@ -679,9 +706,9 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
         if (progressTimeoutRef.current) {
           clearTimeout(progressTimeoutRef.current);
         }
-      } else if (onExit) {
+      } else {
         console.log('Exiting player on menu/back press');
-        onExit();
+        handleExit();
       }
     }
   });
@@ -727,9 +754,9 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
             clearTimeout(progressTimeoutRef.current);
           }
           return true; // Prevent default back behavior
-        } else if (onExit) {
+        } else {
           console.log('Exiting player on Android back press');
-          onExit();
+          handleExit();
           return true; // Prevent default back behavior
         }
         return false;
@@ -766,6 +793,13 @@ const LiveVideoComp = ({ streamUrl, onExit }: LiveVideoCompProps) => {
       videoRef.current.seek(seekTime);
       setCurrentTime(seekTime);
       setPendingSeekTime(null);
+    }
+    // If timing is provided (for continuing from previous session), seek to that time
+    else if (timing && timing.currentTime && videoRef.current) {
+      const seekTime = Math.max(0, Math.min(timing.currentTime, data.duration || 0));
+      console.log('Seeking to continue watching time:', seekTime);
+      videoRef.current.seek(seekTime);
+      setCurrentTime(seekTime);
     }
   };
 

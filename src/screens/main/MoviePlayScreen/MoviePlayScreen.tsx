@@ -29,7 +29,7 @@ import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 // 8. Local styles import (ALWAYS LAST)
 import { styles } from './styles'
 import LiveVideoComp from '../../../components/LiveVideoComp'
-import { addToMyListApi, continueWatchingUpdateApi, getMyListApi, getSeriesEpisodes, mylistCheckApi, removeFromMyList } from '../../../redux/actions/main'
+import { addToMyListApi, continueWatchingCurrentApi, getMyListApi, getSeriesEpisodes, mylistCheckApi, removeFromMyList } from '../../../redux/actions/main'
 import ShowCatCard from '../../../components/ShowCatCard'
 import { getEpisodeAndSeasonNumber, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
 import { setCurrentSeriesEpisodes } from '../../../redux/reducers/main'
@@ -68,6 +68,7 @@ const MoviePlayScreen = () => {
   const [selectedEpisode, setSelectedEpisode] = useState<any>(null)
   const [streamUrl, setStreamUrl] = useState<string | null>(null)
   const [addedToMyList, setAddedToMyList] = useState<boolean>(false)
+  const [timing, setTiming] = useState<any>(null)
 
   console.log(show, movie, "show and movie");
   
@@ -83,17 +84,6 @@ const MoviePlayScreen = () => {
   }
 
   const handlePlayPress = async() => {
-    if(currentlyPlaying){
-      const currentPlayingData = {
-        ...currentlyPlaying, 
-        type: route?.params.show? 'series': 'movies',
-        progress: 5,
-        last_watched: new Date().toISOString(),
-        duration: 1454,
-        currentTime: 1454,
-      };
-      await continueWatchingUpdateApi(currentPlayingData)
-    }
     setIsMoviePlaying(true)
   }
 
@@ -198,6 +188,12 @@ const MoviePlayScreen = () => {
       if(res?.data?.data?.exists){
         setAddedToMyList(true)
       }
+
+      const res2 = await continueWatchingCurrentApi({url: currentlyPlaying?.url, type: currentlyPlaying?.type})
+      console.log('res2 from continue watching current', res2)
+      if(res2?.data?.data?.found){
+        setTiming(res2?.data?.data?.timing)
+      }
       // if(currentlyPlaying){
       //   const found = res?.data?.data?.data?.videos?.find((item: any) => item.title === currentlyPlaying.title && item.url === currentlyPlaying.url)
       //   if(found){
@@ -210,7 +206,7 @@ const MoviePlayScreen = () => {
   return (
     <MainLayout activeScreen="MoviePlayScreen" hideSidebar={true}>
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
-      {isMoviePlaying ? <LiveVideoComp streamUrl={streamUrl || ''} /> : (
+      {isMoviePlaying ? <LiveVideoComp streamUrl={streamUrl || ''} timing={timing} /> : (
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* ShowDetails1 Component - handles background, gradients, and movie details */}
         <ShowDetails1 movieName={movieTitle} showName={showTitle} />

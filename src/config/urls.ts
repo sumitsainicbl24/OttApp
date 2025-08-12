@@ -33,6 +33,8 @@ export const getMyListUrl = getApiUrl("/mylist");
 
 export const continueWatchingUpdateUrl = getApiUrl("/continue-watching/update");
 
+export const continueWatchingCurrentUrl = getApiUrl("/continue-watching/current");
+
 export const continueWatchingGetUrl = getApiUrl("/continue-watching");
 
 export const mylistCheckUrl = getApiUrl("/mylist/check");
