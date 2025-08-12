@@ -29,7 +29,7 @@ import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 // 8. Local styles import (ALWAYS LAST)
 import { styles } from './styles'
 import LiveVideoComp from '../../../components/LiveVideoComp'
-import { addToMyListApi, continueWatchingCurrentApi, getMyListApi, getSeriesEpisodes, mylistCheckApi, removeFromMyList } from '../../../redux/actions/main'
+import { addToMyListApi, continueWatchingCurrentApi, getMyListApi, getSeriesDetails, getSeriesEpisodes, mylistCheckApi, removeFromMyList } from '../../../redux/actions/main'
 import ShowCatCard from '../../../components/ShowCatCard'
 import { getEpisodeAndSeasonNumber, imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions'
 import { setCurrentSeriesEpisodes } from '../../../redux/reducers/main'
@@ -169,11 +169,13 @@ const MoviePlayScreen = () => {
     if(show){
       (async () => {
       try {
-        const res = await getSeriesEpisodes(show?.title || show?.name)
-        console.log('res from series episodes', res)
-        dispatch(setCurrentSeriesEpisodes(res?.data?.data?.data?.episodes || []))
-        setSeriesEpisodes(res?.data?.data?.data?.episodes || [])
-        setStreamUrl(res?.data?.data?.data?.episodes[0]?.url)
+        // const res = await getSeriesEpisodes(show?.title || show?.name)
+
+        const res = await getSeriesDetails(show?.title || show?.name)
+        console.log('res from series episodes', res?.data?.data?.seasonsList[0]?.episodes)
+        dispatch(setCurrentSeriesEpisodes(res?.data?.data?.data?.episodes || res?.data?.data?.seasonsList[0]?.episodes || []))
+        setSeriesEpisodes(res?.data?.data?.data?.episodes || res?.data?.data?.seasonsList[0]?.episodes || [])
+        setStreamUrl(res?.data?.data?.data?.episodes[0]?.url || res?.data?.data?.seasonsList[0]?.episodes[0]?.url)
         } catch (error) {
           console.log('error', error)
         }

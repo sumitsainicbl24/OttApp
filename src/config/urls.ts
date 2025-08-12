@@ -17,6 +17,8 @@ export const searchUrl = getApiUrl("/search");
 
 export const getSeriesEpisodesUrl = getApiUrl("/series-episodes");
 
+export const seriesDetailsUrl = getApiUrl("/series-details");
+
 export const signupUrl = getApiUrl("/signup");
 
 export const signInUrl = getApiUrl("/signin");

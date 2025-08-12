@@ -1,7 +1,7 @@
 import { apiGet, apiPost } from "../../utils/utils"
 import { store } from "../store"
 
-import { addToMyListUrl, clearMyListUrl, continueWatchingCurrentUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, getMyListUrl, getSeriesEpisodesUrl, mylistCheckUrl, removeFromMyListUrl, searchUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
+import { addToMyListUrl, clearMyListUrl, continueWatchingCurrentUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, getMyListUrl, getSeriesEpisodesUrl, mylistCheckUrl, removeFromMyListUrl, searchUrl, seriesDetailsUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
 import { getUserTokenLocalStorage, setUserDataLocalStorage, setUserTokenLocalStorage } from "../../localStorage/mmkv"
 import { setUserData, setUserToken } from "../reducers/auth"
 import { useSelector } from "react-redux"
@@ -79,6 +79,11 @@ export const getSeriesShowDetailsOMDB = async (title: string, season?: number, e
 //getting all episodes of a series
 export const getSeriesEpisodes = async (title: string) => {
     const response = await apiGet(`${getSeriesEpisodesUrl}?title=${encodeURIComponent(title)}`);
+    return response;
+}
+
+export const getSeriesDetails = async (title: string) => {
+    const response = await apiGet(`${seriesDetailsUrl}?title=${encodeURIComponent(title)}`);
     return response;
 }
 
