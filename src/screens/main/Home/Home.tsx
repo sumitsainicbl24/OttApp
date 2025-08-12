@@ -251,10 +251,12 @@ const Home = () => {
           onMoviePress={(movie) => console.log('Popular show selected:', movie.title)}
         /> */}
         <View style={{marginBottom: verticalScale(25)}}/>
-        <ContinueWatchingCarousel 
+        {ContinueWatchingDynamicData?.length > 0 &&
+          <ContinueWatchingCarousel 
           data={ContinueWatchingDynamicData ||ContinueWatchingData}
           onItemPress={(item) => console.log('Continue watching selected:', item.title)}
-        />
+          />
+        }
         {/* <MovieCarousel 
           title="Recently Added" 
           data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : RecentlyAddedData}

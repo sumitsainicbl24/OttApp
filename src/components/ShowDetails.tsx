@@ -51,6 +51,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   const handleMyListPress = () => {
     if(!userToken){
       navigation.navigate('LoginScreen')
+      return
     }
 
     if (!PosterMovieName) {
