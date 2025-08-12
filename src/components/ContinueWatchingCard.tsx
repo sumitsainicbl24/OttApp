@@ -4,6 +4,8 @@ import { CommonColors } from '../styles/Colors'
 import { moderateScale, scale, verticalScale } from '../styles/scaling'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainStackParamList } from '../navigation/NavigationsTypes'
+import { setCurrentlyPlaying } from '../redux/reducers/main'
+import { useAppDispatch } from '../redux/hooks'
 
 interface ContinueWatchingData {
   id: number
@@ -32,7 +34,7 @@ const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-
+  const dispatch = useAppDispatch()
   const handleFocus = (event: any) => {
     setIsFocused(true)
     onFocus?.(event)
@@ -46,8 +48,10 @@ const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
   const handlePress = () => {
     console.log('Continue watching pressed:', data.title)
     if(data?.type== 'series'){
+      dispatch(setCurrentlyPlaying(data))
       navigation.navigate('MoviePlayScreen', { show: data })
     }else{
+      dispatch(setCurrentlyPlaying(data))
       navigation.navigate('MoviePlayScreen', { movie: data })
     }
     // onPress?.()

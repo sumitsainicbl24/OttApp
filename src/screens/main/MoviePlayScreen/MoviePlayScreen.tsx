@@ -246,7 +246,7 @@ const MoviePlayScreen = () => {
               <Text style={[
                 styles.playButtonText,
                 focusedButton === 'play' && { color: CommonColors.black }
-              ]}>Play {selectedEpisode? getEpisodeAndSeasonNumber(selectedEpisode?.title) : ''}</Text>
+              ]}>{timing ? 'Continue' : 'Play'} {selectedEpisode? getEpisodeAndSeasonNumber(selectedEpisode?.title) : ''}</Text>
             </TouchableOpacity>
             
             {/* <TouchableOpacity 
