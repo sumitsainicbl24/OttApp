@@ -2,15 +2,16 @@ import { TMDB_BaseUrlImage } from '../config/urls'
 import { getMovieCastAndCrewWithTMDB_ID, getMovieDetailsWithTMDB_ID, getSeriesShowDetailsOMDB, getSeriesShowDetailsWithTMDB, getSeriesShowDetailsWithTMDB_ID, getShowDetailsApi, getShowDetailsApiTMDB } from '../redux/actions/main'
 
 export const cleanMovieName = (name: string) => {
-    return name
-        .replace(/^┃[^┃]*┃\s*/, '') // Remove ┃...┃ from beginning
-        .replace(/^\s*\[[^\]]*\]\s*/, '') // Remove [...] from beginning
-        .replace(/\s*\[[^\]]*\]\s*$/, '') // Remove [...] from end
-        .replace(/\s*\(\d{4}\)$/, '') // Remove (YYYY) from end
-        .replace(/\s+\d{4}-\d{2}-\d{2}$/, '') // Remove date patterns (YYYY-MM-DD) from end
-        .replace(/\s+(4K|HD|1080p|720p|480p|UHD|HDTV|BluRay|BRRip|WEBRip|DVDRip|HEVC)$/i, '') // Remove quality indicators
-        .trim()
-}
+  return name
+    .replace(/^┃[^┃]*┃\s*/, '')                // Remove ┃...┃ at start
+    .replace(/^\s*\[[^\]]*\]\s*/, '')          // Remove [...] at start
+    .replace(/\s*\[[^\]]*\]\s*$/, '')          // Remove [...] at end
+    .replace(/\s*\(\d{4}\)\s*$/, '')           // Remove (YYYY) at end
+    .replace(/\s+\d{4}-\d{2}-\d{2}$/, '')      // Remove YYYY-MM-DD at end
+    .replace(/\s+(4K|HD|1080p|720p|480p|UHD|HDTV|BluRay|BRRip|WEBRip|DVDRip|HEVC)$/i, '') // Remove quality indicators
+    .trim();
+};
+
 
 export const getEpisodeAndSeasonNumber = (title: string) => {
     // Use regex to match pattern like "S01 E05" or "S1 E5"
