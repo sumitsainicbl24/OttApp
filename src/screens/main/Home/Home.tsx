@@ -1,9 +1,9 @@
 // 1. React Native core imports
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { ActivityIndicator, ImageBackground, ScrollView, StatusBar, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
-import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { NavigationProp, useNavigation, useFocusEffect } from '@react-navigation/native'
 import { useSelector } from 'react-redux'
 import ContinueWatchingCarousel from '../../../components/ContinueWatchingCarousel'
 import LiveTVChannels from '../../../components/LiveTVChannels'
@@ -101,11 +101,14 @@ const Home = () => {
   }
 
 
-  useEffect(() => {
-    loadMovieData()
-    loadShowsData()
-    loadLiveChannelData()
-  }, [])
+  // Load data whenever the screen comes into focus (including navigation.goBack())
+  useFocusEffect(
+    useCallback(() => {
+      loadMovieData()
+      loadShowsData()
+      loadLiveChannelData()
+    }, [])
+  )
 
   useEffect(() => {
     if (PosterMovieName) {
@@ -116,9 +119,14 @@ const Home = () => {
     }
   }, [PosterMovieName])
 
- useEffect(() => {
-  loadContinueWatchingData()
- }, [userToken])
+  // Load continue watching data when screen gains focus and user token exists
+  useFocusEffect(
+    useCallback(() => {
+      if (userToken) {
+        loadContinueWatchingData()
+      }
+    }, [userToken])
+  )
 
   return (
     <View style={styles.container}>
