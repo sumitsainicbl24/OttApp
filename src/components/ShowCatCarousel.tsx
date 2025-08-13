@@ -17,6 +17,7 @@ interface ShowData {
   title?: string
   logo?: string
   url?: string
+  type?: string
 }
 
 interface ShowCatCarouselProps {
@@ -26,10 +27,10 @@ interface ShowCatCarouselProps {
   onFocus?: () => void
   getMovieDetails?: (movie: any) => void
   horizontal?: boolean
-  type?: string
   mainStyle?: StyleProp<ViewStyle>;
   titleStyle?: StyleProp<TextStyle>;
   disableScroll?: boolean;
+  type?: string
 }
 
 const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({ 
@@ -39,10 +40,10 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   onFocus,
   getMovieDetails,
   horizontal = false,
-  type,
   mainStyle,
   titleStyle,
-  disableScroll = false
+  disableScroll = false,
+  type
 }) => {
   const flashListRef = useRef<FlashList<ShowData>>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
@@ -67,11 +68,13 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   )
 
   const handleShowPress = (show: ShowData) => {
-    if(type === 'series'){
+    console.log(show, 'showshowshow');
+    
+    if(show?.type === 'series' || type === 'series'){
       dispatch(setCurrentlyPlaying(show))
       navigation.navigate('MoviePlayScreen', { show: show })
     }
-    if(type === 'movies'){
+    if(show?.type === 'movies' || type === 'movies'){
       dispatch(setCurrentlyPlaying(show))
       navigation.navigate('MoviePlayScreen', { movie: show })
     }

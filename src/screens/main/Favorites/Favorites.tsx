@@ -86,7 +86,6 @@ const Favorites = () => {
           data={myListData}
           onShowPress={(show) => console.log('Show selected:', show.title)}
           onFocus={handleScrollViewFocus}
-          type="movies" // Can be 'movies' or 'series' based on your content
         />
       </ScrollView>
       

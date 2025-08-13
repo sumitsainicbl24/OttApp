@@ -14,6 +14,7 @@ interface ShowData {
   title?: string
   logo?: string
   url?: string
+  type?: string
 }
 
 interface ShowCatCardProps extends TouchableOpacityProps {
