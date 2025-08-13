@@ -136,6 +136,9 @@ const MoviePlayScreen = () => {
         ]}
         onPress={() => {
           setSelectedEpisode(episode)
+          if(episode?.url !== streamUrl){
+            setTiming(null)
+          }
           setStreamUrl(episode?.url)
           setIsMoviePlaying(true)
         }}
@@ -171,11 +174,13 @@ const MoviePlayScreen = () => {
       try {
         // const res = await getSeriesEpisodes(show?.title || show?.name)
 
-        const res = await getSeriesDetails(show?.title || show?.name)
+        const res = await getSeriesDetails(currentlyPlaying?.baseTitle || currentlyPlaying?.title || show?.title || show?.name)
         console.log('res from series episodes', res?.data?.data?.seasonsList[0]?.episodes)
         dispatch(setCurrentSeriesEpisodes(res?.data?.data?.data?.episodes || res?.data?.data?.seasonsList[0]?.episodes || []))
         setSeriesEpisodes(res?.data?.data?.data?.episodes || res?.data?.data?.seasonsList[0]?.episodes || [])
-        setStreamUrl(res?.data?.data?.data?.episodes[0]?.url || res?.data?.data?.seasonsList[0]?.episodes[0]?.url)
+        if(!streamUrl){
+          setStreamUrl(res?.data?.data?.data?.episodes[0]?.url || res?.data?.data?.seasonsList[0]?.episodes[0]?.url)
+        }
         } catch (error) {
           console.log('error', error)
         }
@@ -191,10 +196,11 @@ const MoviePlayScreen = () => {
         setAddedToMyList(true)
       }
 
-      const res2 = await continueWatchingCurrentApi({url: currentlyPlaying?.url, type: currentlyPlaying?.type})
+      const res2 = await continueWatchingCurrentApi({url: currentlyPlaying?.url || " ", type: currentlyPlaying?.type || 'series', title:currentlyPlaying?.baseTitle || currentlyPlaying?.title})
       console.log('res2 from continue watching current', res2)
       if(res2?.data?.data?.found){
         setTiming(res2?.data?.data?.timing)
+        setStreamUrl(res2?.data?.data?.video?.url)
       }
       // if(currentlyPlaying){
       //   const found = res?.data?.data?.data?.videos?.find((item: any) => item.title === currentlyPlaying.title && item.url === currentlyPlaying.url)

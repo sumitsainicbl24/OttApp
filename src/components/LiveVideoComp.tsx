@@ -201,15 +201,28 @@ const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
   // Handle exit with continue watching API call
   const handleExit = async () => {
     if (currentlyPlaying) {
+      let currentPlayingData = {};
       try {
-        const currentPlayingData = {
+        if(currentSeriesEpisodes?.length > 1 ){
+          currentPlayingData = {
+            ...currentSeriesEpisodes[currentEpisodeIndex],
+            type: 'series',
+            progress: Math.round((currentTime / duration) * 100) || 5,
+            last_watched: new Date().toISOString(),
+            duration: Math.round(duration) || 1454,
+            currentTime: Math.round(currentTime) || 0,
+          }
+        }
+        else{
+         currentPlayingData = {
           ...currentlyPlaying,
-          type: currentSeriesEpisodes?.length > 1 ? 'series' : 'movies',
+          type: 'movies',
           progress: Math.round((currentTime / duration) * 100) || 5,
           last_watched: new Date().toISOString(),
           duration: Math.round(duration) || 1454,
           currentTime: Math.round(currentTime) || 0,
         };
+      }
         await continueWatchingUpdateApi(currentPlayingData);
       } catch (error) {
         console.log('Error updating continue watching data:', error);
@@ -925,7 +938,10 @@ const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
           
           {/* show movie name and playback speed */}
           <View style={styles.movieNameContainer}>
-            <Text style={styles.movieName}>{`${currentlyPlaying?.title}${currentSeriesEpisodes?.length > 1 ? ' EP ' + (currentEpisodeIndex+1) : ''}`}
+            <Text
+            numberOfLines={1}
+            style={styles.movieName}>{`${currentSeriesEpisodes[currentEpisodeIndex]?.title}`}
+            {/* ${currentSeriesEpisodes?.length > 1 ? ' EP ' + (currentEpisodeIndex+1) : ''} */}
             </Text>
             {playbackRate !== 1.0 && (
               <Text style={styles.playbackSpeedIndicator}>
