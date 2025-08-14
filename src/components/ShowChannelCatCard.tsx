@@ -7,6 +7,8 @@ import imagepath from '../constants/imagepath'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainStackParamList } from '../navigation/NavigationsTypes'
 import { imageResolutionHandlerForUrl } from '../utils/CommonFunctions'
+import { setCurrentlyPlaying } from '../redux/reducers/main'
+import { useDispatch } from 'react-redux'
 
 interface ShowData {
   group?: string
@@ -23,6 +25,7 @@ interface ShowChannelCatCardProps {
   onBlur?: (event: any, programIndex: number) => void
   onPress?: (programIndex: number) => void
   channelIndex?: number
+  setChannelUrl?: (url: string) => void
 }
 
 const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
@@ -32,11 +35,12 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   onBlur,
   onPress,
   channelIndex = 0,
+  setChannelUrl
 }) => {
   const [imageError, setImageError] = useState(false)
   const [focusedProgramIndex, setFocusedProgramIndex] = useState<number | null>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-
+  const dispatch = useDispatch()
   // Reset image error state when show changes
   useEffect(() => {
     setImageError(false)
@@ -76,7 +80,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         
         <View style={styles.channelLogoContainer}>
           <Image 
-            source={show?.logo ? { uri: show?.logo } : imagepath.VideoPlaceHolder} 
+            source={show?.logo ? { uri: show?.logo } : imagepath.tv} 
             style={styles.channelLogo}
             onError={handleImageError}
           />
@@ -102,7 +106,15 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             activeOpacity={1}
             onFocus={(event) => handleProgramFocus(event, index)}
             onBlur={(event) => handleProgramBlur(event, index)}
-            onPress={() => handleProgramPress(index)}
+            onPress={() =>
+               {
+                // handleProgramPress(index)
+                // dispatch(setCurrentlyPlaying(show))
+                // prevent focus from moving to categoryList
+                console.log('show.url', show.url)
+                setChannelUrl?.(show.url || '')
+               }
+            }
           >
             <Text style={styles.programText} numberOfLines={1}>
               {program.title}
@@ -147,6 +159,7 @@ const styles = StyleSheet.create({
     marginRight: moderateScale(15),
     height: moderateScale(40),
     width: moderateScale(75),
+    paddingVertical: verticalScale(10),
     borderRadius: moderateScale(6),
     justifyContent: 'center',
     alignItems: 'center',

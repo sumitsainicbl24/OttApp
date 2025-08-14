@@ -3,6 +3,9 @@ import {Image, Text, View, StyleSheet, ImageSourcePropType} from 'react-native';
 import {CommonColors} from '../styles/Colors';
 import {moderateScale, verticalScale, scale, height} from '../styles/scaling';
 import FontFamily from '../constants/FontFamily';
+import Video from 'react-native-video';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 interface ChannelMediaPlayerProps {
   imageSource?: ImageSourcePropType;
@@ -10,6 +13,7 @@ interface ChannelMediaPlayerProps {
   timeSlot?: string;
   progressPercentage?: number;
   duration?: string;
+  streamUrl?: string;
 }
 
 const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
@@ -18,16 +22,21 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
   timeSlot = '02:00 - 03:00PM',
   progressPercentage = 65,
   duration = '26 min',
+  streamUrl,
 }) => {
+  const currentlyPlaying = useSelector((state: RootState) => state.rootReducer.main.currentlyPlaying)
+  console.log(streamUrl, 'streamUrl');
+  
   return (
     <View style={styles.ShowDetailsContainer}>
-      <View style={styles.ShowImageContainer}>
-        <Image
-          source={imageSource}
-          style={styles.ShowImage}
-          resizeMode="cover"
-        />
-      </View>
+      <Video 
+      source={{ uri: streamUrl }} 
+      style={styles.ShowImageContainer}
+      paused={false}
+      resizeMode="contain"
+      repeat={true}
+      controls={false}
+       />
 
       <View style={styles.ShowDetailsContent}>
         <Text style={styles.showTitle}>{showTitle}</Text>
@@ -114,4 +123,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChannelMediaPlayer; 
+export default React.memo(ChannelMediaPlayer); 

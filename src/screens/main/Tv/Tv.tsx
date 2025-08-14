@@ -1,5 +1,5 @@
 // 1. React Native core imports
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -9,19 +9,19 @@ import {
   View,
 } from 'react-native';
 
-import {styles} from './styles';
+import { styles } from './styles';
 import MainLayout from '../../../components/MainLayout';
 import CategoryList from '../../../components/CategoryList';
-import {RouteProp, useRoute} from '@react-navigation/native';
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { MainStackParamList } from '../../../navigation/NavigationsTypes';
 import ShowCatCarousel from '../../../components/ShowCatCarousel';
 import ShowDetails1 from '../../../components/ShowDetails1';
-import {getCategoryData} from '../../../redux/actions/auth';
-import {debounce} from '../../../utils/CommonFunctions';
-import {RootState} from '../../../redux/store';
-import {useSelector} from 'react-redux';
-import {CommonColors} from '../../../styles/Colors';
-import {moderateScale} from '../../../styles/scaling';
+import { getCategoryData } from '../../../redux/actions/auth';
+import { debounce } from '../../../utils/CommonFunctions';
+import { RootState } from '../../../redux/store';
+import { useSelector } from 'react-redux';
+import { CommonColors } from '../../../styles/Colors';
+import { moderateScale } from '../../../styles/scaling';
 import {
   saveMoviesDataToMMKV,
   getMoviesDataFromMMKV,
@@ -29,6 +29,7 @@ import {
 import imagepath from '../../../constants/imagepath';
 import ShowChannelCatCarousel from '../../../components/ShowChannelCatCarousel';
 import ChannelMediaPlayer from '../../../components/ChannelMediaPlayer';
+import Video from 'react-native-video';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
@@ -46,15 +47,16 @@ type MovieData = {
 
 const Tv = () => {
   const route = useRoute<TvScreenRouteProp>();
-  const {channelsData} = useSelector(
+  const { channelsData } = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
-  const {activeScreen} = route.params;
+  const { activeScreen } = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMovieName, setSelectedMovieName] = useState<string>('');
+  const [streamUrl, setStreamUrl] = useState<string | null>(null);
 
   // Load movie data from MMKV on component mount
   useEffect(() => {
@@ -84,10 +86,14 @@ const Tv = () => {
     setSelectedCategory(category);
   };
 
+  const handleChannelUrl = (url: string) => {
+    setStreamUrl(url);
+  };
+
   const getMovieData = async (category: string) => {
     try {
       const res = await getCategoryData('live', category);
-      
+
       const movieData = res?.data?.data?.data?.channels;
 
       if (movieData && movieData.length > 0) {
@@ -140,7 +146,7 @@ const Tv = () => {
           <View
             style={[
               styles.categoryListContainer,
-              !showCategoryAndSidebar && {width: 0, overflow: 'hidden'},
+              !showCategoryAndSidebar && { width: 0, overflow: 'hidden' },
             ]}
             nativeID="categoryList">
             <CategoryList
@@ -158,11 +164,11 @@ const Tv = () => {
             timeSlot="02:00 - 03:00PM"
             progressPercentage={65}
             duration="26 min"
+            streamUrl={streamUrl || ''}
           />
-
           <View
             style={styles.scrollContainer}
-            // showsVerticalScrollIndicator={false}
+          // showsVerticalScrollIndicator={false}
           >
             <View
               style={{
@@ -185,6 +191,7 @@ const Tv = () => {
                     onFocus={handleScrollViewFocus}
                     getMovieDetails={handleMovieSelect}
                     type="channels"
+                    setChannelUrl={handleChannelUrl}
                   />
                 )}
 

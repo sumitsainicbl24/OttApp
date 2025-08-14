@@ -29,6 +29,7 @@ interface ShowChannelCatCarouselProps {
   mainStyle?: StyleProp<ViewStyle>;
   titleStyle?: StyleProp<TextStyle>;
   disableScroll?: boolean;
+  setChannelUrl?: (url: string) => void;
 }
 
 const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({ 
@@ -41,7 +42,8 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   type,
   mainStyle,
   titleStyle,
-  disableScroll = false
+  disableScroll = false,
+  setChannelUrl
 }) => {
   const flashListRef = useRef<FlashList<ShowData>>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
@@ -110,6 +112,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
       channelIndex={index}
       onPress={() => handleShowPress(item)}
       onFocus={() => handleItemFocus(index, item)}
+      setChannelUrl={setChannelUrl}
     />
   )
 

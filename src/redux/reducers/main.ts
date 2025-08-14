@@ -5,11 +5,13 @@ import { RootState } from '../store'
 interface MainState {
     currentlyPlaying: any,
     currentSeriesEpisodes: any,
+    playingChannel: boolean,
 }
 
 const initialState: MainState = {
     currentlyPlaying: '',
-    currentSeriesEpisodes: []
+    currentSeriesEpisodes: [],
+    playingChannel: false,
 }
 
 const mainSlice = createSlice({
@@ -22,8 +24,11 @@ const mainSlice = createSlice({
         setCurrentSeriesEpisodes: (state, action: PayloadAction<any>) => {
             state.currentSeriesEpisodes = action.payload
         },
+        setPlayingChannel: (state, action: PayloadAction<boolean>) => {
+            state.playingChannel = action.payload
+        },
     },
 })
 
-export const { setCurrentlyPlaying, setCurrentSeriesEpisodes } = mainSlice.actions
+export const { setCurrentlyPlaying, setCurrentSeriesEpisodes, setPlayingChannel } = mainSlice.actions
 export default mainSlice.reducer
