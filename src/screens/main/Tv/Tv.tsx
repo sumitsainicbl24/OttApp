@@ -1,5 +1,5 @@
 // 1. React Native core imports
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -56,7 +56,7 @@ const Tv = () => {
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMovieName, setSelectedMovieName] = useState<string>('');
-  const [streamUrl, setStreamUrl] = useState<string | null>(null);
+  const [streamUrl, setStreamUrl] = useState<string>('');
 
   // Load movie data from MMKV on component mount
   useEffect(() => {
@@ -80,11 +80,12 @@ const Tv = () => {
   };
 
   // Handle navigation back to category list (when pressing left)
-  const handleCategoryListFocus = async (category: string) => {
+  const handleCategoryListFocus = useCallback((category: string) => {
     setLoading(true);
     setShowCategoryAndSidebar(true);
     setSelectedCategory(category);
-  };
+  }, []);
+  
 
   const handleChannelUrl = (url: string) => {
     setStreamUrl(url);
@@ -115,6 +116,25 @@ const Tv = () => {
     setSelectedMovieName(movieTitle);
   };
 
+  const categoryListContainerStyle = React.useMemo(() => {
+    return [
+      styles.categoryListContainer,
+      !showCategoryAndSidebar && { width: 0, overflow: 'hidden' as const  },
+    ]
+  }, [showCategoryAndSidebar])
+
+  const memorizeChannelsData = useMemo(() => {
+    return Object.values(channelsData) as string[]
+  }, [channelsData])
+
+      const memorizeSelectedCategory = useMemo(() => {
+        return selectedCategory
+      }, [selectedCategory])
+
+  const memorizeStreamUrl = useMemo(() => {
+    return streamUrl
+  }, [streamUrl])
+
   // Create debounced version of getMovieData
   const debouncedGetMovieData = useCallback(
     debounce((category: string) => {
@@ -130,6 +150,9 @@ const Tv = () => {
     }
   }, [selectedCategory, debouncedGetMovieData]);
 
+
+  console.log("showCategoryAndSidebar", showCategoryAndSidebar);
+
   return (
     <MainLayout
       activeScreen={activeScreen || 'Movies'}
@@ -144,15 +167,14 @@ const Tv = () => {
         {/* category list */}
         {
           <View
-            style={[
-              styles.categoryListContainer,
-              !showCategoryAndSidebar && { width: 0, overflow: 'hidden' },
-            ]}
-            nativeID="categoryList">
+            style={categoryListContainerStyle}
+            nativeID="categoryList"
+          >
             <CategoryList
-              categories={Object.values(channelsData)}
-              selectedCategory={selectedCategory}
+              categories={memorizeChannelsData}
+              selectedCategory={memorizeSelectedCategory}
               onFocus={handleCategoryListFocus}
+              
             />
           </View>
         }
@@ -164,7 +186,7 @@ const Tv = () => {
             timeSlot="02:00 - 03:00PM"
             progressPercentage={65}
             duration="26 min"
-            streamUrl={streamUrl || ''}
+            streamUrl={memorizeStreamUrl}
           />
           <View
             style={styles.scrollContainer}

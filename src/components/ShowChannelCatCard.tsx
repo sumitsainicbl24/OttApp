@@ -61,7 +61,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   }
 
   const handleImageError = () => {
-    console.log('Image failed to load, showing placeholder for:', show.title)
+    // console.log('Image failed to load, showing placeholder for:', show.title)
     setImageError(true)
   }
 
@@ -112,7 +112,10 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
                 // dispatch(setCurrentlyPlaying(show))
                 // prevent focus from moving to categoryList
                 console.log('show.url', show.url)
-                setChannelUrl?.(show.url || '')
+                setChannelUrl?.('')
+                setTimeout(() => {
+                  setChannelUrl?.(show.url || '')
+                }, 250);
                }
             }
           >

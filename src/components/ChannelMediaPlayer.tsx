@@ -13,7 +13,7 @@ interface ChannelMediaPlayerProps {
   timeSlot?: string;
   progressPercentage?: number;
   duration?: string;
-  streamUrl?: string;
+  streamUrl: string | null;
 }
 
 const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
@@ -22,7 +22,7 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
   timeSlot = '02:00 - 03:00PM',
   progressPercentage = 65,
   duration = '26 min',
-  streamUrl,
+  streamUrl='',
 }) => {
   const currentlyPlaying = useSelector((state: RootState) => state.rootReducer.main.currentlyPlaying)
   console.log(streamUrl, 'streamUrl');
@@ -35,7 +35,7 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
       paused={false}
       resizeMode="contain"
       repeat={true}
-      controls={false}
+      controls={true}
        />
 
       <View style={styles.ShowDetailsContent}>

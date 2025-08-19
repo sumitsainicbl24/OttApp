@@ -141,7 +141,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   )
 }
 
-export default ShowChannelCatCarousel
+export default React.memo(ShowChannelCatCarousel)
 
 const styles = StyleSheet.create({
   sectionContainer: {

@@ -13,24 +13,24 @@ interface CategoryListProps {
   onFocus?: (category: string) => void
 }
 
-const CategoryList: React.FC<CategoryListProps> = ({ 
-  categories, 
-  selectedCategory, 
-  onFocus 
+const CategoryList: React.FC<CategoryListProps> = ({
+  categories,
+  selectedCategory,
+  onFocus
 }) => {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const flashListRef = useRef<FlashList<string>>(null)
-  
-  
+
+
   // Use provided categories or fallback to sample data
   const categoryData = categories && categories.length > 0 ? categories : samepleCategoryData
 
-  console.log(categoryData,'categoryDatacategoryDatacategoryDatacategoryData',categories);
+  console.log(categoryData, 'categoryDatacategoryDatacategoryDatacategoryData', categories);
 
   const handleFocus = (index: number, category: string) => {
     setFocusedIndex(index)
     onFocus?.(category)
-    
+
     // Center the focused item
     if (flashListRef.current) {
       flashListRef.current.scrollToIndex({
@@ -43,56 +43,54 @@ const CategoryList: React.FC<CategoryListProps> = ({
 
   const gettingIndexForSelectedCategory = () => {
     const index = categoryData.findIndex((item) => item === selectedCategory)
-    console.log('index',index);
+    console.log('index', index);
     return index
   }
 
   return (
 
     <View style={styles.container}>
-
-<FlashList
-      ref={flashListRef}
-      data={categoryData}
-      showsVerticalScrollIndicator={false}
-      estimatedItemSize={moderateScale(50)}
-      getItemType={() => 'category'}
-      contentContainerStyle={{ padding: 0 }}
-      extraData={focusedIndex}
-      // style={{ width: '100%' }}
-      renderItem={({ item, index }) => 
-      {
-        const isSelected = selectedCategory === item
-        const isFocused = focusedIndex === index
-        return (
-          <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.categoryItem,
-                    (isFocused || isSelected) && styles.categoryItemFocused
-                  ]}
-                  onFocus={() =>{ 
-                    // gettingIndexForSelectedCategory()
-                    handleFocus(index, item)
-                  }}
-                  onBlur={() => setFocusedIndex(null)}
-                  activeOpacity={1}
-                >
-                  <Text
-                  numberOfLines={1}
-                  ellipsizeMode='tail'
-                  style={[
-                    styles.categoryText,
-                    (isFocused || isSelected) && styles.categoryTextFocused
-                  ]}>
-                    {item}
-                  </Text>
-          </TouchableOpacity>
-        )
-      }
-      }
-      keyExtractor={(item, index) => item}
-    />
+      <FlashList
+        ref={flashListRef}
+        data={categoryData}
+        showsVerticalScrollIndicator={false}
+        estimatedItemSize={moderateScale(50)}
+        getItemType={() => 'category'}
+        contentContainerStyle={{ padding: 0 }}
+        extraData={focusedIndex}
+        // style={{ width: '100%' }}
+        renderItem={({ item, index }) => {
+          const isSelected = selectedCategory === item
+          const isFocused = focusedIndex === index
+          return (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.categoryItem,
+                (isFocused || isSelected) && styles.categoryItemFocused
+              ]}
+              onFocus={() => {
+                // gettingIndexForSelectedCategory()
+                handleFocus(index, item)
+              }}
+              onBlur={() => setFocusedIndex(null)}
+              activeOpacity={1}
+            >
+              <Text
+                numberOfLines={1}
+                ellipsizeMode='tail'
+                style={[
+                  styles.categoryText,
+                  (isFocused || isSelected) && styles.categoryTextFocused
+                ]}>
+                {item}
+              </Text>
+            </TouchableOpacity>
+          )
+        }
+        }
+        keyExtractor={(item, index) => item}
+      />
 
     </View>
   )
@@ -126,4 +124,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default CategoryList 
+export default React.memo(CategoryList) 
