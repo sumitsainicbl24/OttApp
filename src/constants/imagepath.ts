@@ -49,6 +49,7 @@ export default{
     videoQuality:require('../assets/images/videoQuality.png'),
     buttons:require('../assets/images/buttons.png'),
     tv:require('../assets/images/tv.png'),
+    record_button:require('../assets/images/record_button.png'),
 
     //sample data
 

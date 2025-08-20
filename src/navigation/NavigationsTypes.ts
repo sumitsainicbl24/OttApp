@@ -27,7 +27,8 @@ export type MainStackParamList = {
     RemoteControlSettings: undefined;
     OtherSettings: undefined;
     Tv: {activeScreen: string};
-    MoviePlayScreen: {show?: any, movie?: any};
+    MoviePlayScreen: {show?: any, movie?: any, live?: any};
+    LiveChannelPlayScreen: {channel: any};
     BuySubscription: undefined;
     LoginScreen: {from?: string} | undefined;
     SignupScreen: undefined;

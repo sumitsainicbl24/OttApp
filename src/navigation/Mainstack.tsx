@@ -15,6 +15,7 @@ import RemoteControlSettings from '../screens/main/RemoteControlSettings/RemoteC
 import OtherSettings from '../screens/main/OtherSettings/OtherSettings';
 import Tv from '../screens/main/Tv/Tv';
 import MoviePlayScreen from '../screens/main/MoviePlayScreen/MoviePlayScreen';
+import LiveChannelPlayScreen from '../screens/main/LiveChannelPlayScreen/LiveChannelPlayScreen';
 import LoginScreen from '../screens/appAuth/LoginScreen';
 import SignupScreen from '../screens/appAuth/SignupScreen';
 import VerifyOtp from '../screens/appAuth/VerifyOtp/VerifyOtp';
@@ -115,6 +116,10 @@ useEffect(()=>{
       <Stack.Screen 
         name="MoviePlayScreen" 
         component={MoviePlayScreen}
+      />
+      <Stack.Screen 
+        name="LiveChannelPlayScreen" 
+        component={LiveChannelPlayScreen}
       />
       <Stack.Screen 
         name="LoginScreen" 

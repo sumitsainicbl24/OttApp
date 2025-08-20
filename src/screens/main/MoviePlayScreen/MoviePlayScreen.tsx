@@ -58,7 +58,7 @@ const MoviePlayScreen = () => {
 
   const {currentlyPlaying} = useSelector((state: RootState) => state.rootReducer.main)
   const {userToken} = useSelector((state: RootState) => state.rootReducer.auth)
-  const { show, movie } = route.params
+  const { show, movie, live } = route.params
   const [movieTitle, setMovieTitle] = useState(movie?.title || movie?.name )
   const [showTitle, setShowTitle] = useState(show?.title || show?.name )
   const [seriesEpisodes, setSeriesEpisodes] = useState<any[]>([])
@@ -169,7 +169,7 @@ const MoviePlayScreen = () => {
       setMovieTitle(movie?.title || movie?.name)
       setStreamUrl(movie?.url)
     }
-    if(show){
+    else if(show){
       (async () => {
       try {
         // const res = await getSeriesEpisodes(show?.title || show?.name)
@@ -185,8 +185,11 @@ const MoviePlayScreen = () => {
           console.log('error', error)
         }
       })()
+    }else if(live){
+      setStreamUrl(live?.url)
+      setIsMoviePlaying(true)
     }
-  }, [movie, show])
+  }, [movie, show, live])
 
 
   useEffect(() => {
@@ -214,7 +217,7 @@ const MoviePlayScreen = () => {
   return (
     <MainLayout activeScreen="MoviePlayScreen" hideSidebar={true}>
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
-      {isMoviePlaying ? <LiveVideoComp streamUrl={streamUrl || ''} timing={timing} /> : (
+      {isMoviePlaying ? <LiveVideoComp streamUrl={streamUrl || ''} timing={timing} hideControls={live?.type === 'live'} /> : (
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* ShowDetails1 Component - handles background, gradients, and movie details */}
         <ShowDetails1 movieName={movieTitle} showName={showTitle} />

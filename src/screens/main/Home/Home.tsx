@@ -54,6 +54,19 @@ const Home = () => {
 
   const handleChannelPress = (channel: any) => {
     console.log('Channel pressed:', channel.name)
+    // Set the channel as currently playing and navigate to live channel player
+    dispatch(setCurrentlyPlaying({
+      ...channel,
+      type: 'live', // Mark this as a live TV channel
+      url: channel.url
+    }))
+    navigation.navigate('LiveChannelPlayScreen', { 
+      channel: {
+        ...channel,
+        url: channel.url,
+        type: 'live',
+      } 
+    })
   }
 
   const handleScroll = (event: any) => {
@@ -87,7 +100,7 @@ const Home = () => {
   const loadLiveChannelData = async () => {
     console.log('channelsData', channelsData)
     try{
-      const res= await getCategoryData('live', channelsData[1])
+      const res= await getCategoryData('live', channelsData[5])
       console.log('response from getCategoryData for live channels', res?.data?.data?.data?.channels)
       setLiveChannelData(res?.data?.data?.data?.channels?.slice(0, 8))
     }catch(error){

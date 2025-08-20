@@ -30,9 +30,10 @@ interface LiveVideoCompProps {
   streamUrl: string;
   onExit?: () => void;
   timing?: any;
+  hideControls?: boolean;
 }
 
-const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
+const LiveVideoComp = ({ streamUrl, onExit, timing, hideControls = false }: LiveVideoCompProps) => {
 
   //get currently playing from redux
   const {currentlyPlaying, currentSeriesEpisodes}:any = useSelector((state: RootState) => state.rootReducer.main)
@@ -200,7 +201,7 @@ const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
 
   // Handle exit with continue watching API call
   const handleExit = async () => {
-    if (currentlyPlaying) {
+    if (currentlyPlaying && currentlyPlaying?.type !== 'live') {
       let currentPlayingData = {};
       try {
         if(currentSeriesEpisodes?.length > 1 ){
@@ -230,6 +231,9 @@ const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
       finally{
         navigation.goBack()
       }
+    }
+    else{
+      navigation.goBack()
     }
     
     if (onExit) {
@@ -688,14 +692,14 @@ const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
     } else if (evt && evt.eventType === 'fastForward') {
       seekTo(10);
     } else if (evt && evt.eventType === 'right') {
-      // Seek forward when controls are hidden or when only progress is showing
-      if (!showControls || showProgressOnly) {
+      // Seek forward when controls are hidden or when only progress is showing (but not for live TV)
+      if ((!showControls || showProgressOnly) && !hideControls) {
         console.log('Seeking forward 10 seconds');
         seekTo(10);
       }
     } else if (evt && evt.eventType === 'left') {
-      // Seek backward when controls are hidden or when only progress is showing
-      if (!showControls || showProgressOnly) {
+      // Seek backward when controls are hidden or when only progress is showing (but not for live TV)
+      if ((!showControls || showProgressOnly) && !hideControls) {
         console.log('Seeking backward 10 seconds');
         seekTo(-10);
       }
@@ -933,14 +937,14 @@ const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
       </Pressable>
 
       {/* Controls Overlay */}
-      {showControls && !loading && !error && (
+      {showControls && !loading && !error && !hideControls && (
         <View style={styles.controlsOverlay}>
           
           {/* show movie name and playback speed */}
           <View style={styles.movieNameContainer}>
             <Text
             numberOfLines={1}
-            style={styles.movieName}>{`${currentSeriesEpisodes[currentEpisodeIndex]?.title}`}
+            style={styles.movieName}>{`${currentSeriesEpisodes[currentEpisodeIndex]?.title || currentlyPlaying?.title}`}
             {/* ${currentSeriesEpisodes?.length > 1 ? ' EP ' + (currentEpisodeIndex+1) : ''} */}
             </Text>
             {playbackRate !== 1.0 && (
@@ -1232,8 +1236,60 @@ const LiveVideoComp = ({ streamUrl, onExit, timing }: LiveVideoCompProps) => {
         </View>
       )}
 
+      {showControls && !loading && !error && hideControls && (
+        <>
+        <View style={styles.tvInfoOverlay}>
+          
+          {/* TV Icon */}
+          <View style={styles.tvIconContainer}>
+            <Image 
+              source={imagepath.tv} 
+              style={styles.tvIcon}
+            />
+          </View>
+          
+          {/* Channel Information */}
+          <View style={styles.channelInfoContainer}>
+            <Text style={styles.channelTitle} numberOfLines={1}>
+              {"No information"}
+            </Text>
+            <View style={{flexDirection:'row', alignItems:'center', gap:moderateScale(10)}}>
+              <Text style={styles.channelDetails}>
+                {currentlyPlaying?.title}
+              </Text>
+              {/* Quality Badges */}
+              <View style={styles.qualityBadgesContainer}>
+                <View style={styles.qualityBadge}>
+                  <Text style={styles.qualityBadgeText}>4K</Text>
+                </View>
+                <View style={styles.qualityBadge}>
+                  <Text style={styles.qualityBadgeText}>25 FPS</Text>
+                </View>
+                <View style={styles.qualityBadge}>
+                  <Text style={styles.qualityBadgeText}>STEREO</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+          
+        </View>
+
+        {/* Progress Bar */}
+        <View 
+        style={{
+          height:moderateScale(5), 
+          width:'90%', 
+          alignSelf:'center',
+          borderRadius:moderateScale(10),
+          backgroundColor:'rgb(54, 54, 54)', 
+          bottom:moderateScale(50), 
+          }}>
+        </View>
+        </>
+      )}
+
       {/* Progress Bar Only Overlay for Seeking */}
-      {showProgressOnly && !showControls && (
+      {showProgressOnly && !showControls && !hideControls && (
         <View style={styles.progressOnlyOverlay}>
           <View style={styles.progressOnlyContainer}>
             <View style={[
@@ -2072,6 +2128,66 @@ const styles = StyleSheet.create({
     borderWidth: moderateScale(2),
     borderColor: '#FFFFFF',
     borderRadius: moderateScale(10),
+  },
+  // TV Info Overlay Styles
+  tvInfoOverlay: {
+    position: 'absolute',
+    bottom: moderateScale(40),
+    left: moderateScale(40),
+    right: moderateScale(40),
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    paddingHorizontal: moderateScale(20),
+    paddingVertical: moderateScale(15),
+    borderRadius: moderateScale(12),
+    gap: moderateScale(20),
+  },
+  tvIconContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: moderateScale(8),
+    padding: moderateScale(8),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tvIcon: {
+    width: moderateScale(40),
+    height: moderateScale(40),
+    resizeMode: 'contain',
+  },
+  channelInfoContainer: {
+    flex: 1,
+    paddingLeft: moderateScale(10),
+  },
+  channelTitle: {
+    color: '#FFFFFF',
+    fontSize: scale(28),
+    fontFamily: FontFamily.PublicSans_SemiBold,
+    marginBottom: moderateScale(4),
+  },
+  channelDetails: {
+    color: '#FFFFFF',
+    fontSize: scale(20),
+    fontFamily: FontFamily.PublicSans_Regular,
+    opacity: 0.8,
+  },
+  qualityBadgesContainer: {
+    flexDirection: 'row',
+    gap: moderateScale(8),
+  },
+  qualityBadge: {
+    backgroundColor: 'rgb(54, 54, 54)',
+    paddingHorizontal: moderateScale(12),
+    paddingVertical: moderateScale(6),
+    borderRadius: moderateScale(6),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  qualityBadgeText: {
+    color: '#FFFFFF',
+    fontSize: scale(16),
+    fontFamily: FontFamily.PublicSans_Medium,
+    textAlign: 'center',
   },
 });
 

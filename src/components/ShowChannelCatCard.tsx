@@ -39,6 +39,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false)
   const [focusedProgramIndex, setFocusedProgramIndex] = useState<number | null>(null)
+  const [lastTap, setLastTap] = useState<number | null>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
   const dispatch = useDispatch()
   // Reset image error state when show changes
@@ -65,12 +66,46 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     setImageError(true)
   }
 
+  const handleDoubleClick = () => {
+    dispatch(setCurrentlyPlaying({
+      ...show,
+      type: 'live', // Mark this as a live TV channel
+      url: show.url
+    }))
+    navigation.navigate('LiveChannelPlayScreen', { 
+      channel: {
+        ...show,
+        url: show.url,
+        type: 'live',
+      } 
+    })
+  }
+
+  const handlePress = (index: number) => {
+    const now = Date.now()
+    const DOUBLE_PRESS_DELAY = 300
+
+    if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
+      // Double click detected
+      handleDoubleClick()
+      setLastTap(null)
+    } else {
+      // Single click - execute original functionality
+      console.log('show.url', show.url)
+      setChannelUrl?.('')
+      setTimeout(() => {
+        setChannelUrl?.(show.url || '')
+      }, 250);
+      setLastTap(now)
+    }
+  }
+
   // Mock program data - in real app this would come from props or API
   const programs = [
-    { title: 'Current Program', duration: 'current', color: '#3E4756' },
-    { title: 'Next Program', duration: 'next', color: '#232629' },
-    { title: 'Later Program', duration: 'later', color: 'rgba(255, 255, 255, 0.2)' },
-    { title: 'Evening Program', duration: 'evening', color: 'rgba(255, 255, 255, 0.2)' },
+    { title: 'No information', duration: 'current', color: '#3E4756' },
+    { title: 'No information', duration: 'next', color: '#232629' },
+    { title: 'No information', duration: 'later', color: 'rgba(255, 255, 255, 0.2)' },
+    { title: 'No information', duration: 'evening', color: 'rgba(255, 255, 255, 0.2)' },
   ]
 
   return (
@@ -80,7 +115,8 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         
         <View style={styles.channelLogoContainer}>
           <Image 
-            source={show?.logo ? { uri: show?.logo } : imagepath.tv} 
+            // source={show?.logo ? { uri: show?.logo } : imagepath.tv} 
+            source={imagepath.tv}
             style={styles.channelLogo}
             onError={handleImageError}
           />
@@ -106,18 +142,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             activeOpacity={1}
             onFocus={(event) => handleProgramFocus(event, index)}
             onBlur={(event) => handleProgramBlur(event, index)}
-            onPress={() =>
-               {
-                // handleProgramPress(index)
-                // dispatch(setCurrentlyPlaying(show))
-                // prevent focus from moving to categoryList
-                console.log('show.url', show.url)
-                setChannelUrl?.('')
-                setTimeout(() => {
-                  setChannelUrl?.(show.url || '')
-                }, 250);
-               }
-            }
+            onPress={() => handlePress(index)}
           >
             <Text style={styles.programText} numberOfLines={1}>
               {program.title}
@@ -166,9 +191,10 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(6),
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: CommonColors.backgroundBlue,
+    // backgroundColor: CommonColors.backgroundBlue,
   },
   channelLogo: {
+    tintColor: CommonColors.white,
     width: moderateScale(40),
     height: moderateScale(40),
     borderRadius: moderateScale(6),

@@ -31,6 +31,11 @@ const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress, c
     setFocused(null)
   }
 
+  const handleChannelPress = (channel: LiveTVChannel) => {
+    console.log('Channel pressed:', channel)
+    onChannelPress?.(channel)
+  }
+
   const renderChannelLogo = (channel: LiveTVChannel) => {
     return (
       <TouchableOpacity
@@ -39,7 +44,7 @@ const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress, c
           styles.channelLogoContainer,
           focused === channel.url && styles.channelLogoContainerFocused
         ]}
-        onPress={() => onChannelPress?.(channel)}
+        onPress={() => handleChannelPress(channel)}
         activeOpacity={1}
         onFocus={() => handleFocus(channel.url)}
         onBlur={() => handleBlur()}
@@ -49,8 +54,8 @@ const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress, c
         <View style={styles.liveIndicator}>
           <Text style={styles.liveText}>LIVE</Text>
         </View>
-        <View style={{ width: '100%' }}>
-            <SimpleMarquee text={channel.title} textStyle={styles.currentShow} />
+        <View style={{ width: '100%',overflow:'hidden' }}>
+            <SimpleMarquee shouldStart={focused === channel.url} text={channel.title} textStyle={styles.currentShow} />
         </View>
       </TouchableOpacity>
     );
