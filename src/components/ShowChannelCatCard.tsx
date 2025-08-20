@@ -133,9 +133,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             key={index}
             style={[
               styles.programBlock,
-              { backgroundColor: program.color },
-              index === 0 && styles.currentProgram,
-              index === 1 && styles.nextProgram,
+              { backgroundColor: 'rgba(27,30,33,1)' },
               focusedProgramIndex === index && styles.programBlockFocused,
             ]}
             hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
@@ -144,7 +142,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             onBlur={(event) => handleProgramBlur(event, index)}
             onPress={() => handlePress(index)}
           >
-            <Text style={styles.programText} numberOfLines={1}>
+            <Text style={[styles.programText, focusedProgramIndex === index && {color:CommonColors.black}]} numberOfLines={1}>
               {program.title}
             </Text>
           </TouchableOpacity>
@@ -225,7 +223,7 @@ const styles = StyleSheet.create({
   },
   programBlockFocused: {
     borderColor: CommonColors.white,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(225, 226, 228, 1)',
     transform: [{ scale: 1.05 }],
     shadowColor: CommonColors.white,
     shadowOffset: {

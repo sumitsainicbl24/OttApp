@@ -6,6 +6,7 @@ import FontFamily from '../constants/FontFamily';
 import Video from 'react-native-video';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
+import imagepath from '../constants/imagepath';
 
 interface ChannelMediaPlayerProps {
   imageSource?: ImageSourcePropType;
@@ -14,6 +15,8 @@ interface ChannelMediaPlayerProps {
   progressPercentage?: number;
   duration?: string;
   streamUrl: string | null;
+  selectedCategory: string;
+  loading: boolean;
 }
 
 const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
@@ -23,6 +26,8 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
   progressPercentage = 65,
   duration = '26 min',
   streamUrl='',
+  selectedCategory,
+  loading,
 }) => {
   const currentlyPlaying = useSelector((state: RootState) => state.rootReducer.main.currentlyPlaying)
   console.log(streamUrl, 'streamUrl');
@@ -48,6 +53,20 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
           <Text style={styles.durationText}>{duration}</Text>
         </View>
       </View>
+
+      {!loading && <View style={{ 
+        position:'absolute',
+        top:moderateScale(50),
+        right:moderateScale(10),
+        alignItems:'flex-end',
+        gap:moderateScale(10)
+      }}>
+        <Image source={imagepath.empty_star} style={styles.filled_star} />
+      <Text style={{color:CommonColors.white, 
+        fontSize:moderateScale(18), 
+        fontFamily:FontFamily.PublicSans_Medium
+        }}>{selectedCategory}</Text>
+      </View>}
     </View>
   );
 };
@@ -120,6 +139,11 @@ const styles = StyleSheet.create({
     lineHeight: scale(28),
     letterSpacing: scale(0.48), // 2% of font size
     color: CommonColors.white,
+  },
+  filled_star: {
+    width: scale(30),
+    height: scale(30),
+    marginRight: scale(8),  
   },
 });
 

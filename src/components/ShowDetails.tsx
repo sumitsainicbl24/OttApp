@@ -132,7 +132,9 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
       </View>
 
       <View style={styles.descriptionContainer}>
-        <Text style={styles.description}>
+        <Text
+        numberOfLines={5}
+        style={styles.description}>
           {showDetails?.Plot}
         </Text>
       </View>

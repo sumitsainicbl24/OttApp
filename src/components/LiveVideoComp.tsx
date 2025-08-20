@@ -37,7 +37,7 @@ const LiveVideoComp = ({ streamUrl, onExit, timing, hideControls = false }: Live
 
   //get currently playing from redux
   const {currentlyPlaying, currentSeriesEpisodes}:any = useSelector((state: RootState) => state.rootReducer.main)
-  
+  const {userToken}:any = useSelector((state: RootState) => state.rootReducer.auth)
   // Use state for currentEpisodeIndex instead of calculating it each time
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(() => {
     return currentSeriesEpisodes.findIndex((episode:any) => episode.url === streamUrl)
@@ -224,8 +224,12 @@ const LiveVideoComp = ({ streamUrl, onExit, timing, hideControls = false }: Live
           currentTime: Math.round(currentTime) || 0,
         };
       }
+      if(userToken){
         await continueWatchingUpdateApi(currentPlayingData);
-      } catch (error) {
+      }
+      } 
+      
+      catch (error) {
         console.log('Error updating continue watching data:', error);
       }
       finally{

@@ -50,6 +50,8 @@ export default{
     buttons:require('../assets/images/buttons.png'),
     tv:require('../assets/images/tv.png'),
     record_button:require('../assets/images/record_button.png'),
+    filled_star:require('../assets/images/filled_star.png'),
+    empty_star:require('../assets/images/empty_star.png'),
 
     //sample data
 

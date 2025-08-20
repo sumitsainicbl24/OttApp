@@ -187,6 +187,8 @@ const Tv = () => {
             progressPercentage={65}
             duration="26 min"
             streamUrl={memorizeStreamUrl}
+            selectedCategory={memorizeSelectedCategory}
+            loading={loading}
           />
           <View
             style={styles.scrollContainer}

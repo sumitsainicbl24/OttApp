@@ -21,7 +21,7 @@ import { CommonColors } from '../../../styles/Colors'
 import { setCurrentlyPlaying } from '../../../redux/reducers/main'
 import { useAppDispatch } from '../../../redux/hooks'
 import FontFamily from '../../../constants/FontFamily'
-import { continueWatchingGetApi } from '../../../redux/actions/main'
+import { continueWatchingGetApi, getHomepageApi } from '../../../redux/actions/main'
 
 
 const Home = () => {
@@ -120,15 +120,30 @@ const Home = () => {
     }, 1000);
   }
 
+  const allHomepageData = async () => {
+    const res = await getHomepageApi()
+    console.log('res from getHomepageApi', res)
+    setDynamicPopularMovieData(res?.data?.data?.popularMovies?.data)
+    setDynamicPopularShowsData(res?.data?.data?.popularShows?.data)
+    setPosterMovieName(res?.data?.data?.randomPoster?.data)
+    setDynamicRecentlyAddedMovieData(res?.data?.data?.recentUploaded?.data)
+    setLiveChannelData(res?.data?.data?.liveChannels?.data)
+
+  }
+
 
   // Load data whenever the screen comes into focus (including navigation.goBack())
-  useFocusEffect(
-    useCallback(() => {
-      loadMovieData()
-      loadShowsData()
-      loadLiveChannelData()
-    }, [])
-  )
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     loadMovieData()
+  //     loadShowsData()
+  //     loadLiveChannelData()
+  //   }, [])
+  // )
+  
+  useEffect(()=>{
+    allHomepageData()
+  }, [])
 
   useEffect(() => {
     if (PosterMovieName) {
@@ -199,7 +214,6 @@ const Home = () => {
         <View style={{marginBottom: verticalScale(75)}}/>
 
         <LiveTVChannels
-              category={channelsData[5]}
               data={LiveChannelData}
             onChannelPress={handleChannelPress}
           />

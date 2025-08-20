@@ -121,7 +121,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
 
   return (
     <View style={[styles.sectionContainer, horizontal && styles.horizontalSectionContainer, mainStyle]}>
-      <Text style={[styles.sectionTitle, titleStyle]}>{title}</Text>
+      {/* <Text style={[styles.sectionTitle, titleStyle]}>{title}</Text> */}
       <View style={styles.carouselWrapper}>
         <FlashList
           ref={flashListRef}

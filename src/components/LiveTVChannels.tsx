@@ -12,15 +12,15 @@ interface LiveTVChannel {
   category: string;
   isLive: boolean;
   title: string;
+  group: string;
 }
 
 interface LiveTVChannelsProps {
   data: LiveTVChannel[];
   onChannelPress?: (channel: LiveTVChannel) => void;
-  category: string;
 }
 
-const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress, category }) => {
+const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress }) => {
   const [focused, setFocused] = useState<string | null>(null)
 
   const handleFocus = (url: string) => {
@@ -50,7 +50,7 @@ const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress, c
         onBlur={() => handleBlur()}
         {...({ isTVSelectable: true } as any)}
       >
-        <Text style={styles.channelName}>{category}</Text>
+        <Text numberOfLines={1} style={styles.channelName}>{channel?.group}</Text>
         <View style={styles.liveIndicator}>
           <Text style={styles.liveText}>LIVE</Text>
         </View>

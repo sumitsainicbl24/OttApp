@@ -91,7 +91,7 @@ export const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   retryButtonFocused: {
-    backgroundColor: CommonColors.white,
+    backgroundColor: CommonColors.backgroundGrey,
     borderColor: CommonColors.white,
   },
   retryIcon: {

@@ -41,6 +41,7 @@ export const continueWatchingGetUrl = getApiUrl("/continue-watching");
 
 export const mylistCheckUrl = getApiUrl("/mylist/check");
 
+export const homepageUrl = getApiUrl("/homepage");
 
 
 // movie details urls
