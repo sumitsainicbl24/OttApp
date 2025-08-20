@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { CommonColors } from '../styles/Colors';
-import { moderateScale, verticalScale, scale } from '../styles/scaling';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import FontFamily from '../constants/FontFamily';
+import { CommonColors } from '../styles/Colors';
+import { moderateScale, scale, verticalScale } from '../styles/scaling';
+import SimpleMarquee from './MarqueeText';
 
 interface LiveTVChannel {
-  id: number;
+  url: string;
   name: string;
   number: string;
   category: string;
   isLive: boolean;
-  currentShow: string;
+  title: string;
 }
 
 interface LiveTVChannelsProps {
   data: LiveTVChannel[];
   onChannelPress?: (channel: LiveTVChannel) => void;
+  category: string;
 }
 
-const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress }) => {
-  const [focused, setFocused] = useState<number | null>(null)
+const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress, category }) => {
+  const [focused, setFocused] = useState<string | null>(null)
 
-  const handleFocus = (id: number) => {
-    setFocused(id)
+  const handleFocus = (url: string) => {
+    setFocused(url)
   }
 
   const handleBlur = () => {
@@ -31,27 +33,25 @@ const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress })
 
   const renderChannelLogo = (channel: LiveTVChannel) => {
     return (
-      <TouchableOpacity 
-        key={channel.id} 
+      <TouchableOpacity
+        key={channel?.url}
         style={[
           styles.channelLogoContainer,
-          focused === channel.id && styles.channelLogoContainerFocused
+          focused === channel.url && styles.channelLogoContainerFocused
         ]}
         onPress={() => onChannelPress?.(channel)}
         activeOpacity={1}
-        onFocus={() => handleFocus(channel.id)}
+        onFocus={() => handleFocus(channel.url)}
         onBlur={() => handleBlur()}
         {...({ isTVSelectable: true } as any)}
       >
-        <Text style={styles.channelName}>{channel.name}</Text>
-        {channel.isLive && (
-          <View style={styles.liveIndicator}>
-            <Text style={styles.liveText}>LIVE</Text>
-          </View>
-        )}
-        <Text style={styles.currentShow} numberOfLines={1}>
-          {channel.currentShow}
-        </Text>
+        <Text style={styles.channelName}>{category}</Text>
+        <View style={styles.liveIndicator}>
+          <Text style={styles.liveText}>LIVE</Text>
+        </View>
+        <View style={{ width: '100%' }}>
+            <SimpleMarquee text={channel.title} textStyle={styles.currentShow} />
+        </View>
       </TouchableOpacity>
     );
   };
@@ -62,7 +62,7 @@ const LiveTVChannels: React.FC<LiveTVChannelsProps> = ({ data, onChannelPress })
       <FlatList
         data={data}
         renderItem={({ item }) => renderChannelLogo(item)}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.url.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.channelsContainer}
@@ -79,25 +79,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(40),
     zIndex: 10,
   },
-  
+
   sectionTitleLiveChannels: {
     fontFamily: FontFamily.PublicSans_Bold,
     fontSize: scale(30),
     color: CommonColors.white,
     marginBottom: verticalScale(24),
   },
-  
+
   channelsContainer: {
     flexDirection: 'row',
     paddingHorizontal: moderateScale(5),
     paddingVertical: verticalScale(5),
   },
-  
+
   channelsContentContainer: {
     paddingRight: moderateScale(40),
     alignItems: 'center',
   },
-  
+
   channelLogoContainer: {
     width: moderateScale(200),
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -115,10 +115,10 @@ const styles = StyleSheet.create({
 
   channelName: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(16),
+    fontSize: moderateScale(14),
     color: CommonColors.white,
     textAlign: 'center',
-    marginBottom: verticalScale(8),
+    marginBottom: verticalScale(15),
   },
 
   liveIndicator: {

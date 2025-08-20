@@ -85,7 +85,14 @@ const Home = () => {
   }
 
   const loadLiveChannelData = async () => {
-    setLiveChannelData(channelsData?.slice(0, 8))
+    console.log('channelsData', channelsData)
+    try{
+      const res= await getCategoryData('live', channelsData[1])
+      console.log('response from getCategoryData for live channels', res?.data?.data?.data?.channels)
+      setLiveChannelData(res?.data?.data?.data?.channels?.slice(0, 8))
+    }catch(error){
+      console.log('error in loadMovieData', error)
+    }
   }
 
   const loadContinueWatchingData = async () => {
@@ -178,8 +185,9 @@ const Home = () => {
         <View style={{marginBottom: verticalScale(-105)}}/>
         <View style={{marginBottom: verticalScale(75)}}/>
 
-        <LiveTVChannels 
-            data={liveTVChannelsData}
+        <LiveTVChannels
+              category={channelsData[5]}
+              data={LiveChannelData}
             onChannelPress={handleChannelPress}
           />
           <View style={{marginBottom: verticalScale(35)}}/>
