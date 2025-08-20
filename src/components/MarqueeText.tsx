@@ -68,7 +68,7 @@ export default function SimpleMarquee({
         style={{
           flexDirection: "row",
           transform: [{ translateX }],
-          height: 12,
+          // height: 12,
           gap: textWidth,
         }}
       >
@@ -97,7 +97,7 @@ export default function SimpleMarquee({
       : 
       <View style={{
           flexDirection: "row",
-        height: 12,
+        // height: 12,
         }}>
       <Text
       style={[{ fontSize: 16 }, textStyle]}
