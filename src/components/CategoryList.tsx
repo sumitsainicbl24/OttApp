@@ -6,6 +6,7 @@ import FontFamily from '../constants/FontFamily'
 import { moderateScale, scale, verticalScale } from '../styles/scaling'
 import { CommonActions } from '@react-navigation/native'
 import { CommonColors } from '../styles/Colors'
+import SimpleMarquee from './MarqueeText'
 
 interface CategoryListProps {
   categories?: string[]
@@ -76,7 +77,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
               onBlur={() => setFocusedIndex(null)}
               activeOpacity={1}
             >
-              <Text
+              {/* <Text
                 numberOfLines={1}
                 ellipsizeMode='tail'
                 style={[
@@ -84,7 +85,15 @@ const CategoryList: React.FC<CategoryListProps> = ({
                   (isFocused || isSelected) && styles.categoryTextFocused
                 ]}>
                 {item}
-              </Text>
+              </Text> */}
+             <SimpleMarquee 
+             text={item} 
+             textStyle={[
+              styles.categoryText,
+              (isFocused || isSelected) && styles.categoryTextFocused,
+            ]}
+             shouldStart={isFocused || isSelected}
+             />
             </TouchableOpacity>
           )
         }
