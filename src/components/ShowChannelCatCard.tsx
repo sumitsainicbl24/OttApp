@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
+import { FlatList, Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
 import { CommonColors } from '../styles/Colors'
 import { moderateScale, scale, verticalScale } from '../styles/scaling'
 import FontFamily from '../constants/FontFamily'
@@ -42,8 +42,9 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   const [focusedProgramIndex, setFocusedProgramIndex] = useState<number | null>(null)
   const [lastTap, setLastTap] = useState<number | null>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
+  
   const dispatch = useDispatch()
-  // Reset image error state when show changes
+  // Reset image error state when show changes  
   useEffect(() => {
     setImageError(false)
   }, [show.title, show.logo])
@@ -116,9 +117,9 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         
         <View style={styles.channelLogoContainer}>
           <Image 
-            // source={show?.logo ? { uri: show?.logo } : imagepath.tv} 
-            tintColor={focusedProgramIndex !== null ? CommonColors.blueText : CommonColors.white}
-            source={imagepath.tv}
+            source={imageError ? imagepath.tv : { uri: show?.logo }} 
+            // source={imagepath.tv}
+            tintColor={imageError ? CommonColors.white : undefined}
             style={styles.channelLogo}
             onError={handleImageError}
           />
@@ -134,8 +135,10 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         </View>
       </View>
 
+      
+
       <View style={styles.programSchedule}>
-        {programs.map((program, index) => (
+        {/* {programs.map((program, index) => (
           <TouchableOpacity
             key={index}
             style={[
@@ -153,7 +156,37 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
               {program.title}
             </Text>
           </TouchableOpacity>
-        ))}
+        ))} */}
+        <FlatList
+          data={programs}
+          renderItem={({item, index}) => (
+            <TouchableOpacity
+            key={index}
+            style={[
+              styles.programBlock,
+              { backgroundColor: 'rgba(27,30,33,1)' },
+              focusedProgramIndex === index && styles.programBlockFocused,
+            ]}
+            hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+            activeOpacity={1}
+            onFocus={(event) => handleProgramFocus(event, index)}
+            onBlur={(event) => handleProgramBlur(event, index)}
+            onPress={() => handlePress(index)}
+          >
+            <Text style={[styles.programText, focusedProgramIndex === index && {color:CommonColors.black}]} numberOfLines={1}>
+              {item.title}
+            </Text>
+          </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            gap:moderateScale(8),
+            paddingHorizontal:moderateScale(10),
+            height:moderateScale(40),
+          }}
+        />
       </View>
     </View>
   )
@@ -214,17 +247,16 @@ const styles = StyleSheet.create({
   programSchedule: {
     flex: 1,
     flexDirection: 'row',
-    gap: moderateScale(8),
     marginLeft: moderateScale(10),
   },
   programBlock: {
-    flex: 1,
-    height: moderateScale(44),
+    // flex: 1,
+    // height: moderateScale(44),
     width: moderateScale(400),
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(12),
-    paddingVertical: moderateScale(8),
-    // justifyContent: 'center',
+    // paddingVertical: moderateScale(8),
+    justifyContent: 'center',
     // alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
@@ -232,7 +264,6 @@ const styles = StyleSheet.create({
   programBlockFocused: {
     borderColor: CommonColors.white,
     backgroundColor: 'rgba(225, 226, 228, 1)',
-    transform: [{ scale: 1.05 }],
     shadowColor: CommonColors.white,
     shadowOffset: {
       width: 0,
