@@ -124,7 +124,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
           />
         </View>
 
-        <View style={{width:moderateScale(150),overflow:'hidden'}}> 
+        <View style={{width:moderateScale(140),overflow:'hidden'}}> 
             <SimpleMarquee
               text={show.title || 'Channel Name'}
               shouldStart={focusedProgramIndex !== null}
@@ -215,6 +215,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     gap: moderateScale(8),
+    marginLeft: moderateScale(10),
   },
   programBlock: {
     flex: 1,
