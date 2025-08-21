@@ -8,6 +8,7 @@ import imagepath from '../constants/imagepath'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainStackParamList } from '../navigation/NavigationsTypes'
 import { imageResolutionHandlerForUrl } from '../utils/CommonFunctions'
+import SimpleMarquee from './MarqueeText'
 
 interface ShowData {
   group?: string
@@ -95,7 +96,12 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
           onError={handleImageError}
         />
         <View style={styles.showTitleContainer}>
-          <Text numberOfLines={1} style={styles.showTitle}>{show.title}</Text>
+          {/* <Text numberOfLines={1} style={styles.showTitle}>{show.title}</Text> */}
+          <SimpleMarquee 
+          text={show.title || 'Channel Name'}
+          shouldStart={isFocused}
+          textStyle={styles.showTitle}
+          />
         </View>
     </TouchableOpacity>
   )

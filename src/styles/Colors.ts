@@ -12,6 +12,7 @@ export const CommonColors= {
     textSecondary:'#60758C',
     textGrey:'#b5afaf',
     yellow:'#FAAC1B',
+    blueText:'rgb(98,160,244)',
 
     //button colors
     buttonPrimary:'#1E9CE8',

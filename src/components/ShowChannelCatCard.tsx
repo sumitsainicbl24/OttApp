@@ -9,6 +9,7 @@ import { MainStackParamList } from '../navigation/NavigationsTypes'
 import { imageResolutionHandlerForUrl } from '../utils/CommonFunctions'
 import { setCurrentlyPlaying } from '../redux/reducers/main'
 import { useDispatch } from 'react-redux'
+import SimpleMarquee from './MarqueeText'
 
 interface ShowData {
   group?: string
@@ -116,15 +117,21 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         <View style={styles.channelLogoContainer}>
           <Image 
             // source={show?.logo ? { uri: show?.logo } : imagepath.tv} 
+            tintColor={focusedProgramIndex !== null ? CommonColors.blueText : CommonColors.white}
             source={imagepath.tv}
             style={styles.channelLogo}
             onError={handleImageError}
           />
         </View>
-        
-        <Text style={styles.channelNameText} numberOfLines={1}>
-          {show.title || 'Channel Name'}
-        </Text>
+
+        <View style={{width:moderateScale(150),overflow:'hidden'}}> 
+            <SimpleMarquee
+              text={show.title || 'Channel Name'}
+              shouldStart={focusedProgramIndex !== null}
+              textStyle={[styles.channelNameText,focusedProgramIndex !== null && {color:CommonColors.blueText}]}
+              speed={50}
+            />
+        </View>
       </View>
 
       <View style={styles.programSchedule}>
@@ -192,7 +199,6 @@ const styles = StyleSheet.create({
     // backgroundColor: CommonColors.backgroundBlue,
   },
   channelLogo: {
-    tintColor: CommonColors.white,
     width: moderateScale(40),
     height: moderateScale(40),
     borderRadius: moderateScale(6),
@@ -213,11 +219,12 @@ const styles = StyleSheet.create({
   programBlock: {
     flex: 1,
     height: moderateScale(44),
+    width: moderateScale(400),
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(12),
     paddingVertical: moderateScale(8),
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
   },
@@ -242,8 +249,8 @@ const styles = StyleSheet.create({
   },
   programText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(11),
+    fontSize: moderateScale(17),
     color: CommonColors.white,
-    textAlign: 'center',
+    textAlign: 'left',
   },
 }) 
