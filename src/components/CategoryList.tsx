@@ -37,7 +37,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
       flashListRef.current.scrollToIndex({
         index,
         animated: true,
-        viewPosition: 0.5, // 0.5 centers the item
+        viewPosition: 0.6, // 0.5 centers the item
       })
     }
   }
@@ -72,6 +72,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
               ]}
               onFocus={() => {
                 // gettingIndexForSelectedCategory()
+                console.log('indexindexindex', index, item);
                 handleFocus(index, item)
               }}
               onBlur={() => setFocusedIndex(null)}

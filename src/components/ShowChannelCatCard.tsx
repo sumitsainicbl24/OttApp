@@ -63,8 +63,8 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     onPress?.(programIndex)
   }
 
-  const handleImageError = () => {
-    // console.log('Image failed to load, showing placeholder for:', show.title)
+  const handleImageError = (e: any) => {
+    console.log('Image failed to load, showing placeholder for:', show.title, e)
     setImageError(true)
   }
 
@@ -109,7 +109,14 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     { title: 'No information', duration: 'later', color: 'rgba(255, 255, 255, 0.2)' },
     { title: 'No information', duration: 'evening', color: 'rgba(255, 255, 255, 0.2)' },
   ]
-
+  const getProxyImageUrl = (url: any) => {
+    if (!url) return null;
+  
+    // Remove protocol (weserv requires host/path only)
+    const cleanUrl = url.replace(/^https?:\/\//, '');
+  
+    return `https://images.weserv.nl/?url=${cleanUrl}`;
+  };
   return (
     <View style={styles.channelRow}>
       <View style={styles.channelInfo}>
@@ -117,11 +124,13 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         
         <View style={styles.channelLogoContainer}>
           <Image 
-            source={imageError ? imagepath.tv : { uri: show?.logo }} 
-            // source={imagepath.tv}
-            tintColor={imageError ? CommonColors.white : undefined}
+            source={show?.logo ?  imageError ?  {uri:getProxyImageUrl(show?.logo)} : {uri:show?.logo} : imagepath.tv} 
             style={styles.channelLogo}
-            onError={handleImageError}
+            tintColor={!show?.logo ? CommonColors.white : undefined}
+            onError={(e) => {
+              console.log('Image error:', e.nativeEvent.error)
+              handleImageError(e.nativeEvent)
+            }}
           />
         </View>
 

@@ -69,14 +69,14 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
       
       {/* Horizontal gradient overlay - dark on left, transparent on right */}
       <LinearGradient
-        colors={[CommonColors.themeMain, 'rgba(19, 22, 25, 0.95)', 'rgba(19, 22, 25, 0.5)', 'rgba(19, 22, 25, 0.5)', CommonColors.themeMain]}
+        colors={[CommonColors.themeMain, 'rgba(19, 22, 25, 1)', 'rgba(19, 22, 25, 0.75)', 'transparent', CommonColors.themeMain]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+        end={{ x: 1.5, y: 0 }}
         style={styles.horizontalGradientOverlay}
       />
 
       <LinearGradient
-        colors={[CommonColors.themeMain, 'transparent', 'transparent', 'transparent']}
+        colors={[CommonColors.themeMain, 'rgba(19, 22, 25, 0.75)', 'transparent']}
         start={{ x: 0, y: 1 }}
         end={{ x: 0, y: 0 }}
         style={styles.horizontalGradientOverlay}
@@ -160,17 +160,17 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
 
 const styles = StyleSheet.create({
   backgroundImagePlaceholder: {
-    flex: 1,
+    // flex: 1,
     // backgroundColor: CommonColors.themeMain,
-    height: height/1.2,
-    paddingTop: verticalScale(85),
+    // height: height/3,
+    paddingTop: verticalScale(20),
   },
   
   backgroundImageStyle: {
     resizeMode: 'cover',
     alignSelf: 'flex-end',
     position: 'absolute',
-    width: '90%',
+    width: '80%',
     height: height/1.2,
   },
   

@@ -170,7 +170,7 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
 
 const styles = StyleSheet.create({
   ShowDetailsContainer: {
-    height: height / 2,
+    height: height / 2.5,
     width: '100%',
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   videoContainer: {
     position: 'relative',
     width: scale(680),
-    height: scale(438),
+    height: scale(400),
   },
   ShowImageContainer: {
     width: scale(680),

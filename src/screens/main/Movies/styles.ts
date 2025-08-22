@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
     // backgroundColor: CommonColors.themeMain,
-    marginTop: -moderateScale(150),
+    // marginTop: -moderateScale(150),
   },
   
   // Top Navigation Styles

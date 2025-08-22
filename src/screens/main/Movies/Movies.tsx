@@ -46,11 +46,15 @@ const Movies = () => {
     loadMovieData()
   }, [])
 
+  useEffect(() => {
+    console.log('selectedCategoryData', selectedCategory)
+  }, [selectedCategory])
+
   const loadMovieData = async () => {
     try {
       setLoading(true)
 
-      setSelectedCategory(moviesData[0])
+      setSelectedCategory(moviesData[6])
 
     } catch (error) {
 
@@ -66,7 +70,7 @@ const Movies = () => {
 
   // Handle navigation back to category list (when pressing left)
   const handleCategoryListFocus = async (category: string) => {
-    setLoading(true)
+    // setLoading(true)
     setShowCategoryAndSidebar(true)
     setSelectedCategory(category)
   }
@@ -75,12 +79,12 @@ const Movies = () => {
     try {
       const res = await getCategoryData('movies', category)
       const movieData = res?.data?.data?.data?.movies
-      
+
       if (movieData && movieData.length > 0) {
         // Update state
         setSelectedCategoryData(movieData)
-        
-        
+
+
         if (movieData[0]?.title) {
           setSelectedMovieName(movieData[0]?.title)
         }
@@ -99,6 +103,7 @@ const Movies = () => {
   // Create debounced version of getMovieData
   const debouncedGetMovieData = useCallback(
     debounce((category: string) => {
+      setLoading(true)
       getMovieData(category)
     }, 500), // 500ms delay
     []

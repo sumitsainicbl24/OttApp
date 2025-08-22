@@ -67,7 +67,7 @@ const Shows = () => {
 
   // Handle navigation back to category list (when pressing left)
   const handleCategoryListFocus = async (category: string) => {
-    setLoading(true)
+    // setLoading(true)
     setShowCategoryAndSidebar(true)
     setSelectedCategory(category)
   }
@@ -89,6 +89,7 @@ const Shows = () => {
   // Create debounced version of getMovieData
   const debouncedGetMovieData = useCallback(
     debounce((category: string) => {
+      setLoading(true)
       getMovieData(category)
     }, 500), // 500ms delay
     []
