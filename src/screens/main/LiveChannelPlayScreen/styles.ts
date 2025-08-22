@@ -275,4 +275,115 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderColor: CommonColors.white,
   },
+  
+  // Bottom navigation bar
+  bottomNavigationBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingHorizontal: scale(40),
+    paddingBottom: verticalScale(40),
+    width: '60%',
+  },
+  navButton: {
+    alignItems: 'center',
+    paddingVertical: verticalScale(15),
+    paddingHorizontal: scale(20),
+    borderRadius: moderateScale(8),
+    // borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    width: scale(160),
+    height: scale(140),
+    // backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  navButtonFocused: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: CommonColors.white,
+    transform: [{ scale: 1.05 }],
+    // shadowColor: CommonColors.white,
+    // shadowOffset: { width: 0, height: 0 },
+    // shadowOpacity: 0.5,
+    // shadowRadius: moderateScale(10),
+    // elevation: 10,
+  },
+  navButtonIcon: {
+    width: scale(40),
+    height: scale(40),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: verticalScale(8),
+  },
+  navButtonImage: {
+    width: scale(24),
+    height: scale(24),
+    tintColor: CommonColors.white,
+  },
+  navButtonText: {
+    color: CommonColors.white,
+    fontSize: moderateScale(14),
+    fontFamily: FontFamily.PublicSans_Medium,
+    textAlign: 'center',
+  },
+  navButtonSubtext: {
+    color: CommonColors.textGrey,
+    fontSize: moderateScale(12),
+    fontFamily: FontFamily.PublicSans_Regular,
+    textAlign: 'center',
+    marginTop: verticalScale(2),
+  },
+  
+  // TV Guide icon styles
+  tvGuideIcon: {
+    width: scale(24),
+    height: scale(24),
+    justifyContent: 'space-between',
+  },
+  tvGuideLine: {
+    height: scale(2),
+    backgroundColor: CommonColors.white,
+    borderRadius: moderateScale(1),
+  },
+  tvGuideDots: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: verticalScale(2),
+  },
+  tvGuideDot: {
+    width: scale(2),
+    height: scale(2),
+    backgroundColor: CommonColors.white,
+    borderRadius: moderateScale(1),
+  },
+  
+  // Welcome icon styles
+  welcomeIcon: {
+    width: scale(24),
+    height: scale(24),
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  welcomeDot: {
+    width: scale(8),
+    height: scale(8),
+    backgroundColor: CommonColors.white,
+    borderRadius: moderateScale(4),
+  },
+  
+  // Down arrow indicator
+  downArrowContainer: {
+    alignItems: 'center',
+    paddingBottom: verticalScale(20),
+  },
+  downArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: scale(6),
+    borderRightWidth: scale(6),
+    borderTopWidth: scale(8),
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: CommonColors.white,
+  },
 })

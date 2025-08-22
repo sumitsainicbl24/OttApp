@@ -1,32 +1,41 @@
-import React, { useState, useEffect } from 'react'
-import { FlatList, Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
-import { CommonColors } from '../styles/Colors'
-import { moderateScale, scale, verticalScale } from '../styles/scaling'
-import FontFamily from '../constants/FontFamily'
-import imagepath from '../constants/imagepath'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { MainStackParamList } from '../navigation/NavigationsTypes'
-import { imageResolutionHandlerForUrl } from '../utils/CommonFunctions'
-import { setCurrentlyPlaying } from '../redux/reducers/main'
-import { useDispatch } from 'react-redux'
-import SimpleMarquee from './MarqueeText'
+import React, {useState, useEffect} from 'react';
+import {
+  FlatList,
+  Image,
+  ImageSourcePropType,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  View,
+} from 'react-native';
+import {CommonColors} from '../styles/Colors';
+import {moderateScale, scale, verticalScale} from '../styles/scaling';
+import FontFamily from '../constants/FontFamily';
+import imagepath from '../constants/imagepath';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {MainStackParamList} from '../navigation/NavigationsTypes';
+import {imageResolutionHandlerForUrl} from '../utils/CommonFunctions';
+import {setCurrentlyPlaying} from '../redux/reducers/main';
+import {useDispatch} from 'react-redux';
+import SimpleMarquee from './MarqueeText';
 
 interface ShowData {
-  group?: string
-  title?: string
-  logo?: string
-  url?: string
-  channelIndex?: number
+  group?: string;
+  title?: string;
+  logo?: string;
+  url?: string;
+  channelIndex?: number;
 }
 
 interface ShowChannelCatCardProps {
-  show: ShowData
-  hasTVPreferredFocus?: boolean
-  onFocus?: (event: any, programIndex: number) => void
-  onBlur?: (event: any, programIndex: number) => void
-  onPress?: (programIndex: number) => void
-  channelIndex?: number
-  setChannelUrl?: (url: string) => void
+  show: ShowData;
+  hasTVPreferredFocus?: boolean;
+  onFocus?: (event: any, programIndex: number) => void;
+  onBlur?: (event: any, programIndex: number) => void;
+  onPress?: (programIndex: number) => void;
+  channelIndex?: number;
+  setChannelUrl?: (url: string) => void;
 }
 
 const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
@@ -36,64 +45,78 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   onBlur,
   onPress,
   channelIndex = 0,
-  setChannelUrl
+  setChannelUrl,
 }) => {
-  const [imageError, setImageError] = useState(false)
-  const [focusedProgramIndex, setFocusedProgramIndex] = useState<number | null>(null)
-  const [lastTap, setLastTap] = useState<number | null>(null)
-  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-  
-  const dispatch = useDispatch()
-  // Reset image error state when show changes  
+  const [imageError, setImageError] = useState(false);
+  const [streamUrl, setStreamUrl] = useState<string | null>(null)
+  const [focusedProgramIndex, setFocusedProgramIndex] = useState<number | null>(
+    null,
+  );
+  const [lastTap, setLastTap] = useState<number | null>(null);
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>();
+
+  const dispatch = useDispatch();
+  // Reset image error state when show changes
   useEffect(() => {
-    setImageError(false)
-  }, [show.title, show.logo])
+    setImageError(false);
+  }, [show.title, show.logo]);
 
   const handleProgramFocus = (event: any, programIndex: number) => {
-    setFocusedProgramIndex(programIndex)
-    onFocus?.(event, programIndex)
-  }
+    setFocusedProgramIndex(programIndex);
+    onFocus?.(event, programIndex);
+  };
 
   const handleProgramBlur = (event: any, programIndex: number) => {
-    setFocusedProgramIndex(null)
-    onBlur?.(event, programIndex)
-  }
+    setFocusedProgramIndex(null);
+    onBlur?.(event, programIndex);
+  };
 
   const handleProgramPress = (programIndex: number) => {
-    onPress?.(programIndex)
-  }
+    onPress?.(programIndex);
+  };
 
   const handleImageError = (e: any) => {
-    console.log('Image failed to load, showing placeholder for:', show.title, e)
-    setImageError(true)
-  }
+    console.log(
+      'Image failed to load, showing placeholder for:',
+      show.title,
+      e,
+    );
+    setImageError(true);
+  };
 
   const handleDoubleClick = () => {
-    dispatch(setCurrentlyPlaying({
-      ...show,
-      type: 'live', // Mark this as a live TV channel
-      url: show.url
-    }))
-    navigation.navigate('LiveChannelPlayScreen', { 
+    dispatch(
+      setCurrentlyPlaying({
+        ...show,
+        type: 'live', // Mark this as a live TV channel
+        url: show.url,
+      }),
+    );
+    navigation.navigate('LiveChannelPlayScreen', {
       channel: {
         ...show,
         url: show.url,
         type: 'live',
-      } 
-    })
-  }
+      },
+    });
+  };
 
   const handlePress = (index: number) => {
+    if(streamUrl === show.url){
+      handleDoubleClick()
+      setLastTap(null)
+      return
+    }
     const now = Date.now()
     const DOUBLE_PRESS_DELAY = 300
-
+ 
     if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
       // Double click detected
       handleDoubleClick()
       setLastTap(null)
     } else {
       // Single click - execute original functionality
-      console.log('show.url', show.url)
+      setStreamUrl(show.url || '')
       setChannelUrl?.('')
       setTimeout(() => {
         setChannelUrl?.(show.url || '')
@@ -104,47 +127,62 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
 
   // Mock program data - in real app this would come from props or API
   const programs = [
-    { title: 'No information', duration: 'current', color: '#3E4756' },
-    { title: 'No information', duration: 'next', color: '#232629' },
-    { title: 'No information', duration: 'later', color: 'rgba(255, 255, 255, 0.2)' },
-    { title: 'No information', duration: 'evening', color: 'rgba(255, 255, 255, 0.2)' },
-  ]
+    {title: 'No information', duration: 'current', color: '#3E4756'},
+    {title: 'No information', duration: 'next', color: '#232629'},
+    {
+      title: 'No information',
+      duration: 'later',
+      color: 'rgba(255, 255, 255, 0.2)',
+    },
+    {
+      title: 'No information',
+      duration: 'evening',
+      color: 'rgba(255, 255, 255, 0.2)',
+    },
+  ];
   const getProxyImageUrl = (url: any) => {
     if (!url) return null;
-  
+
     // Remove protocol (weserv requires host/path only)
     const cleanUrl = url.replace(/^https?:\/\//, '');
-  
+
     return `https://images.weserv.nl/?url=${cleanUrl}`;
   };
   return (
     <View style={styles.channelRow}>
       <View style={styles.channelInfo}>
         <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
-        
+
         <View style={styles.channelLogoContainer}>
-          <Image 
-            source={show?.logo ?  imageError ?  {uri:getProxyImageUrl(show?.logo)} : {uri:show?.logo} : imagepath.tv} 
+          <Image
+            source={
+              show?.logo
+                ? imageError
+                  ? {uri: getProxyImageUrl(show?.logo)}
+                  : {uri: show?.logo}
+                : imagepath.tv
+            }
             style={styles.channelLogo}
             tintColor={!show?.logo ? CommonColors.white : undefined}
-            onError={(e) => {
-              console.log('Image error:', e.nativeEvent.error)
-              handleImageError(e.nativeEvent)
+            onError={e => {
+              console.log('Image error:', e.nativeEvent.error);
+              handleImageError(e.nativeEvent);
             }}
           />
         </View>
 
-        <View style={{width:moderateScale(140),overflow:'hidden'}}> 
-            <SimpleMarquee
-              text={show.title || 'Channel Name'}
-              shouldStart={focusedProgramIndex !== null}
-              textStyle={[styles.channelNameText,focusedProgramIndex !== null && {color:CommonColors.blueText}]}
-              speed={50}
-            />
+        <View style={{width: moderateScale(140), overflow: 'hidden'}}>
+          <SimpleMarquee
+            text={show.title || 'Channel Name'}
+            shouldStart={focusedProgramIndex !== null}
+            textStyle={[
+              styles.channelNameText,
+              focusedProgramIndex !== null && {color: CommonColors.blueText},
+            ]}
+            speed={50}
+          />
         </View>
       </View>
-
-      
 
       <View style={styles.programSchedule}>
         {/* {programs.map((program, index) => (
@@ -170,38 +208,42 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
           data={programs}
           renderItem={({item, index}) => (
             <TouchableOpacity
-            key={index}
-            style={[
-              styles.programBlock,
-              { backgroundColor: 'rgba(27,30,33,1)' },
-              focusedProgramIndex === index && styles.programBlockFocused,
-            ]}
-            hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
-            activeOpacity={1}
-            onFocus={(event) => handleProgramFocus(event, index)}
-            onBlur={(event) => handleProgramBlur(event, index)}
-            onPress={() => handlePress(index)}
-          >
-            <Text style={[styles.programText, focusedProgramIndex === index && {color:CommonColors.black}]} numberOfLines={1}>
-              {item.title}
-            </Text>
-          </TouchableOpacity>
+              key={index}
+              style={[
+                styles.programBlock,
+                {backgroundColor: 'rgba(27,30,33,1)'},
+                focusedProgramIndex === index && styles.programBlockFocused,
+              ]}
+              hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+              activeOpacity={1}
+              onFocus={event => handleProgramFocus(event, index)}
+              onBlur={event => handleProgramBlur(event, index)}
+              onPress={() => handlePress(index)}>
+              <Text
+                style={[
+                  styles.programText,
+                  focusedProgramIndex === index && {color: CommonColors.black},
+                ]}
+                numberOfLines={1}>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
           )}
           keyExtractor={(item, index) => index.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
-            gap:moderateScale(8),
-            paddingHorizontal:moderateScale(10),
-            height:moderateScale(40),
+            gap: moderateScale(8),
+            paddingHorizontal: moderateScale(10),
+            height: moderateScale(40),
           }}
         />
       </View>
     </View>
-  )
-}
+  );
+};
 
-export default ShowChannelCatCard
+export default ShowChannelCatCard;
 
 const styles = StyleSheet.create({
   channelRow: {
@@ -209,7 +251,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: verticalScale(60),
-    paddingHorizontal: moderateScale(12),
+    // paddingHorizontal: moderateScale(12),
     marginVertical: verticalScale(4),
     borderRadius: moderateScale(8),
     // backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -294,4 +336,4 @@ const styles = StyleSheet.create({
     color: CommonColors.white,
     textAlign: 'left',
   },
-}) 
+});

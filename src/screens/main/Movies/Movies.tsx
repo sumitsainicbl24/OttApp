@@ -54,7 +54,7 @@ const Movies = () => {
     try {
       setLoading(true)
 
-      setSelectedCategory(moviesData[6])
+      setSelectedCategory(moviesData[7])
 
     } catch (error) {
 

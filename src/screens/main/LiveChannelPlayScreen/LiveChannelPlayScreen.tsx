@@ -11,7 +11,8 @@ import {
   BackHandler,
   useTVEventHandler,
   ActivityIndicator,
-  Alert
+  Alert,
+  Pressable
 } from 'react-native'
 
 // 2. Third-party library imports
@@ -58,7 +59,6 @@ const LiveChannelPlayScreen = () => {
   // State management for live channel
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [paused, setPaused] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const [focused, setFocused] = useState<string | null>(null)
   const [volume, setVolume] = useState(1.0)
@@ -87,18 +87,28 @@ const LiveChannelPlayScreen = () => {
 
   // TV remote event handler
   const myTVEventHandler = (evt: any) => {
+    console.log('TV Event:', evt?.eventType, 'Current focus:', focused)
+    
     if (evt && evt.eventType === 'select') {
       resetControlsTimer()
-    } else if (evt && evt.eventType === 'playPause') {
-      handlePlayPause()
     } else if (evt && evt.eventType === 'up') {
       resetControlsTimer()
     } else if (evt && evt.eventType === 'down') {
       resetControlsTimer()
     } else if (evt && evt.eventType === 'left') {
       resetControlsTimer()
+      // Navigate to previous button
+      if (focused === 'history') setFocused('tvGuide')
+      else if (focused === 'welcome') setFocused('history')
+      else if (focused === 'clear') setFocused('welcome')
+      else if (focused === 'tvGuide') setFocused('clear')
     } else if (evt && evt.eventType === 'right') {
       resetControlsTimer()
+      // Navigate to next button
+      if (focused === 'tvGuide') setFocused('history')
+      else if (focused === 'history') setFocused('welcome')
+      else if (focused === 'clear') setFocused('tvGuide')
+      else if (focused === 'welcome') setFocused('clear')
     }
   }
 
@@ -118,6 +128,8 @@ const LiveChannelPlayScreen = () => {
   // Initialize controls timer
   useEffect(() => {
     resetControlsTimer()
+    // Set initial focus to WELCOME button
+    setFocused('welcome')
     return () => {
       if (hideControlsTimer.current) {
         clearTimeout(hideControlsTimer.current)
@@ -131,6 +143,7 @@ const LiveChannelPlayScreen = () => {
     setLoading(false)
     setError(null)
     setNetworkError(false)
+    videoRef?.current?.resume()
   }
 
   const handleError = (error: any) => {
@@ -144,30 +157,7 @@ const LiveChannelPlayScreen = () => {
     // For live streams, we don't need to track progress
   }
 
-  const handlePlayPause = () => {
-    setPaused(!paused)
-    resetControlsTimer()
-  }
-
-  const handleRecord = () => {
-    setMuted(!muted)
-    resetControlsTimer()
-  }
-
-  const handleVolumeUp = () => {
-    setVolume(Math.min(1.0, volume + 0.1))
-    resetControlsTimer()
-  }
-
-  const handleVolumeDown = () => {
-    setVolume(Math.max(0.0, volume - 0.1))
-    resetControlsTimer()
-  }
-
-  const handleBack = () => {
-    navigation.goBack()
-  }
-
+  // Retry function for reloading the stream
   const handleReload = () => {
     setLoading(true)
     setError(null)
@@ -178,11 +168,13 @@ const LiveChannelPlayScreen = () => {
 
   // Focus handlers
   const handleFocus = (buttonName: string) => {
+    console.log('Focus changed to:', buttonName)
     setFocused(buttonName)
     resetControlsTimer()
   }
 
   const handleBlur = () => {
+    console.log('Focus blurred')
     setFocused(null)
   }
 
@@ -264,102 +256,99 @@ const LiveChannelPlayScreen = () => {
           </View>
         </View>
 
-        {/* Bottom controls bar */}
-        <View style={styles.bottomControlsBar}>
-          {/* Previous button */}
-          <View
-            style={[styles.controlButton, focused === 'previous' && styles.controlButtonFocused]}
-          >
-            <Image source={imagepath.previous} style={styles.controlButtonIcon} />
-          </View>
-
-          {/* Rewind 10s button */}
-          <View
-            style={[styles.controlButton, focused === 'rewind' && styles.controlButtonFocused]}
-          >
-            <Image source={imagepath.rewind_button} style={styles.controlButtonIcon} />
-          </View>
-
-          {/* Large Play/Pause button */}
-          <TouchableOpacity
-            style={[styles.largePlayButton, focused === 'playPause' && styles.largePlayButtonFocused]}
-            onPress={handlePlayPause}
-            onFocus={() => handleFocus('playPause')}
+        {/* Bottom navigation buttons */}
+        <View style={styles.bottomNavigationBar}>
+          {/* TV Guide button */}
+          <Pressable
+            style={[styles.navButton, focused === 'tvGuide' && styles.navButtonFocused]}
+            onPress={() => {}}
+            onFocus={() => handleFocus('tvGuide')}
             onBlur={handleBlur}
-            activeOpacity={1}
-            hasTVPreferredFocus={true}
+            hasTVPreferredFocus={false}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="TV Guide"
+            accessibilityHint="Navigate to TV Guide"
           >
-            <Image
-              source={paused ? imagepath.playbuttonarrowhead : imagepath.pauseIcon}
-              style={{...styles.largePlayIcon, tintColor: focused === 'playPause' ? CommonColors.black : CommonColors.white}}
-            />
-          </TouchableOpacity>
-
-          {/* Fast forward 10s button */}
-          <View
-            style={[styles.controlButton, focused === 'fastforward' && styles.controlButtonFocused]}
-          >
-            <Image source={imagepath.fast_forward} style={styles.controlButtonIcon} />
-          </View>
-
-          {/* Next button */}
-          <View
-            style={[styles.controlButton, focused === 'next' && styles.controlButtonFocused]}
-          >
-            <Image source={imagepath.next} style={styles.controlButtonIcon} />
-          </View>
-
-        <View
-        style={{
-            flexDirection:'row',
-            alignItems:'center',
-            gap:moderateScale(10),
-            marginRight:moderateScale(10),
-            marginBottom:moderateScale(10),
-            position:'absolute',
-            right:moderateScale(45),
-            bottom:moderateScale(25),
-        }}
-        >
-          {/* Live indicator */}
-          <View style={styles.liveIndicatorContainer}>
-            <Text style={styles.liveIndicatorText}>LIVE</Text>
-          </View>
-
-          {/* Volume/Settings button */}
-          <TouchableOpacity
-            style={[styles.controlButton, focused === 'record' && styles.controlButtonFocused]}
-            onPress={handleRecord}
-            onFocus={() => handleFocus('record')}
-            onBlur={handleBlur}
-            activeOpacity={1}
-          >
-            <Image
-              source={imagepath.record_button}
-              style={styles.controlButtonIcon}
-            />
-          </TouchableOpacity>
-          {
-            focused === 'record' && (
-              <View style={{
-                paddingHorizontal:moderateScale(10),
-                paddingVertical:verticalScale(5),
-                borderRadius:moderateScale(10),
-                position:'absolute',
-                right:moderateScale(-10),
-                bottom:moderateScale(-25),
-              }}>
-                <Text style={{
-                  color:CommonColors.white,
-                  fontSize:moderateScale(12),
-                  fontFamily:FontFamily.PublicSans_Medium,
-                }}>Record</Text>
+            <View style={styles.navButtonIcon}>
+              <View style={styles.tvGuideIcon}>
+                <View style={styles.tvGuideLine} />
+                <View style={styles.tvGuideLine} />
+                <View style={styles.tvGuideLine} />
+                <View style={styles.tvGuideDots}>
+                  <View style={styles.tvGuideDot} />
+                  <View style={styles.tvGuideDot} />
+                  <View style={styles.tvGuideDot} />
+                </View>
               </View>
-            )
-          }
+            </View>
+            <Text style={styles.navButtonText}>TV guide</Text>
+          </Pressable>
 
+          {/* History button */}
+          <Pressable
+            style={[styles.navButton, focused === 'history' && styles.navButtonFocused]}
+            onPress={() => {}}
+            onFocus={() => handleFocus('history')}
+            onBlur={handleBlur}
+            hasTVPreferredFocus={false}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="History"
+            accessibilityHint="View viewing history"
+          >
+            <View style={styles.navButtonIcon}>
+              <Image source={imagepath.reload} style={styles.navButtonImage} />
+            </View>
+            <Text style={styles.navButtonText}>History</Text>
+          </Pressable>
 
-          </View>
+          {/* Welcome button */}
+          <Pressable
+            style={[styles.navButton, focused === 'welcome' && styles.navButtonFocused]}
+            onPress={() => {}}
+            onFocus={() => handleFocus('welcome')}
+            onBlur={handleBlur}
+            // hasTVPreferredFocus={true}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Welcome"
+            accessibilityHint="Welcome screen"
+          >
+            <View style={styles.navButtonIcon}>
+              <View style={styles.welcomeIcon}>
+                <View style={styles.welcomeDot} />
+                <View style={styles.welcomeDot} />
+                <View style={styles.welcomeDot} />
+                <View style={styles.welcomeDot} />
+              </View>
+            </View>
+            <Text style={styles.navButtonText}>WELCOME</Text>
+            {/* <Text style={styles.navButtonSubtext}>No information</Text> */}
+          </Pressable>
+
+          {/* Clear button */}
+          <Pressable
+            style={[styles.navButton, focused === 'clear' && styles.navButtonFocused]}
+            onPress={() => {}}
+            onFocus={() => handleFocus('clear')}
+            onBlur={handleBlur}
+            hasTVPreferredFocus={false}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Clear"
+            accessibilityHint="Clear current selection"
+          >
+            <View style={styles.navButtonIcon}>
+              <Image source={imagepath.remove} style={styles.navButtonImage} />
+            </View>
+            <Text style={styles.navButtonText}>Clear</Text>
+          </Pressable>
+        </View>
+
+        {/* Down arrow indicator */}
+        <View style={styles.downArrowContainer}>
+          <View style={styles.downArrow} />
         </View>
         </View>
       </LinearGradient>
@@ -377,7 +366,6 @@ const LiveChannelPlayScreen = () => {
             ref={videoRef}
             source={{ uri: streamUrl }}
             style={styles.videoPlayer}
-            paused={paused}
             volume={volume}
             muted={muted}
             resizeMode="contain"
@@ -385,6 +373,7 @@ const LiveChannelPlayScreen = () => {
             onError={handleError}
             onProgress={handleProgress}
             playInBackground={false}
+            paused={false}
             playWhenInactive={false}
           />
         )}
