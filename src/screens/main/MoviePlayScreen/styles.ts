@@ -245,7 +245,7 @@ export const styles = StyleSheet.create({
   episodesSection: {
     paddingHorizontal: moderateScale(60),
     paddingVertical: verticalScale(30),
-    marginTop: -moderateScale(250),
+    // marginTop: -moderateScale(250),
     zIndex: 1000,
   },
   

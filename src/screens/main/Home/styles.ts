@@ -50,7 +50,7 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1,
-    height: height/1.5,
+    height: height/1.3,
   },
   
   scrollContainer: {

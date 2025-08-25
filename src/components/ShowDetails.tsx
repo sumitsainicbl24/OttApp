@@ -95,7 +95,8 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
     <View style={styles.featuredContainer}>
       {/* <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} /> */}
       <Text style={styles.title}>
-        {showDetails?.title}
+        UNTAMED
+        {/* {showDetails?.title} */}
       </Text>
       <View style={styles.metadataContainer}>
         <Text style={styles.metadataText}>{showDetails?.Year}</Text>
