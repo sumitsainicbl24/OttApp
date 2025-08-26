@@ -1,7 +1,7 @@
 import { apiGet, apiPost } from "../../utils/utils"
 import { store } from "../store"
 
-import { addToMyListUrl, clearMyListUrl, continueWatchingCurrentUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, getMyListUrl, getSeriesEpisodesUrl, homepageUrl, mylistCheckUrl, removeFromMyListUrl, searchUrl, seriesDetailsUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
+import { addToMyListUrl, clearMyListUrl, continueWatchingCurrentUrl, continueWatchingGetUrl, continueWatchingUpdateUrl, DIAtunnelBaseUrl, getMyListUrl, getSeriesEpisodesUrl, homepageUrl, mylistCheckUrl, removeFromMyListUrl, searchUrl, seriesDetailsUrl, ShowDetailsApi, signInUrl, signupUrl, TMDBBaseUrl, verifyOtpUrl } from "../../config/urls"
 import { getUserTokenLocalStorage, setUserDataLocalStorage, setUserTokenLocalStorage } from "../../localStorage/mmkv"
 import { setUserData, setUserToken } from "../reducers/auth"
 import { useSelector } from "react-redux"
@@ -167,5 +167,12 @@ export const continueWatchingCurrentApi = async ( data: any) => {
 
 export const getHomepageApi = async () => {
     const response = await apiGet(homepageUrl);
+    return response;
+}
+
+
+export const getDiaPosterDetail=async(stream_id:string)=>{
+    const response=await apiGet(`${DIAtunnelBaseUrl}${stream_id}`);
+    console.log('responsesdasdasd', response);
     return response;
 }

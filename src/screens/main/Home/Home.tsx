@@ -26,6 +26,7 @@ import {getCategoryData} from '../../../redux/actions/auth';
 import {RootState} from '../../../redux/store';
 import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
 import {
+  extractStreamIdFromUrl,
   getMovieDetails,
   imageResolutionHandlerForUrl,
 } from '../../../utils/CommonFunctions';
@@ -37,6 +38,7 @@ import {useAppDispatch} from '../../../redux/hooks';
 import FontFamily from '../../../constants/FontFamily';
 import {
   continueWatchingGetApi,
+  getDiaPosterDetail,
   getHomepageApi,
 } from '../../../redux/actions/main';
 import Video from 'react-native-video';
@@ -169,12 +171,23 @@ const Home = () => {
   const allHomepageData = async () => {
     const res = await getHomepageApi();
     console.log('res from getHomepageApi', res);
+    let stream_id = extractStreamIdFromUrl(
+      res?.data?.data?.randomPoster?.data?.url,
+    );
+    let diaPosterDetail = await getDiaPosterDetail(stream_id!);
     setDynamicPopularMovieData(res?.data?.data?.popularMovies?.data);
     setDynamicPopularShowsData(res?.data?.data?.popularShows?.data);
-    setPosterMovieName(res?.data?.data?.randomPoster?.data);
+    setPosterMovieName({
+      // ...PosterMovieData,
+      ...res?.data?.data?.randomPoster?.data,
+      info: diaPosterDetail?.data?.info,
+    });
     setDynamicRecentlyAddedMovieData(res?.data?.data?.recentUploaded?.data);
     setLiveChannelData(res?.data?.data?.liveChannels?.data);
   };
+
+
+    
 
   // Load data whenever the screen comes into focus (including navigation.goBack())
   // useFocusEffect(
@@ -229,13 +242,13 @@ const Home = () => {
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}>
-        {false ? (
+        {!PosterMovieName?.info?.youtube_trailer ? (
           <ImageBackground
             source={
-              PosterMovieData?.Poster
+              PosterMovieName?.info?.cover_big
                 ? {
                     uri: imageResolutionHandlerForUrl(
-                      PosterMovieData?.Poster,
+                      PosterMovieName?.info?.cover_big,
                       1000,
                     ),
                   }
@@ -270,7 +283,7 @@ const Home = () => {
             <ShowDetails
               onPlayPress={handlePlayPress}
               onMyListPress={handleMyListPress}
-              showDetails={PosterMovieData}
+              showDetails={PosterMovieName}
               PosterMovieName={PosterMovieName}
             />
           </ImageBackground>
@@ -311,25 +324,14 @@ const Home = () => {
               <ShowDetails
                 onPlayPress={handlePlayPress}
                 onMyListPress={handleMyListPress}
-                showDetails={PosterMovieData}
+                showDetails={PosterMovieName}
                 PosterMovieName={PosterMovieName}
               />
             </View>
-              <YoutubeComp />
+            <YoutubeComp data={PosterMovieName?.info} />
           </View>
         )}
-        {/* <MovieCarousel 
-          title="Popular movies" 
-          data={DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : PopularMovieData}
-          onMoviePress={(movie) => console.log('Popular movie selected:', movie.title)}
-        /> */}
-        <View style={{marginBottom: verticalScale(-105)}} />
-        <View style={{marginBottom: verticalScale(75)}} />
 
-        <LiveTVChannels
-          data={LiveChannelData}
-          onChannelPress={handleChannelPress}
-        />
         <View style={{marginBottom: verticalScale(35)}} />
 
         {DynamicRecentlyAddedMovieData?.length > 0 ? (

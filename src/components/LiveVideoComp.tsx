@@ -12,7 +12,8 @@ import {
   TVFocusGuideView,
   Pressable,
   useTVEventHandler,
-  ActivityIndicator
+  ActivityIndicator,
+  FlatList
 } from 'react-native';
 import Video from 'react-native-video';
 import imagepath from '../constants/imagepath';
@@ -90,13 +91,65 @@ const LiveVideoComp = ({ streamUrl, onExit, timing, hideControls = false }: Live
   // Video playback rate state
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
   
+  // Handle control press
+  const handleControlPress = (controlId: string) => {
+    switch (controlId) {
+      case 'search':
+        // Handle search
+        break;
+      case 'channels':
+        // Handle channels list
+        break;
+      case 'recordings':
+        // Handle recordings
+        break;
+      case 'multiview':
+        // Handle multiview
+        break;
+      case 'resolution':
+        // Handle resolution change
+        break;
+      case 'audio':
+        // Handle audio settings
+        break;
+      case 'delay':
+        // Handle delay settings
+        break;
+      case 'captions':
+        // Handle captions toggle
+        break;
+      case 'aspect':
+        // Handle aspect ratio change
+        break;
+      case 'dvr':
+        // Handle DVR
+        break;
+      default:
+        break;
+    }
+  };
+  
   // Context menu options
   const contextMenuOptions = [
     { id: 'audio', label: 'Audio Track', icon: imagepath.unmuteIcon },
     { id: 'subtitles', label: 'Subtitles', icon: imagepath.caption_icon },
-    { id: 'quality', label: 'Video Quality', icon: imagepath.videoQuality },
+    { id: 'quality', label: 'Video Quality', icon: imagepath.buttons },
     { id: 'speed', label: 'Playback Speed', icon: imagepath.buttons },
     { id: 'settings', label: 'Settings', icon: imagepath.settingIcon },
+  ];
+
+  // Bottom control bar options
+  const bottomControls = [
+    { id: 'search', label: 'Search', icon: imagepath.searchIcon, value: '' },
+    { id: 'channels', label: 'Channels list', icon: imagepath.menubar, value: '' },
+    { id: 'recordings', label: 'Recordings', icon: imagepath.record_button, value: '' },
+    { id: 'multiview', label: 'Multiview', icon: imagepath.buttons, value: '' },
+    { id: 'resolution', label: 'Resolution', icon: null, value: '1920 x 1080' },
+    { id: 'audio', label: 'Audio', icon: imagepath.unmuteIcon, value: 'Stereo' },
+    { id: 'delay', label: 'Delay', icon: imagepath.buttons, value: '0 ms' },
+    { id: 'captions', label: 'Closed Captions', icon: imagepath.caption_icon, value: 'Off' },
+    { id: 'aspect', label: 'Aspect Ratio', icon: imagepath.buttons, value: 'Normal' },
+    { id: 'dvr', label: 'DVR', icon: imagepath.record_button, value: '' },
   ];
 
   // Audio track options
@@ -963,50 +1016,7 @@ const LiveVideoComp = ({ streamUrl, onExit, timing, hideControls = false }: Live
           <View style={styles.bottomControls}>
             <TVFocusGuideView style={styles.bottomControlsGuide}>
 
-               {/* Control Buttons */}
-               {/* <View style={styles.bottomButtons}>
-                  <Pressable 
-                    ref={volumeRef}
-                    style={[
-                      styles.bottomButton,
-                      focused === 'volume' && styles.focusedButton
-                    ]}
-                    onPress={toggleMute}
-                    onFocus={() => handleFocus('volume')}
-                    onBlur={handleBlur}
-                    accessible={true}
-                    accessibilityRole="button"
-                    accessibilityLabel={muted ? "Unmute" : "Mute"}
-                    accessibilityHint="Press to toggle sound"
-                    nextFocusUp={playPauseRef.current}
-                    nextFocusRight={fullscreenRef.current}
-                  >
-                    <Image source={muted ? imagepath.muteIcon : imagepath.unmuteIcon} style={styles.controlIconBottom}/>
-                    {focused === 'volume' && <View style={styles.focusIndicator} />}
-                  </Pressable>
-                  </View> */}
-                  {/* <Pressable 
-                    ref={fullscreenRef}
-                    style={[
-                      styles.bottomButton,
-                      focused === 'fullscreen' && styles.focusedButton
-                    ]}
-                    onPress={() => {
-                      // Fullscreen toggle logic can be added here
-                      Alert.alert('Fullscreen', 'Fullscreen toggle would be implemented here');
-                    }}
-                    onFocus={() => handleFocus('fullscreen')}
-                    onBlur={handleBlur}
-                    accessible={true}
-                    accessibilityRole="button"
-                    accessibilityLabel="Toggle fullscreen"
-                    accessibilityHint="Press to toggle fullscreen mode"
-                    nextFocusUp={forwardRef.current}
-                    nextFocusLeft={volumeRef.current}
-                  >
-                    <Image source={imagepath.maximizeIcon} style={styles.controlIcon}/>
-                    {focused === 'fullscreen' && <View style={styles.focusIndicator} />}
-                  </Pressable> */}
+              
                 
               {/* Progress Bar */}
               <View style={styles.progressBarWrapper}>
@@ -1044,15 +1054,18 @@ const LiveVideoComp = ({ streamUrl, onExit, timing, hideControls = false }: Live
                     </Text>
                   </View>
                 </View>
-
-               
+            
+                {/* Bottom Controls FlatList */}
               </View>
+  
+
+              
             </TVFocusGuideView>
           </View>
           {/* Center Controls */}
           <TVFocusGuideView style={styles.centerControlsGuide} autoFocus>
             <View style={styles.centerControls}>
-              {/* previous button */}
+         
               {currentSeriesEpisodes.length > 1 && 
               <Pressable 
                 ref={previousRef}
@@ -1236,6 +1249,27 @@ const LiveVideoComp = ({ streamUrl, onExit, timing, hideControls = false }: Live
               }
               </View>
             </View>
+          <FlatList
+                  data={bottomControls}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.controlItem}
+                      onPress={() => handleControlPress(item.id)}
+                    >
+                      {item.icon && (
+                        <Image source={item.icon} style={styles.bottomControlIcon} />
+                      )}
+                      <Text style={styles.controlLabel}>{item.label}</Text>
+                      {item.value && (
+                        <Text style={styles.controlValue}>{item.value}</Text>
+                      )}
+                    </TouchableOpacity>
+                  )}
+                  contentContainerStyle={styles.controlsContainer}
+                />
           </TVFocusGuideView>
         </View>
       )}
@@ -1653,7 +1687,7 @@ const styles = StyleSheet.create({
   },
   controlsOverlay: {
     position: 'absolute',
-    height: moderateScale(165),
+    height: moderateScale(230),
     width:'100%',
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.85)',
@@ -1663,7 +1697,7 @@ const styles = StyleSheet.create({
     bottom:0,
     left: 0,
     right: 0,
-    marginBottom:moderateScale(25),
+    // marginBottom:moderateScale(25),
   },
   centerControls: {
     flexDirection: 'row',
@@ -1778,10 +1812,13 @@ const styles = StyleSheet.create({
     borderColor: '#007AFF',
   },
   bottomControls: {
+    // backgroundColor: 'green',
   },
   bottomControlsGuide: {
     paddingHorizontal: moderateScale(40),
     paddingVertical: moderateScale(25),
+    // backgroundColor: 'blue',
+    // height: moderateScale(400),
   },
   progressBarWrapper: {
     marginBottom: moderateScale(15),
@@ -1894,6 +1931,41 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: scale(32),
     fontFamily: FontFamily.PublicSans_SemiBold,
+  },
+  controlsContainer: {
+    paddingHorizontal: moderateScale(20),
+    gap: moderateScale(15),
+    marginTop: moderateScale(10),
+    marginBottom: moderateScale(20),
+  },
+  controlItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: moderateScale(10),
+    paddingHorizontal: moderateScale(15),
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: moderateScale(8),
+    minWidth: moderateScale(100),
+  },
+  bottomControlIcon: {
+    width: moderateScale(24),
+    height: moderateScale(24),
+    marginBottom: moderateScale(5),
+    tintColor: '#FFFFFF',
+  },
+  controlLabel: {
+    color: '#FFFFFF',
+    fontSize: scale(12),
+    fontFamily: FontFamily.PublicSans_Regular,
+    textAlign: 'center',
+    marginBottom: moderateScale(2),
+  },
+  controlValue: {
+    color: '#FFFFFF',
+    fontSize: scale(10),
+    fontFamily: FontFamily.PublicSans_Light,
+    textAlign: 'center',
+    opacity: 0.8,
   },
   exitInstructions: {
     position: 'absolute',

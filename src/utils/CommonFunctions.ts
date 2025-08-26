@@ -1,4 +1,4 @@
-import { TMDB_BaseUrlImage } from '../config/urls'
+import { DIAtunnelBaseUrl, TMDB_BaseUrlImage } from '../config/urls'
 import { getMovieCastAndCrewWithTMDB_ID, getMovieDetailsWithTMDB_ID, getSeriesShowDetailsOMDB, getSeriesShowDetailsWithTMDB, getSeriesShowDetailsWithTMDB_ID, getShowDetailsApi, getShowDetailsApiTMDB } from '../redux/actions/main'
 
 export const cleanMovieName = (name: string) => {
@@ -54,6 +54,7 @@ export const imageResolutionHandlerForUrl = (url: string, resolution?: number) =
 // for movie details
 export const getMovieDetailsOMDB = async (movie: any) => {
     const res1 = await getShowDetailsApi(movie)
+    console.log('res12', res1)
     const result = res1?.data
     return {
         title: result?.Title || 'Not Available',
@@ -73,7 +74,8 @@ export const getMovieDetailsTMDB = async (movie: any) => {
         
    
     //searching movie with title
-    const res1 = await getShowDetailsApiTMDB(movie)
+    const res1 = await getShowDetailsApiTMDB(movie) 
+    console.log('res1', res1)
 
     if (!res1?.data?.results[0]?.id) {
         return await getMovieDetailsOMDB(movie)
@@ -82,7 +84,7 @@ export const getMovieDetailsTMDB = async (movie: any) => {
     else {
         //getting movie details with TMDB id
         const res2 = await getMovieDetailsWithTMDB_ID(res1?.data?.results[0]?.id)
-
+        console.log('res21', res2)
         const result = res2?.data;
         const genres = result?.genres?.map((genre: any) => genre?.name).join(', ')
 
@@ -180,6 +182,102 @@ export const getSeriesShowDetailsOMDBAPI = async (show: any) => {
         Poster: result?.Poster || null,
     }
 }
+
+/**
+ * Extracts the stream ID from a URL
+ * @param url - The URL to extract the stream ID from
+ * @returns The stream ID as a string, or null if not found
+ * 
+ * @example
+ * extractStreamIdFromUrl("http://line.diatunnel.link:80/movie/mrKQdWmJ/jSxeKrs/416964.mkv")
+ * // Returns: "416964"
+ * 
+ * extractStreamIdFromUrl("http://example.com/video/12345.mp4")
+ * // Returns: "12345"
+ * 
+ * extractStreamIdFromUrl("http://example.com/video/abc123_def456.mkv")
+ * // Returns: "abc123_def456"
+ */
+export const extractStreamIdFromUrl = (url: string): string | null => {
+  try {
+    // Remove query parameters and fragments
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    
+    // Extract the filename from the URL
+    const filename = cleanUrl.split('/').pop();
+    
+    if (!filename) {
+      return null;
+    }
+    
+    // Remove file extension
+    const nameWithoutExtension = filename.replace(/\.[^/.]+$/, '');
+    
+    // If the name contains only numbers, return it as is
+    if (/^\d+$/.test(nameWithoutExtension)) {
+      return nameWithoutExtension;
+    }
+    
+    // If the name contains alphanumeric characters with underscores or hyphens, return it as is
+    if (/^[a-zA-Z0-9_-]+$/.test(nameWithoutExtension)) {
+      return nameWithoutExtension;
+    }
+    
+    // For more complex cases, try to extract the last numeric part
+    const numericMatch = nameWithoutExtension.match(/\d+$/);
+    if (numericMatch) {
+      return numericMatch[0];
+    }
+    
+    // If no numeric part found, return the entire name without extension
+    return nameWithoutExtension;
+  } catch (error) {
+    console.error('Error extracting stream ID from URL:', error);
+    return null;
+  }
+};
+
+
+
+export const buildDIAtunnelUrl = (streamId: string): string => {
+    return `${DIAtunnelBaseUrl}${streamId}`;
+  };
+  
+
+
+/**
+ * Alternative function that specifically extracts numeric stream IDs
+ * @param url - The URL to extract the stream ID from
+ * @returns The numeric stream ID as a string, or null if not found
+ * 
+ * @example
+ * extractNumericStreamId("http://line.diatunnel.link:80/movie/mrKQdWmJ/jSxeKrs/416964.mkv")
+ * // Returns: "416964"
+ */
+export const extractNumericStreamId = (url: string): string | null => {
+  try {
+    // Remove query parameters and fragments
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    
+    // Extract the filename from the URL
+    const filename = cleanUrl.split('/').pop();
+    
+    if (!filename) {
+      return null;
+    }
+    
+    // Remove file extension
+    const nameWithoutExtension = filename.replace(/\.[^/.]+$/, '');
+    
+    // Look for numeric patterns in the filename
+    const numericMatch = nameWithoutExtension.match(/\d+/);
+    
+    return numericMatch ? numericMatch[0] : null;
+  } catch (error) {
+    console.error('Error extracting numeric stream ID from URL:', error);
+    return null;
+  }
+};
 
 
 

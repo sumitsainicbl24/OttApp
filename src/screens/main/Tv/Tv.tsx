@@ -1,35 +1,19 @@
 // 1. React Native core imports
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  ScrollView,
-  StatusBar,
-  Text,
-  View,
-} from 'react-native';
-
-import { styles } from './styles';
-import MainLayout from '../../../components/MainLayout';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {ActivityIndicator, StatusBar, View} from 'react-native';
+import {RouteProp, useRoute} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { MainStackParamList } from '../../../navigation/NavigationsTypes';
-import ShowCatCarousel from '../../../components/ShowCatCarousel';
-import ShowDetails1 from '../../../components/ShowDetails1';
-import { getCategoryData } from '../../../redux/actions/auth';
-import { debounce } from '../../../utils/CommonFunctions';
-import { RootState } from '../../../redux/store';
-import { useSelector } from 'react-redux';
-import { CommonColors } from '../../../styles/Colors';
-import { moderateScale } from '../../../styles/scaling';
-import {
-  saveMoviesDataToMMKV,
-  getMoviesDataFromMMKV,
-} from '../../../localStorage/mmkv';
-import imagepath from '../../../constants/imagepath';
-import ShowChannelCatCarousel from '../../../components/ShowChannelCatCarousel';
 import ChannelMediaPlayer from '../../../components/ChannelMediaPlayer';
-import Video from 'react-native-video';
+import MainLayout from '../../../components/MainLayout';
+import ShowChannelCatCarousel from '../../../components/ShowChannelCatCarousel';
+import imagepath from '../../../constants/imagepath';
+import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import {getCategoryData} from '../../../redux/actions/auth';
+import {RootState} from '../../../redux/store';
+import {CommonColors} from '../../../styles/Colors';
+import {debounce} from '../../../utils/CommonFunctions';
+import {styles} from './styles';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
@@ -47,10 +31,10 @@ type MovieData = {
 
 const Tv = () => {
   const route = useRoute<TvScreenRouteProp>();
-  const { channelsData } = useSelector(
+  const {channelsData} = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
-  const { activeScreen } = route.params;
+  const {activeScreen} = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
@@ -85,7 +69,6 @@ const Tv = () => {
     setShowCategoryAndSidebar(true);
     setSelectedCategory(category);
   }, []);
-  
 
   const handleChannelUrl = (url: string) => {
     setStreamUrl(url);
@@ -119,21 +102,21 @@ const Tv = () => {
   const categoryListContainerStyle = React.useMemo(() => {
     return [
       styles.categoryListContainer,
-      !showCategoryAndSidebar && { width: 0, overflow: 'hidden' as const  },
-    ]
-  }, [showCategoryAndSidebar])
+      !showCategoryAndSidebar && {width: 0, overflow: 'hidden' as const},
+    ];
+  }, [showCategoryAndSidebar]);
 
   const memorizeChannelsData = useMemo(() => {
-    return Object.values(channelsData) as string[]
-  }, [channelsData])
+    return Object.values(channelsData) as string[];
+  }, [channelsData]);
 
-      const memorizeSelectedCategory = useMemo(() => {
-        return selectedCategory
-      }, [selectedCategory])
+  const memorizeSelectedCategory = useMemo(() => {
+    return selectedCategory;
+  }, [selectedCategory]);
 
   const memorizeStreamUrl = useMemo(() => {
-    return streamUrl
-  }, [streamUrl])
+    return streamUrl;
+  }, [streamUrl]);
 
   // Create debounced version of getMovieData
   const debouncedGetMovieData = useCallback(
@@ -150,8 +133,7 @@ const Tv = () => {
     }
   }, [selectedCategory, debouncedGetMovieData]);
 
-
-  console.log("showCategoryAndSidebar", showCategoryAndSidebar);
+  console.log('showCategoryAndSidebar', showCategoryAndSidebar);
 
   return (
     <MainLayout
@@ -165,19 +147,14 @@ const Tv = () => {
 
       <View style={styles.container}>
         {/* category list */}
-        {
-          <View
-            style={categoryListContainerStyle}
-            nativeID="categoryList"
-          >
-            <CategoryList
-              categories={memorizeChannelsData}
-              selectedCategory={memorizeSelectedCategory}
-              onFocus={handleCategoryListFocus}
-              
-            />
-          </View>
-        }
+
+        <View style={categoryListContainerStyle} nativeID="categoryList">
+          <CategoryList
+            categories={memorizeChannelsData}
+            selectedCategory={memorizeSelectedCategory}
+            onFocus={handleCategoryListFocus}
+          />
+        </View>
 
         <View>
           <ChannelMediaPlayer
@@ -192,7 +169,7 @@ const Tv = () => {
           />
           <View
             style={styles.scrollContainer}
-          // showsVerticalScrollIndicator={false}
+            // showsVerticalScrollIndicator={false}
           >
             <View
               style={{

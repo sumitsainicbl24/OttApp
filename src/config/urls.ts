@@ -1,51 +1,57 @@
-export const API_BASE_URL = "https://api-ott.netsolutionindia.com/api";
+export const API_BASE_URL = 'https://api-ott.netsolutionindia.com/api';
 // export const API_BASE_URL = "http://192.168.102.57:5003/api";
+
+const USERNAME = 'mrKQdWmJ';
+const PASSWORD = 'jSxeKrs';
 
 export const getApiUrl = (endpoint: string) => API_BASE_URL + endpoint;
 
-export const loginUrl = getApiUrl("/login");
+export const loginUrl = getApiUrl('/login');
 
-export const fetchMedia = getApiUrl("/media");
+export const fetchMedia = getApiUrl('/media');
 
-export const categoryUrl = getApiUrl("/categories");
+export const categoryUrl = getApiUrl('/categories');
 
-export const CategoryDataUrl = getApiUrl("/category-data");
+export const CategoryDataUrl = getApiUrl('/category-data');
 
-export const getPlaylistData = getApiUrl("https://4856-125-20-102-34.ngrok-free.app/api/login-m3u");
+export const getPlaylistData = getApiUrl(
+  'https://4856-125-20-102-34.ngrok-free.app/api/login-m3u',
+);
 
-export const searchUrl = getApiUrl("/search");
+export const searchUrl = getApiUrl('/search');
 
-export const getSeriesEpisodesUrl = getApiUrl("/series-episodes");
+export const getSeriesEpisodesUrl = getApiUrl('/series-episodes');
 
-export const seriesDetailsUrl = getApiUrl("/series-details");
+export const seriesDetailsUrl = getApiUrl('/series-details');
 
-export const signupUrl = getApiUrl("/signup");
+export const signupUrl = getApiUrl('/signup');
 
-export const signInUrl = getApiUrl("/signin");
+export const signInUrl = getApiUrl('/signin');
 
-export const verifyOtpUrl = getApiUrl("/verify-otp");
+export const verifyOtpUrl = getApiUrl('/verify-otp');
 
-export const addToMyListUrl = getApiUrl("/mylist/add");
+export const addToMyListUrl = getApiUrl('/mylist/add');
 
-export const removeFromMyListUrl = getApiUrl("/mylist/remove");
+export const removeFromMyListUrl = getApiUrl('/mylist/remove');
 
-export const clearMyListUrl = getApiUrl("/mylist/clear");
+export const clearMyListUrl = getApiUrl('/mylist/clear');
 
-export const getMyListUrl = getApiUrl("/mylist");
+export const getMyListUrl = getApiUrl('/mylist');
 
-export const continueWatchingUpdateUrl = getApiUrl("/continue-watching/update");
+export const continueWatchingUpdateUrl = getApiUrl('/continue-watching/update');
 
-export const continueWatchingCurrentUrl = getApiUrl("/continue-watching/current");
+export const continueWatchingCurrentUrl = getApiUrl(
+  '/continue-watching/current',
+);
 
-export const continueWatchingGetUrl = getApiUrl("/continue-watching");
+export const continueWatchingGetUrl = getApiUrl('/continue-watching');
 
-export const mylistCheckUrl = getApiUrl("/mylist/check");
+export const mylistCheckUrl = getApiUrl('/mylist/check');
 
-export const homepageUrl = getApiUrl("/homepage");
-
+export const homepageUrl = getApiUrl('/homepage');
 
 // movie details urls
-export const ShowDetailsApi = "http://www.omdbapi.com";
-
-export const TMDBBaseUrl = "https://api.themoviedb.org/3";
-export const TMDB_BaseUrlImage = "https://image.tmdb.org/t/p/original";
+export const ShowDetailsApi = 'http://www.omdbapi.com';
+export const DIAtunnelBaseUrl = `http://line.diatunnel.link/player_api.php?username=${USERNAME}&password=${PASSWORD}&action=get_vod_info&vod_id=`;
+export const TMDBBaseUrl = 'https://api.themoviedb.org/3';
+export const TMDB_BaseUrlImage = 'https://image.tmdb.org/t/p/original';

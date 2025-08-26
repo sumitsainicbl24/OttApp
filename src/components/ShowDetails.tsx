@@ -9,6 +9,7 @@ import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainStackParamList } from '../navigation/NavigationsTypes'
 import { useSelector } from 'react-redux'
 import { RootState } from '../redux/store'
+import moment from 'moment'
 
 interface ShowData {
   title: string
@@ -44,6 +45,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
     onFocus?.()
   }
 
+  console.log('showDetails', showDetails);
   const handleBlur = () => {
     setFocused(null)
   }
@@ -69,40 +71,22 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
     }
   }
 
-  useEffect(() => {
-    console.log('checking useeffect 1', PosterMovieName)
-    
-    if (!PosterMovieName) {
-      console.log('PosterMovieName is null, skipping API call')
-      return
-    }
-    
-    const checkMyList = async () => {
-      console.log('checking useeffect 2', PosterMovieName)
-      const movieData = {...PosterMovieName, type: 'movies'}
-      const res = await mylistCheckApi(movieData)
-      if(res?.data?.data?.exists){
-        console.log('PosterMovieName', PosterMovieName)
-        console.log('res', res)
-        setIsInMyList(res?.data?.data?.exists)
-      }
-    }
-    
-    checkMyList()
-  }, [PosterMovieName])
+    console.log('showDetails--->>>', PosterMovieName)
+
+
 
   return (
     <View style={styles.featuredContainer}>
       {/* <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} /> */}
       <Text style={styles.title}>
-        UNTAMED
-        {/* {showDetails?.title} */}
+        
+        {showDetails?.info?.title || showDetails?.title}
       </Text>
       <View style={styles.metadataContainer}>
-        <Text style={styles.metadataText}>{showDetails?.Year}</Text>
-        <Text style={styles.metadataText}>{showDetails?.Runtime}</Text>
-        <Text style={styles.metadataText}>{showDetails?.Genre}</Text>
-        <Text style={styles.metadataText}>{showDetails?.rating}</Text>
+        <Text style={styles.metadataText}>{moment(showDetails?.info?.releasedate).format('YYYY')}</Text>
+        <Text style={styles.metadataText}>{showDetails?.info?.runtime}</Text>
+        <Text style={styles.metadataText}>{showDetails?.info?.genre}</Text>
+        <Text style={styles.metadataText}>{showDetails?.info?.rating}</Text>
       </View>
 
       <View style={styles.actionButtonsContainer}>
@@ -136,7 +120,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
         <Text
         numberOfLines={5}
         style={styles.description}>
-          {showDetails?.Plot}
+          {showDetails?.info?.plot}
         </Text>
       </View>
     </View>

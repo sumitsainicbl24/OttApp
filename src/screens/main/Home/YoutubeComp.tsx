@@ -1,42 +1,39 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
-import YoutubePlayer from 'react-native-youtube-iframe';
+import React, { useEffect, useRef } from 'react';
+import YoutubePlayer, { YoutubeIframeRef } from 'react-native-youtube-iframe';
 import {moderateScale} from '../../../styles/scaling';
 
-const YoutubeComp = () => {
+const YoutubeComp = ({data}: {data: any}) => {
+  console.log('data', data);
+  const playerRef = useRef<YoutubeIframeRef>(null);
+  
+  useEffect(() => {
+    console.log('playerRef', playerRef.current?.getDuration())
+  }, [playerRef?.current]);
+
   return (
-    <Pressable  
-      onFocus={() => {
-        console.log('focus captured');
-      }}
-      pointerEvents="box-only"
-      focusable={false}
-      style={{}}>
+    <Pressable focusable={false}>
       <YoutubePlayer
+        ref={playerRef}
         height={360}
-        //   ref={playerRef}
         play={true}
         mute={true}
-        videoId={'eRwV1k-abZo'}
-        
-        onChangeState={() => {}}
+        videoId={data?.youtube_trailer || 'dVIcn0XA0Sg'}
+        onChangeState={(e: any) => {
+          if(e === 'ended'){
+            playerRef.current?.seekTo(0, true);
+          }
+        }}
         initialPlayerParams={{
           controls: false,
           rel: false,
         }}
         forceAndroidAutoplay={true}
-        webViewProps={{
-          androidLayerType: 'hardware',
-          focusable: false, // 🔑 prevents keyboard/D-Pad focus
-          accessible: false, // 🔑 removes from accessibility
-          importantForAccessibility: 'no',
-          accessibilityElementsHidden: true,
-          accessibilityViewIsModal: false,
-          pointerEvents: 'none', // 🔑 disables all touch/click
-          onFocus: (e: any) => e.preventDefault(),
-          onBlur: () => {},
+        onPlaybackRateChange={(e: any) => {
+          console.log('playback rate changed', e);
         }}
-        webViewStyle={{opacity: 1, marginTop: moderateScale(-180)}}
+   
+        webViewStyle={{opacity: 1, marginTop: moderateScale(-80)}}
       />
     </Pressable>
   );
