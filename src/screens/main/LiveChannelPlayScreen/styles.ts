@@ -283,7 +283,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingHorizontal: scale(40),
     paddingBottom: verticalScale(40),
-    width: '60%',
+    width: '35%',
   },
   navButton: {
     alignItems: 'center',
@@ -307,11 +307,14 @@ export const styles = StyleSheet.create({
     // elevation: 10,
   },
   navButtonIcon: {
-    width: scale(40),
-    height: scale(40),
+    width: scale(160),
+    height: scale(160),
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: verticalScale(8),
+    backgroundColor: CommonColors.inputBackgroundColor,
+    borderRadius: moderateScale(10),
+    // padding: moderateScale(0),
   },
   navButtonImage: {
     width: scale(24),

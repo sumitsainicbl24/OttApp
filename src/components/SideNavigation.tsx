@@ -11,11 +11,13 @@ import { useNavigation } from '@react-navigation/native'
 interface SideNavigationProps {
   onNavigate?: (screen: string) => void
   activeScreen?: string
+  setIsFocused?: (isFocused: boolean) => void
 }
 
 const SideNavigation: React.FC<SideNavigationProps> = ({ 
   onNavigate = () => {}, 
-  activeScreen = 'Movies' 
+  activeScreen = 'Movies',
+  setIsFocused = () => {}
 }) => {
   const [focusedItem, setFocusedItem] = useState<string | null>(null)
   const navigation = useNavigation<NavigationProp<MainStackParamList>>()
@@ -45,10 +47,12 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
   }
 
   const handleFocus = (screen: string) => {
+    setIsFocused(true)
     setFocusedItem(screen)
   }
 
   const handleBlur = () => {
+    setIsFocused(false)
     setFocusedItem(null)
   }
 
@@ -127,10 +131,10 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         nextFocusRight: undefined
       } as any)}
     >
-      <Image source={imagepath.settingIcon} style={[styles.sideNavIcon, focusedItem=='Settings' && {tintColor: CommonColors.black}]} />
+      <Image source={imagepath.settingIcon} style={[styles.sideNavIcon, focusedItem=='Settings' && {tintColor: CommonColors.white , opacity: 1}]} />
       {
         focusedItem && (
-          <Text style={[styles.sideNavIconText, focusedItem=='Settings' && {color: CommonColors.black, opacity: 1}]}>Settings</Text>
+          <Text style={[styles.sideNavIconText, focusedItem=='Settings' && {color: CommonColors.white, opacity: 1}]}>Settings</Text>
         )
       }
     </TouchableOpacity>
@@ -159,11 +163,11 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         >
           <Image 
             source={item.icon} 
-            style={[styles.sideNavIcon, focusedItem===item.id && {tintColor: CommonColors.black, opacity: 1}]} 
+            style={[styles.sideNavIcon, focusedItem===item.id && {tintColor: CommonColors.white, opacity: 1}]} 
           />
           {
             focusedItem && (
-              <Text style={[styles.sideNavIconText, focusedItem===item.id && {color: CommonColors.black, opacity: 1}]}>{item.id}</Text>
+              <Text style={[styles.sideNavIconText, focusedItem===item.id && {color: CommonColors.white, opacity: 1}]}>{item.id}</Text>
             )
           }
         </TouchableOpacity>
@@ -180,17 +184,11 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 
 const styles = StyleSheet.create({
   sideNavigationContainer: {
-    // position: 'absolute',
     left: 0,
-    // top: '50%',
-    // transform: [{ translateY: -150 }], // Center vertically
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    backgroundColor: CommonColors.themeSecondary,
+    backgroundColor: CommonColors.black,
     paddingVertical: moderateScale(20),
     paddingHorizontal: moderateScale(20),
     justifyContent: 'space-between',
-    // width: moderateScale(80),
     zIndex: 100,
     height: height,
   },
@@ -199,7 +197,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     gap: moderateScale(10),
-    paddingVertical: moderateScale(16),
+    paddingVertical: moderateScale(8),
     paddingHorizontal: moderateScale(10),
     marginVertical: moderateScale(8),
     flexDirection: 'row',
@@ -214,7 +212,7 @@ const styles = StyleSheet.create({
   },
 
   sideNavActiveIconContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: moderateScale(6),
   },
 
@@ -237,7 +235,8 @@ const styles = StyleSheet.create({
   },
 
   sideNavBottomSection: {
-    marginTop: moderateScale(40),
+    // marginTop: moderateScale(40),
+    // backgroundColor:'red'
   },
 
   sideNavFocusedIconContainer: {
@@ -245,11 +244,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     // borderColor: CommonColors.white,
     transform: [{ scale: 1.05 }],
-    backgroundColor: CommonColors.white,
+    // backgroundColor: CommonColors.white,
   },
   sideNavIconText: {
-    fontSize: scale(20),
-    fontFamily: FontFamily.PublicSans_SemiBold,
+    fontSize: scale(24),
+    fontFamily: FontFamily.PublicSans_Bold,
     color: CommonColors.white,
     opacity: 0.5
   },

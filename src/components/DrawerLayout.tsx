@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Animated, Image, Text } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Image,
+  Text,
+} from 'react-native';
 import SideNavigation from './SideNavigation';
-import { moderateScale } from '../styles/scaling';
-import { CommonColors } from '../styles/Colors';
+import {moderateScale} from '../styles/scaling';
+import {CommonColors} from '../styles/Colors';
 import imagepath from '../constants/imagepath';
 
 interface DrawerLayoutProps {
@@ -10,19 +17,22 @@ interface DrawerLayoutProps {
   activeScreen: string;
 }
 
-const DrawerLayout: React.FC<DrawerLayoutProps> = ({ children, activeScreen }) => {
+const DrawerLayout: React.FC<DrawerLayoutProps> = ({
+  children,
+  activeScreen,
+}) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const drawerAnimation = new Animated.Value(isDrawerOpen ? 0 : -250);
 
   const toggleDrawer = () => {
     const toValue = isDrawerOpen ? -250 : 0;
-    
+
     Animated.timing(drawerAnimation, {
       toValue,
       duration: 300,
       useNativeDriver: true,
     }).start();
-    
+
     setIsDrawerOpen(!isDrawerOpen);
   };
 
@@ -31,34 +41,26 @@ const DrawerLayout: React.FC<DrawerLayoutProps> = ({ children, activeScreen }) =
       {/* Main Content */}
       <View style={styles.contentContainer}>
         {/* Drawer Toggle Button */}
-        <TouchableOpacity 
-          style={styles.menuButton} 
+        <TouchableOpacity
+          style={styles.menuButton}
           onPress={toggleDrawer}
-          {...({ 
+          {...({
             isTVSelectable: true,
-            hasTVPreferredFocus: true
-          } as any)}
-        >
-          <Image 
-            source={imagepath.appIconSiderBar} 
-            style={styles.menuIcon} 
-          />
+            hasTVPreferredFocus: true,
+          } as any)}>
+          <Image source={imagepath.appIconSiderBar} style={styles.menuIcon} />
         </TouchableOpacity>
-        
+
         {/* Main Content */}
         {children}
       </View>
-      
+
       {/* Drawer */}
-      <Animated.View 
-        style={[
-          styles.drawer,
-          { transform: [{ translateX: drawerAnimation }] }
-        ]}
-      >
+      <Animated.View
+        style={[styles.drawer, {transform: [{translateX: drawerAnimation}]}]}>
         <SideNavigation activeScreen={activeScreen} />
       </Animated.View>
-      
+
       {/* Overlay when drawer is open */}
       {isDrawerOpen && (
         <TouchableOpacity
@@ -112,4 +114,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DrawerLayout; 
+export default DrawerLayout;

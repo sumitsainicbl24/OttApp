@@ -1,25 +1,36 @@
-import React, {useState, useRef, useMemo, useEffect} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  FlatList,
-} from 'react-native';
+import React, {useState, useRef, useMemo, useEffect, useCallback} from 'react';
+import {View, TouchableOpacity, StyleSheet} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {samepleCategoryData} from '../screens/main/Movies/DummyData';
 import FontFamily from '../constants/FontFamily';
 import {moderateScale, scale, verticalScale} from '../styles/scaling';
-import {CommonActions} from '@react-navigation/native';
 import {CommonColors} from '../styles/Colors';
 import SimpleMarquee from './MarqueeText';
 
+type ObjectCategory = {
+  category_id: string | number;
+  category_name: string;
+  parent_id?: string | number;
+  [key: string]: any;
+};
+
+type CategoryInput = string | ObjectCategory;
+
 interface CategoryListProps {
-  categories?: string[];
-  selectedCategory?: string;
-  onFocus?: (category: string) => void;
+  categories?: CategoryInput[];
+  selectedCategory?: CategoryInput;
+  onFocus?: (category: number) => void;
 }
+
+type NormalizedCategory = {
+  id: string;
+  name: string;
+  raw: CategoryInput;
+};
+
+type ListItem =
+  | {type: 'padding'; key: string; height: number}
+  | {type: 'category'; data: NormalizedCategory};
 
 const CategoryList: React.FC<CategoryListProps> = ({
   categories,
@@ -28,205 +39,232 @@ const CategoryList: React.FC<CategoryListProps> = ({
 }) => {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [containerHeight, setContainerHeight] = useState(400);
-  const flashListRef = useRef<FlashList<string>>(null);
+  const flashListRef = useRef<FlashList<any>>(null);
 
-  // Use provided categories or fallback to sample data
-  const categoryData =
-    categories && categories.length > 0 ? categories : samepleCategoryData;
-
-  console.log(
-    categoryData,
-    'categoryDatacategoryDatacategoryDatacategoryData',
-    categories,
+  // Memoize utility functions
+  const isObjectCategory = useCallback(
+    (item: CategoryInput): item is ObjectCategory => {
+      return (
+        typeof item === 'object' &&
+        item !== null &&
+        'category_name' in (item as any)
+      );
+    },
+    [],
   );
 
-  // Create a modified data array with padding items to center the selected item
-  const getModifiedData = () => {
-    if (!selectedCategory || categoryData.length === 0) return categoryData;
+  const getCategoryName = useCallback(
+    (item: CategoryInput): string => {
+      return isObjectCategory(item) ? item.category_name : (item as string);
+    },
+    [isObjectCategory],
+  );
 
-    const selectedIndex = categoryData.findIndex(
-      item => item === selectedCategory,
-    );
-    if (selectedIndex === -1) return categoryData;
+  const getCategoryId = useCallback(
+    (item: CategoryInput): string => {
+      return isObjectCategory(item)
+        ? String(item.category_id)
+        : getCategoryName(item);
+    },
+    [isObjectCategory, getCategoryName],
+  );
 
-    const itemHeight = moderateScale(50);
-    const halfContainerHeight = containerHeight / 2;
+  // Memoize category data processing
+  const categoryData: CategoryInput[] = useMemo(() => {
+    return categories && categories.length > 0
+      ? categories
+      : (samepleCategoryData as unknown as CategoryInput[]);
+  }, [categories]);
 
-    // Calculate how many placeholder items we need to center the selected item
-    const itemsAbove = Math.floor(halfContainerHeight / itemHeight);
-    const itemsBelow = Math.floor(halfContainerHeight / itemHeight);
+  const normalizedData: NormalizedCategory[] = useMemo(() => {
+    return (categoryData || []).map(item => ({
+      id: getCategoryId(item),
+      name: getCategoryName(item),
+      raw: item,
+    }));
+  }, [categoryData, getCategoryId, getCategoryName]);
 
-    // Create padding arrays
-    const paddingAbove = Array(itemsAbove)
-      .fill('')
-      .map((_, index) => `padding_above_${index}`);
-    const paddingBelow = Array(itemsBelow)
-      .fill('', Math.max(0, itemsBelow - (categoryData.length - selectedIndex)))
-      .map((_, index) => `padding_below_${index}`);
+  // Create data with padding items for better focus management
 
-    console.log('Modified data calculation:', {
-      selectedIndex,
-      selectedCategory,
-      itemsAbove,
-      itemsBelow,
-      paddingAbove: paddingAbove.length,
-      paddingBelow: paddingBelow.length,
-      originalLength: categoryData.length,
-      containerHeight,
-      itemHeight,
-      halfContainerHeight,
-    });
+  // Memoize constants to avoid recalculation
+  const ITEM_HEIGHT = moderateScale(50);
+  const PADDING_ITEMS = 7;
 
-    const result = [...paddingAbove, ...categoryData, ...paddingBelow];
-    console.log('Final modified data length:', result.length);
-    return result;
-  };
+  const listData: ListItem[] = useMemo(() => {
+    if (!normalizedData || normalizedData.length === 0) return [];
+    const topPadding: ListItem[] = Array(PADDING_ITEMS)
+      .fill(null)
+      .map((_, index) => ({
+        type: 'padding',
+        key: `top_padding_${index}`,
+        height: ITEM_HEIGHT,
+      }));
 
-  const modifiedData = getModifiedData();
+    // Create padding items for bottom
+    const bottomPadding: ListItem[] = Array(PADDING_ITEMS)
+      .fill(null)
+      .map((_, index) => ({
+        type: 'padding',
+        key: `bottom_padding_${index}`,
+        height: ITEM_HEIGHT,
+      }));
 
-  // Log when modified data changes
+    // Create category items
+    const categoryItems: ListItem[] = normalizedData.map(cat => ({
+      type: 'category',
+      data: cat,
+    }));
 
-  // Auto-scroll to selected category when it changes
-  useEffect(() => {
-    if (selectedCategory && flashListRef.current) {
-      const selectedIndex = categoryData.findIndex(
-        item => item === selectedCategory,
-      );
-      if (selectedIndex !== -1) {
-        // Calculate the index in the modified data
-        const itemHeight = moderateScale(50);
-        const itemsAbove = Math.floor(containerHeight / 2 / itemHeight);
-        const modifiedIndex = itemsAbove + selectedIndex;
+    return [...topPadding, ...categoryItems, ...bottomPadding];
+  }, [normalizedData]);
 
-        console.log('Scrolling to modified index:', {
-          selectedIndex,
-          modifiedIndex,
-          itemsAbove,
-          containerHeight,
-        });
+  // Memoize selected category ID
+  const selectedCategoryId = useMemo(() => {
+    if (!selectedCategory) return undefined;
+    return isObjectCategory(selectedCategory)
+      ? String(selectedCategory.category_id)
+      : String(selectedCategory);
+  }, [selectedCategory, isObjectCategory]);
 
-        // Use setTimeout to ensure the list has rendered
-        setTimeout(() => {
-          try {
-            flashListRef.current?.scrollToIndex({
-              index: modifiedIndex,
-              animated: true,
-              viewPosition: 0.6, // Center the item
-            });
-          } catch (error) {
-            // Fallback to scrollToOffset if scrollToIndex fails
-            const offset =
-              modifiedIndex * itemHeight - containerHeight / 2 + itemHeight / 2;
-            flashListRef.current?.scrollToOffset({
-              offset: Math.max(0, offset),
-              animated: true,
-            });
-          }
-        }, 100);
-      }
-    }
-  }, [selectedCategory, categoryData, containerHeight]);
+  // Memoize selected index in the original data
+  const selectedIndex = useMemo(() => {
+    if (!selectedCategoryId) return -1;
+    return normalizedData.findIndex(cat => cat.id === selectedCategoryId);
+  }, [selectedCategoryId, normalizedData]);
 
-  const handleFocus = (index: number, category: string) => {
-    setFocusedIndex(index);
-    onFocus?.(category);
+  // Calculate the actual index in the list with padding
+  const selectedIndexWithPadding = useMemo(() => {
+    if (selectedIndex === -1) return -1;
+    return selectedIndex + PADDING_ITEMS; // PADDING_ITEMS on top
+  }, [selectedIndex]);
 
-    // Center the focused item
-    if (flashListRef.current) {
-      // Calculate the index in the modified data
-      const itemHeight = moderateScale(50);
-      const itemsAbove = Math.floor(containerHeight / 2 / itemHeight);
-      const modifiedIndex = itemsAbove + index;
+  // Memoize scroll handler
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      if (!flashListRef.current) return;
 
       try {
         flashListRef.current.scrollToIndex({
-          index: modifiedIndex,
+          index: index,
           animated: true,
-          viewPosition: 0.6, // Center the item
+          viewPosition: 0.6,
         });
       } catch (error) {
         // Fallback to scrollToOffset if scrollToIndex fails
         const offset =
-          modifiedIndex * itemHeight - containerHeight / 2 + itemHeight / 2;
+          index * ITEM_HEIGHT - containerHeight / 2 + ITEM_HEIGHT / 2;
         flashListRef.current.scrollToOffset({
           offset: Math.max(0, offset),
           animated: true,
         });
       }
-    }
-  };
+    },
+    [containerHeight],
+  );
 
-  const gettingIndexForSelectedCategory = () => {
-    const index = categoryData.findIndex(item => item === selectedCategory);
-    console.log('index', index);
-    return index;
-  };
+  // Auto-scroll to selected category when it changes
+  useEffect(() => {
+    if (selectedIndexWithPadding !== -1) {
+      const timeoutId = setTimeout(() => {
+        scrollToIndex(selectedIndexWithPadding);
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [selectedIndexWithPadding, scrollToIndex]);
+
+  // Memoize focus handler
+  const handleFocus = useCallback(
+    (index: number, categoryId: string) => {
+      // Convert the index from the padded list back to the original index
+      const originalIndex = index - PADDING_ITEMS; // Remove the top padding offset
+      setFocusedIndex(originalIndex);
+      onFocus?.(Number(categoryId));
+      scrollToIndex(index);
+    },
+    [onFocus, scrollToIndex],
+  );
+
+  // Memoize blur handler
+  const handleBlur = useCallback(() => {
+    setFocusedIndex(null);
+  }, []);
+
+  // Memoize layout handler
+  const handleLayout = useCallback((event: any) => {
+    const {height} = event.nativeEvent.layout;
+    setContainerHeight(height);
+  }, []);
+
+  // Memoize render item function
+  const renderItem = useCallback(
+    ({item, index}: {item: ListItem; index: number}) => {
+      if (item.type === 'padding') {
+        return (
+          <View
+            style={{
+              height: item.height,
+              width: '100%',
+            }}
+          />
+        );
+      }
+
+      const categoryItem = item.data;
+      const isSelected = categoryItem.id === selectedCategoryId;
+      const isFocused = focusedIndex === index - PADDING_ITEMS; // Adjust for padding offset
+
+      return (
+        <TouchableOpacity
+          style={[
+            styles.categoryItem,
+            (isFocused || isSelected) && styles.categoryItemFocused,
+          ]}
+          onFocus={() => handleFocus(index, categoryItem.id)}
+          onBlur={handleBlur}
+          activeOpacity={1}>
+          <SimpleMarquee
+            text={categoryItem.name}
+            textStyle={[
+              styles.categoryText,
+              (isFocused || isSelected) && styles.categoryTextFocused,
+            ]}
+            shouldStart={Boolean(isFocused || isSelected)}
+          />
+        </TouchableOpacity>
+      );
+    },
+    [selectedCategoryId, focusedIndex, handleFocus, handleBlur],
+  );
+
+  // Memoize key extractor
+  const keyExtractor = useCallback((item: ListItem) => {
+    if (item.type === 'padding') {
+      return item.key;
+    }
+    return `cat_${item.data.id}`;
+  }, []);
+
+  // Memoize content container style
+  const contentContainerStyle = useMemo(
+    () => ({
+      paddingVertical: moderateScale(10),
+    }),
+    [],
+  );
 
   return (
-    <View
-      style={styles.container}
-      onLayout={event => {
-        const {height} = event.nativeEvent.layout;
-        console.log('Container layout changed:', {height, containerHeight});
-        setContainerHeight(height);
-      }}>
+    <View style={styles.container} onLayout={handleLayout}>
       <FlashList
         ref={flashListRef}
-        data={modifiedData}
+        data={listData}
         showsVerticalScrollIndicator={false}
-        estimatedItemSize={moderateScale(50)}
-        getItemType={() => 'category'}
-        contentContainerStyle={{
-          padding: 0,
-          paddingTop: moderateScale(10), // Added paddingTop here as it's not handled by modifiedData
-          paddingBottom: moderateScale(10), // Added paddingBottom here as it's not handled by modifiedData
-        }}
+        estimatedItemSize={ITEM_HEIGHT}
+        contentContainerStyle={contentContainerStyle}
         extraData={focusedIndex}
-        // style={{ width: '100%' }}
-        renderItem={({item, index}) => {
-          // Skip rendering padding items
-          if (item.startsWith('padding_')) {
-            return (
-              <View
-                key={index}
-                style={{
-                  height: moderateScale(50),
-                  width: '100%',
-                }}
-              />
-            );
-          }
-
-          // Find the actual index in the original data
-          const actualIndex = categoryData.findIndex(cat => cat === item);
-          const isSelected = selectedCategory === item;
-          const isFocused = focusedIndex === actualIndex;
-
-          return (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.categoryItem,
-                (isFocused || isSelected) && styles.categoryItemFocused,
-              ]}
-              onFocus={() => {
-                console.log('indexindexindex', actualIndex, item);
-                handleFocus(actualIndex, item);
-              }}
-              onBlur={() => setFocusedIndex(null)}
-              activeOpacity={1}>
-              <SimpleMarquee
-                text={item}
-                textStyle={[
-                  styles.categoryText,
-                  (isFocused || isSelected) && styles.categoryTextFocused,
-                ]}
-                shouldStart={isFocused || isSelected}
-              />
-            </TouchableOpacity>
-          );
-        }}
-        keyExtractor={(item, index) => item}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        removeClippedSubviews={true}
       />
     </View>
   );

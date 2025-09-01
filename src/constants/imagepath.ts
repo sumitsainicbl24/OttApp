@@ -44,14 +44,18 @@ export default{
     Defaultuser:require('../assets/images/Defaultuser.png'),
     check:require('../assets/images/check.png'),
     remove:require('../assets/images/remove.png'),
-    menubar:require('../assets/images/menubar.png'),
+    menubar:require('../assets/images/Channels.png'),
     caption_icon:require('../assets/images/caption_icon.png'),
     videoQuality:require('../assets/images/videoQuality.png'),
-    buttons:require('../assets/images/buttons.png'),
+    buttons:require('../assets/images/1920x1080.png'),
+    resize:require('../assets/images/Normal.png'),
     tv:require('../assets/images/tv.png'),
-    record_button:require('../assets/images/record_button.png'),
+    record_button:require('../assets/images/Recording.png'),
     filled_star:require('../assets/images/filled_star.png'),
     empty_star:require('../assets/images/empty_star.png'),
+    tvGuide:require('../assets/images/Channels.png'),
+    history:require('../assets/images/History.png'),
+
 
     //sample data
 

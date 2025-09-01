@@ -69,28 +69,5 @@ export const liveTVChannelsData = [
   ]
 
   
-export const ContinueWatchingData =[
-    {
-      id: 1,
-      title: 'The Boy',
-      image: imagepath.continueWatching1
-    },
-    {
-      id: 2,
-      title: 'The Boy',
-      image: imagepath.continueWatching2
-    },{
-      id: 3,
-      title: 'The Boy',
-      image: imagepath.continueWatching3
-    },{
-      id: 4,
-      title: 'The Boy',
-      image: imagepath.continueWatching4
-    },{
-      id: 5,
-      title: 'The Boy',
-      image: imagepath.continueWatching5
-    },
-  ]
+
   

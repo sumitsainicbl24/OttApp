@@ -48,12 +48,15 @@ const ContinueWatchingCarousel: React.FC<ContinueWatchingCarouselProps> = ({
   )
 }
 
-export default ContinueWatchingCarousel
+export default React.memo(ContinueWatchingCarousel)
 
 const styles = StyleSheet.create({
   sectionContainer: {
     // marginTop: verticalScale(40),
     paddingHorizontal: moderateScale(20),
+    height: verticalScale(540),
+    // paddingVertical: verticalScale(60),
+
   },
   sectionTitle: {
     fontFamily: FontFamily.PublicSans_Bold,
@@ -65,5 +68,7 @@ const styles = StyleSheet.create({
   carouselContainer: {
     paddingVertical: verticalScale(25),
     paddingHorizontal: moderateScale(20),
+    marginTop: verticalScale(20),
+
   },
 }) 

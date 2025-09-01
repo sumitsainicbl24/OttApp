@@ -9,6 +9,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: CommonColors.themeMain,
   },
+  showChannelCatCarouselContainer: {
+    zIndex: 1000,
+  },
   ShowDetailsContainer: {
     height: height/2,
     width: '100%',

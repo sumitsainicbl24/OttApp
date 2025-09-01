@@ -166,8 +166,13 @@ export const continueWatchingCurrentApi = async ( data: any) => {
 //homepage apis
 
 export const getHomepageApi = async () => {
-    const response = await apiGet(homepageUrl);
-    return response;
+    try {
+        const response = await apiGet(homepageUrl);
+        return response;
+    } catch (error) {
+        console.log('error from homepage', error);
+        return null;
+    }
 }
 
 

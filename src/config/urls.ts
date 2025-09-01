@@ -10,9 +10,9 @@ export const loginUrl = getApiUrl('/login');
 
 export const fetchMedia = getApiUrl('/media');
 
-export const categoryUrl = getApiUrl('/categories');
+export const categoryUrl = getApiUrl('/categoriesnew');
 
-export const CategoryDataUrl = getApiUrl('/category-data');
+export const CategoryDataUrl = getApiUrl('/category-data-new');
 
 export const getPlaylistData = getApiUrl(
   'https://4856-125-20-102-34.ngrok-free.app/api/login-m3u',
@@ -48,7 +48,7 @@ export const continueWatchingGetUrl = getApiUrl('/continue-watching');
 
 export const mylistCheckUrl = getApiUrl('/mylist/check');
 
-export const homepageUrl = getApiUrl('/homepage');
+export const homepageUrl = getApiUrl('/homepage-new');
 
 // movie details urls
 export const ShowDetailsApi = 'http://www.omdbapi.com';

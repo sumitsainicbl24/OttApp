@@ -23,7 +23,7 @@ const PlaylistSetup = ({ route }: { route: RouteProp<AuthStackParamList, 'Playli
   const { type } = route.params
   
   // General playlist states
-  const [playlistUrl, setPlaylistUrl] = useState('')
+  const [playlistUrl, setPlaylistUrl] = useState('http://line.diatunnel.link/get.php?username=mrKQdWmJ&password=jSxeKrs&type=m3u_plus&output=ts')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   

@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
-import SideNavigation from './SideNavigation';
-import { moderateScale, width, height } from '../styles/scaling';
+import React, { useEffect, useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { CommonColors } from '../styles/Colors';
+import SideNavigation from './SideNavigation';
 
 interface MainLayoutProps {
   children: React.ReactNode;
   activeScreen: string;
-  hideSidebar?: boolean;
+  hideSidebar?: boolean;  
+  setIsFocused?: (isFocused: boolean) => void
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, activeScreen, hideSidebar = false }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children, activeScreen, hideSidebar = false, setIsFocused }) => {
+
   // Memoize the isSettings value
   const isSettings = useMemo(() => activeScreen === 'Settings', [activeScreen]);
   
@@ -20,9 +21,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, activeScreen, hideSid
     isSettings && styles.contentWithSettings
   ], [isSettings]);
 
+
+
   // Memoize the side navigation
   const sideNav = useMemo(() => {
-    return !isSettings && !hideSidebar && <SideNavigation activeScreen={activeScreen} />;
+    return !isSettings && !hideSidebar && <SideNavigation activeScreen={activeScreen} setIsFocused={setIsFocused} />;
   }, [isSettings, activeScreen, hideSidebar]);
 
   return (

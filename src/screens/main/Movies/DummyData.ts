@@ -1,4 +1,4 @@
-import imagepath from "../../../constants/imagepath"
+
 
 
     export const samepleCategoryData = [

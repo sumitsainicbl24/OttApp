@@ -1,31 +1,32 @@
-export const CommonColors= {
+export const CommonColors = {
+  //theme colors
+  themeMain: '#131619',
+  themeSecondary: '#232629',
+  white: '#FFFFFF',
+  black: '#000000',
 
-    //theme colors
-    themeMain: "#131619",
-    themeSecondary:'#232629',
-    white:'#FFFFFF',
-    black:'#000000',
+  //text colors
+  textBlack: '#111111',
+  textWhite: '#FFFFFF',
+  textSecondary: '#60758C',
+  textGrey: '#b5afaf',
+  yellow: '#FAAC1B',
+  blueText: 'rgb(98,160,244)',
 
-    //text colors
-    textBlack:'#111111',
-    textWhite:'#FFFFFF',
-    textSecondary:'#60758C',
-    textGrey:'#b5afaf',
-    yellow:'#FAAC1B',
-    blueText:'rgb(98,160,244)',
+  //button colors
+  buttonPrimary: '#1E9CE8',
+  buttonSecondary: '#1C2F4B',
+  buttonTransparent: 'rgba(255, 255, 255, 0.2)',
 
-    //button colors
-    buttonPrimary:'#1E9CE8',
-    buttonSecondary:'#1C2F4B',
-    buttonTransparent:'rgba(255, 255, 255, 0.2)',
+  //input colors
+  inputBackgroundColor: 'rgba(255, 255, 255, 0.12)',
+  inputBorderColor: 'rgba(255, 255, 255, 0.06)',
+  placeholderTextColor: 'rgba(255, 255, 255, 0.5)',
+  blackOpacity70: 'rgba(255, 254, 254, 0.7)',
+  blackOpacity40: 'rgba(0, 0, 0, 0.4)',
 
-    //input colors
-    inputBackgroundColor: 'rgba(255, 255, 255, 0.12)',
-    inputBorderColor: 'rgba(255, 255, 255, 0.06)',
-    placeholderTextColor: 'rgba(255, 255, 255, 0.5)',
 
-    //background colors
-    backgroundGrey: '#34393F',
-    backgroundBlue:'#1d4389',
-
-}
+  //background colors
+  backgroundGrey: '#34393F',
+  backgroundBlue: '#1d4389',
+};

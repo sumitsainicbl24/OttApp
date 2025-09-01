@@ -15,7 +15,7 @@ interface ChannelMediaPlayerProps {
   progressPercentage?: number;
   duration?: string;
   streamUrl: string | null;
-  selectedCategory: string;
+  selectedCategory?: string;
   loading: boolean;
 }
 
@@ -36,9 +36,7 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
   const [isRetrying, setIsRetrying] = useState(false);
   const [videoKey, setVideoKey] = useState(0); // Force video re-render on retry
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  console.log(streamUrl, 'streamUrl');
-  
+
   // Reset states when streamUrl changes
   useEffect(() => {
     if (!streamUrl) {
@@ -151,7 +149,7 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
         </View>
       </View>
 
-      {!loading && <View style={{ 
+      {!false && <View style={{ 
         position:'absolute',
         top:moderateScale(50),
         right:moderateScale(10),

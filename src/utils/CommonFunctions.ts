@@ -280,6 +280,21 @@ export const extractNumericStreamId = (url: string): string | null => {
 };
 
 
+export const formatTime = (seconds: number): string => {
+  if (isNaN(seconds)) return "0:00";
+
+  seconds = Math.floor(seconds);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  if (hours > 0) {
+    return `${hours} h ${minutes < 10 ? '0' : ''}${minutes} m ${secs < 10 ? '0' : ''}${secs} s left`;
+  }
+
+  return `${minutes} m ${secs < 10 ? '0' : ''}${secs} s left`;
+}; 
+
 
 
 

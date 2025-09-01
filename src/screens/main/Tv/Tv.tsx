@@ -1,6 +1,10 @@
-// 1. React Native core imports
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {ActivityIndicator, StatusBar, View} from 'react-native';
+import {
+  ActivityIndicator,
+  StatusBar,
+  useTVEventHandler,
+  View,
+} from 'react-native';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
@@ -17,18 +21,6 @@ import {styles} from './styles';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
-type MovieEntry = {
-  type: 'movie';
-  groupTitle: string;
-  name: string;
-  logo: string;
-  url: string;
-};
-
-type MovieData = {
-  [groupTitle: string]: MovieEntry[];
-};
-
 const Tv = () => {
   const route = useRoute<TvScreenRouteProp>();
   const {channelsData} = useSelector(
@@ -36,36 +28,20 @@ const Tv = () => {
   );
   const {activeScreen} = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<any>(0);
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMovieName, setSelectedMovieName] = useState<string>('');
   const [streamUrl, setStreamUrl] = useState<string>('');
 
-  // Load movie data from MMKV on component mount
   useEffect(() => {
-    loadMovieData();
+    setSelectedCategory(channelsData[0]?.category_id);
   }, []);
 
-  const loadMovieData = async () => {
-    try {
-      setLoading(true);
-
-      setSelectedCategory(channelsData[0]);
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle focus events for ScrollView content
   const handleScrollViewFocus = () => {
     setShowCategoryAndSidebar(false);
   };
 
-  // Handle navigation back to category list (when pressing left)
-  const handleCategoryListFocus = useCallback((category: string) => {
-    setLoading(true);
+  const handleCategoryListFocus = useCallback((category: number) => {
     setShowCategoryAndSidebar(true);
     setSelectedCategory(category);
   }, []);
@@ -74,40 +50,8 @@ const Tv = () => {
     setStreamUrl(url);
   };
 
-  const getMovieData = async (category: string) => {
-    try {
-      const res = await getCategoryData('live', category);
-
-      const movieData = res?.data?.data?.data?.channels;
-
-      if (movieData && movieData.length > 0) {
-        // Update state
-        setSelectedCategoryData(movieData);
-
-        if (movieData[0]?.title) {
-          setSelectedMovieName(movieData[0]?.title);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching movie data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleMovieSelect = (movieTitle: string) => {
-    setSelectedMovieName(movieTitle);
-  };
-
-  const categoryListContainerStyle = React.useMemo(() => {
-    return [
-      styles.categoryListContainer,
-      !showCategoryAndSidebar && {width: 0, overflow: 'hidden' as const},
-    ];
-  }, [showCategoryAndSidebar]);
-
   const memorizeChannelsData = useMemo(() => {
-    return Object.values(channelsData) as string[];
+    return Object.values(channelsData) as any[];
   }, [channelsData]);
 
   const memorizeSelectedCategory = useMemo(() => {
@@ -118,22 +62,39 @@ const Tv = () => {
     return streamUrl;
   }, [streamUrl]);
 
-  // Create debounced version of getMovieData
+  const getMovieData = async (category: string) => {
+    try {
+      const res = await getCategoryData('live', category);
+      const movieData = res?.data?.data?.data?.channels;
+      if (movieData && movieData.length > 0) {
+        setSelectedCategoryData(movieData);
+      }
+    } catch (error) {
+      console.error('Error fetching movie data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const categoryListContainerStyle = React.useMemo(() => {
+    return [
+      styles.categoryListContainer,
+      !showCategoryAndSidebar && {width: 0, overflow: 'hidden' as const},
+    ];
+  }, [showCategoryAndSidebar]);
+
   const debouncedGetMovieData = useCallback(
     debounce((category: string) => {
       getMovieData(category);
-    }, 500), // 500ms delay
+    }, 500),
     [],
   );
 
-  // Call debounced getMovieData whenever selectedCategory changes
   useEffect(() => {
     if (selectedCategory) {
       debouncedGetMovieData(selectedCategory);
     }
   }, [selectedCategory, debouncedGetMovieData]);
-
-  console.log('showCategoryAndSidebar', showCategoryAndSidebar);
 
   return (
     <MainLayout
@@ -146,8 +107,6 @@ const Tv = () => {
       />
 
       <View style={styles.container}>
-        {/* category list */}
-
         <View style={categoryListContainerStyle} nativeID="categoryList">
           <CategoryList
             categories={memorizeChannelsData}
@@ -164,39 +123,20 @@ const Tv = () => {
             progressPercentage={65}
             duration="26 min"
             streamUrl={memorizeStreamUrl}
-            selectedCategory={memorizeSelectedCategory}
             loading={loading}
           />
-          <View
-            style={styles.scrollContainer}
-            // showsVerticalScrollIndicator={false}
-          >
-            <View
-              style={{
-                // marginTop: -moderateScale(250),
-                zIndex: 1000,
-              }}>
-              {/* Show selected category if available */}
-              {((selectedCategory && channelsData) ||
-                selectedCategoryData.length > 0) &&
-                !loading && (
-                  <ShowChannelCatCarousel
-                    title={`${selectedCategory}`}
-                    data={selectedCategoryData}
-                    onShowPress={show =>
-                      console.log(
-                        `Featured ${selectedCategory} movie selected:`,
-                        show.title,
-                      )
-                    }
-                    onFocus={handleScrollViewFocus}
-                    getMovieDetails={handleMovieSelect}
-                    type="channels"
-                    setChannelUrl={handleChannelUrl}
-                  />
-                )}
-
-              {loading && (
+          <View style={styles.scrollContainer}>
+            <View style={styles.showChannelCatCarouselContainer}>
+              {(selectedCategory && channelsData) ||
+              selectedCategoryData.length > 0 ? (
+                <ShowChannelCatCarousel
+                  title={`${selectedCategory}`}
+                  data={selectedCategoryData}
+                  onFocus={handleScrollViewFocus}
+                  type="channels"
+                  setChannelUrl={handleChannelUrl}
+                />
+              ) : (
                 <ActivityIndicator size="large" color={CommonColors.white} />
               )}
             </View>

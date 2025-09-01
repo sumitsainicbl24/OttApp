@@ -1,75 +1,53 @@
 // 1. React Native core imports
-import React, {useEffect, useState, useCallback, useRef} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
   ScrollView,
   StatusBar,
-  Text,
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 import {
   NavigationProp,
-  useNavigation,
   useFocusEffect,
+  useNavigation,
 } from '@react-navigation/native';
+import {YoutubeIframeRef} from 'react-native-youtube-iframe';
 import {useSelector} from 'react-redux';
 import ContinueWatchingCarousel from '../../../components/ContinueWatchingCarousel';
-import LiveTVChannels from '../../../components/LiveTVChannels';
+import MainLayout from '../../../components/MainLayout';
 import ShowCatCarousel from '../../../components/ShowCatCarousel';
 import ShowDetails from '../../../components/ShowDetails';
-import TopNavigation from '../../../components/TopNavigation';
 import {MainStackParamList} from '../../../navigation/NavigationsTypes';
-import {getCategoryData} from '../../../redux/actions/auth';
-import {RootState} from '../../../redux/store';
-import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
-import {
-  extractStreamIdFromUrl,
-  getMovieDetails,
-  imageResolutionHandlerForUrl,
-} from '../../../utils/CommonFunctions';
-import {ContinueWatchingData, liveTVChannelsData} from './DummyData';
-import {styles} from './styles';
-import {CommonColors} from '../../../styles/Colors';
-import {setCurrentlyPlaying} from '../../../redux/reducers/main';
-import {useAppDispatch} from '../../../redux/hooks';
-import FontFamily from '../../../constants/FontFamily';
 import {
   continueWatchingGetApi,
   getDiaPosterDetail,
   getHomepageApi,
 } from '../../../redux/actions/main';
-import Video from 'react-native-video';
-import YoutubePlayer, {YoutubeIframeRef} from 'react-native-youtube-iframe';
+import {useAppDispatch} from '../../../redux/hooks';
+import {setCurrentlyPlaying} from '../../../redux/reducers/main';
+import {RootState} from '../../../redux/store';
+import {moderateScale, verticalScale} from '../../../styles/scaling';
+import {
+  extractStreamIdFromUrl,
+  imageResolutionHandlerForUrl,
+} from '../../../utils/CommonFunctions';
+import {styles} from './styles';
 import YoutubeComp from './YoutubeComp';
 
 const Home = () => {
-  const {moviesData, channelsData, seriesData} = useSelector(
-    (state: RootState) => state.rootReducer.auth,
-  );
   const {userToken} = useSelector((state: RootState) => state.rootReducer.auth);
   const dispatch = useAppDispatch();
-
-  const [DynamicPopularMovieData, setDynamicPopularMovieData] =
-    useState<any>(null);
-  const [DynamicPopularShowsData, setDynamicPopularShowsData] =
-    useState<any>(null);
-  const [DynamicRecentlyAddedMovieData, setDynamicRecentlyAddedMovieData] =
-    useState<any>(null);
-  const [LiveChannelData, setLiveChannelData] = useState<any>(null);
   const [PosterMovieName, setPosterMovieName] = useState<any>(null);
-  const [PosterMovieData, setPosterMovieData] = useState<any>(null);
-  const [hasScrolled, setHasScrolled] = useState<boolean>(false);
+  const [homeContent, setHomeContent] = useState<any>([]);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
+  const [isFocused, setIsFocused] = useState(false);
   const [ContinueWatchingDynamicData, setContinueWatchingDynamicData] =
     useState<any>(null);
   const playerRef = useRef<YoutubeIframeRef>(null);
-  const handleTabPress = (tab: string) => {
-    // Handle navigation to different tabs
-    console.log('Tab pressed:', tab);
-  };
+
   useEffect(() => {
     if (playerRef.current) {
       playerRef.current.seekTo(10, true);
@@ -81,78 +59,17 @@ const Home = () => {
     navigation.navigate('MoviePlayScreen', {movie: PosterMovieName});
   };
 
-  const handleMyListPress = () => {
-    console.log('My List button pressed');
-  };
-
-  const handleChannelPress = (channel: any) => {
-    console.log('Channel pressed:', channel.name);
-    // Set the channel as currently playing and navigate to live channel player
-    dispatch(
-      setCurrentlyPlaying({
-        ...channel,
-        type: 'live', // Mark this as a live TV channel
-        url: channel.url,
-      }),
-    );
-    navigation.navigate('LiveChannelPlayScreen', {
-      channel: {
-        ...channel,
-        url: channel.url,
-        type: 'live',
-      },
-    });
-  };
-
-  const handleScroll = (event: any) => {
-    const scrollY = event.nativeEvent.contentOffset.y;
-    setHasScrolled(scrollY > 50); // Change background after scrolling 50 pixels
-  };
-
-  const loadMovieData = async () => {
-    try {
-      const res = await getCategoryData('movies', moviesData[0]);
-      console.log(
-        'response from getCategoryData for movies',
-        res?.data?.data?.data?.movies,
-      );
-      setDynamicPopularMovieData(res?.data?.data?.data?.movies?.slice(0, 14));
-      setDynamicRecentlyAddedMovieData(
-        res?.data?.data?.data?.movies?.slice(14, 28),
-      );
-      //select ramndom data from dynamicPopularMovieData
-      setPosterMovieName(
-        res?.data?.data?.data?.movies[Math.floor(Math.random() * 5)],
-      );
-    } catch (error) {
-      console.log('error in loadMovieData', error);
-    }
-  };
-
-  const loadShowsData = async () => {
-    try {
-      const res = await getCategoryData('series', seriesData[7]);
-      console.log(
-        'response from getCategoryData for series',
-        res?.data?.data?.data?.series,
-      );
-      setDynamicPopularShowsData(res?.data?.data?.data?.series?.slice(0, 14));
-    } catch (error) {
-      console.log('error', error);
-    }
-  };
-
-  const loadLiveChannelData = async () => {
-    console.log('channelsData', channelsData);
-    try {
-      const res = await getCategoryData('live', channelsData[5]);
-      console.log(
-        'response from getCategoryData for live channels',
-        res?.data?.data?.data?.channels,
-      );
-      setLiveChannelData(res?.data?.data?.data?.channels?.slice(0, 8));
-    } catch (error) {
-      console.log('error in loadMovieData', error);
+  const handleOnFocus = async (data: any) => {
+    if (data?.category_id) {
+      setPosterMovieName({
+        info: data,
+      });
+    } else {
+      let stream_id = extractStreamIdFromUrl(data?.url);
+      let diaPosterDetail = await getDiaPosterDetail(stream_id!);
+      setPosterMovieName({
+        info: diaPosterDetail?.data?.info,
+      });
     }
   };
 
@@ -170,46 +87,40 @@ const Home = () => {
 
   const allHomepageData = async () => {
     const res = await getHomepageApi();
-    console.log('res from getHomepageApi', res);
+    console.log('res from homepage', res?.data?.data);
     let stream_id = extractStreamIdFromUrl(
       res?.data?.data?.randomPoster?.data?.url,
     );
     let diaPosterDetail = await getDiaPosterDetail(stream_id!);
-    setDynamicPopularMovieData(res?.data?.data?.popularMovies?.data);
-    setDynamicPopularShowsData(res?.data?.data?.popularShows?.data);
+    setHomeContent([
+      {
+        id: 1,
+        title: 'Recently Added',
+        data: res?.data?.data?.recentUploaded?.data?.slice(0, 7),
+        type: 'movies',
+      },
+      {
+        id: 2,
+        title: 'Popular Movies',
+        data: res?.data?.data?.popularMovies?.data?.slice(0, 7),
+        type: 'movies',
+      },
+
+      {
+        id: 3,
+        title: 'Popular Shows',
+        data: res?.data?.data?.popularShows?.data?.slice(0, 7),
+        type: 'series',
+      },
+    ]);
     setPosterMovieName({
-      // ...PosterMovieData,
-      ...res?.data?.data?.randomPoster?.data,
       info: diaPosterDetail?.data?.info,
     });
-    setDynamicRecentlyAddedMovieData(res?.data?.data?.recentUploaded?.data);
-    setLiveChannelData(res?.data?.data?.liveChannels?.data);
   };
-
-
-    
-
-  // Load data whenever the screen comes into focus (including navigation.goBack())
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     loadMovieData()
-  //     loadShowsData()
-  //     loadLiveChannelData()
-  //   }, [])
-  // )
 
   useEffect(() => {
     allHomepageData();
   }, []);
-
-  useEffect(() => {
-    if (PosterMovieName) {
-      getMovieDetails(PosterMovieName?.title).then(res => {
-        console.log('details for poseter movie', res);
-        setPosterMovieData(res);
-      });
-    }
-  }, [PosterMovieName]);
 
   // Load continue watching data when screen gains focus and user token exists
   useFocusEffect(
@@ -220,102 +131,92 @@ const Home = () => {
     }, [userToken]),
   );
 
+  const getImageSource = (info: any) => {
+    if (info?.cover_big) {
+      return {
+        uri: info.backdrop_path[0],
+      };
+    } else if (info?.cover) {
+      return {
+        uri: info.backdrop_path[0],
+      };
+    }
+    return undefined;
+  };
+  const ListFooterComponent = () => {
+    if (ContinueWatchingDynamicData?.length > 0) {
+      return <ContinueWatchingCarousel data={ContinueWatchingDynamicData} />;
+    }
+    return null;
+  };
+
   return (
-    <View style={styles.container}>
-      <StatusBar
-        backgroundColor="transparent"
-        translucent
-        barStyle="light-content"
-      />
-
-      <View
-        style={{position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000}}>
-        <TopNavigation
-          activeTab="Home"
-          hasScrolled={hasScrolled}
-          // hasTVPreferredFocus={true}
+    <MainLayout
+      activeScreen={'Home'}
+      hideSidebar={false}
+      setIsFocused={setIsFocused}>
+      <View style={styles.container}>
+        <StatusBar
+          backgroundColor="transparent"
+          translucent
+          barStyle="light-content"
         />
-      </View>
 
-      <ScrollView
-        style={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}>
+        <LinearGradient
+          colors={[
+            'rgba(0, 0, 0, 1)',
+            'rgba(0, 0, 0, 0.6)',
+            'rgba(0, 0, 0, 0.7)',
+            'transparent',
+          ]}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 0}}
+          style={styles.homeGradient}
+        />
+
+        {/* <LinearGradient
+          colors={[
+            'rgba(0, 0, 0, 1)',
+            'transparent',
+          ]}
+          start={{x: 1, y: 0}}
+          end={{x: 0, y: 0}}
+          style={styles.homeGradient}
+        /> */}
+
+        {isFocused && (
+          <LinearGradient
+            colors={[
+              'rgba(0, 0, 0, 1)',
+              'rgba(0, 0, 0, 0.8)',
+              'rgba(0, 0, 0, 0)',
+              'transparent',
+            ]}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
+            style={styles.homeGradientFocused}
+          />
+        )}
+
         {!PosterMovieName?.info?.youtube_trailer ? (
           <ImageBackground
-            source={
-              PosterMovieName?.info?.cover_big
-                ? {
-                    uri: imageResolutionHandlerForUrl(
-                      PosterMovieName?.info?.cover_big,
-                      1000,
-                    ),
-                  }
-                : undefined
-            }
-            style={styles.backgroundImagePlaceholder}>
-            {/* Horizontal gradient overlay - dark on left, transparent on right */}
-            <LinearGradient
-              colors={[
-                'rgba(11, 24, 48, 0.95)',
-                'rgba(11, 24, 48, 0.7)',
-                'rgba(11, 24, 48, 0.3)',
-                'transparent',
-              ]}
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 0}}
-              style={styles.horizontalGradientOverlay}
-            />
-
-            <LinearGradient
-              colors={[
-                CommonColors.themeMain,
-                'transparent',
-                'transparent',
-                'transparent',
-              ]}
-              start={{x: 0, y: 1}}
-              end={{x: 0, y: 0}}
-              style={styles.horizontalGradientOverlay}
-            />
-
+            source={getImageSource(PosterMovieName?.info)}
+            style={{
+              ...styles.backgroundImagePlaceholder,
+            }}
+            resizeMode="cover">
             <ShowDetails
               onPlayPress={handlePlayPress}
-              onMyListPress={handleMyListPress}
               showDetails={PosterMovieName}
               PosterMovieName={PosterMovieName}
             />
           </ImageBackground>
         ) : (
           <View style={styles.backgroundImagePlaceholder}>
-            <LinearGradient
-              colors={[
-                'rgba(11, 24, 48, 1)',
-                'rgba(11, 24, 48, 0.7)',
-                'rgba(11, 24, 48, 0.3)',
-                'transparent',
-              ]}
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 0}}
-              style={styles.horizontalGradientOverlay}
-            />
-
-            <LinearGradient
-              colors={[
-                CommonColors.themeMain,
-                'transparent',
-                'transparent',
-                'transparent',
-              ]}
-              start={{x: 0, y: 1}}
-              end={{x: 0, y: 0}}
-              style={styles.horizontalGradientOverlay}
-            />
             <View
               style={{
                 position: 'absolute',
-                top: moderateScale(120),
+                // top: moderateScale(120),
                 left: 0,
                 right: 0,
                 width: '100%',
@@ -323,7 +224,6 @@ const Home = () => {
               }}>
               <ShowDetails
                 onPlayPress={handlePlayPress}
-                onMyListPress={handleMyListPress}
                 showDetails={PosterMovieName}
                 PosterMovieName={PosterMovieName}
               />
@@ -332,118 +232,45 @@ const Home = () => {
           </View>
         )}
 
-        <View style={{marginBottom: verticalScale(35)}} />
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={{}}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          pagingEnabled={false}
+          snapToInterval={verticalScale(540)}
+          snapToAlignment="center"
+          decelerationRate="fast"
+          bounces={false}
+          alwaysBounceVertical={false}
+          directionalLockEnabled={true}
+          automaticallyAdjustContentInsets={false}>
+          {homeContent?.map((item: any) => (
+            <View key={item.id} style={styles.categoryContainer}>
+              <ShowCatCarousel
+                title={item.title}
+                data={item.data}
+                type={item.type}
+                titleStyle={styles.carouselTitle}
+                mainStyle={{height: verticalScale(540)}}
+                disableScroll={true}
+                onFocus={handleOnFocus}
+              />
+            </View>
+          ))}
+          {ListFooterComponent()}
+        </ScrollView>
 
-        {DynamicRecentlyAddedMovieData?.length > 0 ? (
-          <ShowCatCarousel
-            title="Recently Added"
-            data={
-              DynamicRecentlyAddedMovieData?.length > 0
-                ? DynamicRecentlyAddedMovieData
-                : []
-            }
-            onShowPress={show =>
-              console.log(`Featured Popular movies selected:`, show.title)
-            }
-            onFocus={() => {}}
-            getMovieDetails={() => {}}
-            type="movies"
-            titleStyle={styles.carouselTitle}
-            mainStyle={{height: verticalScale(905)}}
-            disableScroll={true}
-          />
-        ) : (
-          <View
-            style={{
-              marginBottom: verticalScale(55),
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <ActivityIndicator size="large" color="#fff" />
-          </View>
-        )}
-
-        <View style={{marginBottom: verticalScale(25)}} />
-
-        {/* Popular movies carousel */}
-        {DynamicPopularMovieData?.length > 0 ? (
-          <ShowCatCarousel
-            title="Popular movies"
-            data={
-              DynamicPopularMovieData?.length > 0 ? DynamicPopularMovieData : []
-            }
-            onShowPress={show =>
-              console.log(`Featured Popular movies selected:`, show.title)
-            }
-            onFocus={() => {}}
-            getMovieDetails={() => {}}
-            type="movies"
-            titleStyle={styles.carouselTitle}
-            mainStyle={{height: verticalScale(905)}}
-            disableScroll={true}
-          />
-        ) : (
-          <View
-            style={{
-              marginBottom: verticalScale(55),
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <ActivityIndicator size="large" color="#fff" />
-          </View>
-        )}
-
-        <View style={{marginBottom: verticalScale(25)}} />
-
-        {DynamicPopularShowsData?.length > 0 ? (
-          <ShowCatCarousel
-            title="Popular Shows"
-            data={
-              DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : []
-            }
-            onShowPress={show =>
-              console.log(`Featured Popular movies selected:`, show.title)
-            }
-            onFocus={() => {}}
-            getMovieDetails={() => {}}
-            type="series"
-            titleStyle={styles.carouselTitle}
-            mainStyle={{height: verticalScale(905)}}
-            disableScroll={true}
-          />
-        ) : (
-          <View
-            style={{
-              marginBottom: verticalScale(55),
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <ActivityIndicator size="large" color="#fff" />
-          </View>
-        )}
-
-        {/* <MovieCarousel 
-          title="Popular Shows" 
-          data={DynamicPopularShowsData?.length > 0 ? DynamicPopularShowsData : PopularShowsData}
-          onMoviePress={(movie) => console.log('Popular show selected:', movie.title)}
-        /> */}
-        <View style={{marginBottom: verticalScale(25)}} />
-        {ContinueWatchingDynamicData?.length > 0 && (
-          <ContinueWatchingCarousel
-            data={ContinueWatchingDynamicData || ContinueWatchingData}
-            onItemPress={item =>
-              console.log('Continue watching selected:', item.title)
-            }
-          />
-        )}
-        {/* <MovieCarousel 
-          title="Recently Added" 
-          data={DynamicRecentlyAddedMovieData?.length > 0 ? DynamicRecentlyAddedMovieData : RecentlyAddedData}
-          onMoviePress={(movie) => console.log('Recently added selected:', movie.title)}
-        /> */}
-        <View style={{marginBottom: verticalScale(35)}} />
-      </ScrollView>
-    </View>
+        {/* <View
+          style={{
+            marginBottom: verticalScale(55),
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View> */}
+      </View>
+    </MainLayout>
   );
 };
 
