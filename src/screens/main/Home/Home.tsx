@@ -162,11 +162,13 @@ const Home = () => {
           barStyle="light-content"
         />
 
-        <LinearGradient
+    <LinearGradient
           colors={[
             'rgba(0, 0, 0, 1)',
-            'rgba(0, 0, 0, 0.6)',
-            'rgba(0, 0, 0, 0.7)',
+            'rgba(0, 0, 0, 1)',
+            'rgba(0, 0, 0, 0.2)',
+
+            'transparent',
             'transparent',
           ]}
           start={{x: 0, y: 0}}
@@ -174,21 +176,11 @@ const Home = () => {
           style={styles.homeGradient}
         />
 
-        {/* <LinearGradient
-          colors={[
-            'rgba(0, 0, 0, 1)',
-            'transparent',
-          ]}
-          start={{x: 1, y: 0}}
-          end={{x: 0, y: 0}}
-          style={styles.homeGradient}
-        /> */}
-
         {isFocused && (
           <LinearGradient
             colors={[
-              'rgba(0, 0, 0, 1)',
               'rgba(0, 0, 0, 0.8)',
+              'rgba(0, 0, 0, 0.2)',
               'rgba(0, 0, 0, 0)',
               'transparent',
             ]}
@@ -196,7 +188,7 @@ const Home = () => {
             end={{x: 1, y: 0}}
             style={styles.homeGradientFocused}
           />
-        )}
+        )} 
 
         {!PosterMovieName?.info?.youtube_trailer ? (
           <ImageBackground
@@ -216,7 +208,6 @@ const Home = () => {
             <View
               style={{
                 position: 'absolute',
-                // top: moderateScale(120),
                 left: 0,
                 right: 0,
                 width: '100%',

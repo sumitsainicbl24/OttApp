@@ -84,6 +84,8 @@ const LiveChannelPlayScreen = () => {
   const channelLogo = channel?.logo || channel?.image;
   const streamUrl = channel?.url || '';
 
+  console.log('streamUrlstreamUrlstreamUrl', streamUrl);
+
   // Auto-hide controls after 3 seconds of inactivity
   const resetControlsTimer = () => {
     if (hideControlsTimer.current) {
@@ -329,32 +331,6 @@ const LiveChannelPlayScreen = () => {
               </View>
             </Pressable>
 
-            {/* Welcome button */}
-            {/* <Pressable
-              style={[
-                styles.navButton,
-                focused === 'welcome' && styles.navButtonFocused,
-              ]}
-              onPress={() => {}}
-              onFocus={() => handleFocus('welcome')}
-              onBlur={handleBlur}
-              // hasTVPreferredFocus={true}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Welcome"
-              accessibilityHint="Welcome screen">
-              <View style={styles.navButtonIcon}>
-                <View style={styles.welcomeIcon}>
-                  <View style={styles.welcomeDot} />
-                  <View style={styles.welcomeDot} />
-                  <View style={styles.welcomeDot} />
-                  <View style={styles.welcomeDot} />
-                </View>
-              </View>
-              <Text style={styles.navButtonText}>WELCOME</Text>
-            </Pressable> */}
-
-            {/* Clear button */}
             <Pressable
               style={[
                 styles.navButton,
@@ -409,6 +385,7 @@ const LiveChannelPlayScreen = () => {
             style={styles.videoPlayer}
             volume={volume}
             muted={muted}
+            repeat={true}
             resizeMode="contain"
             onLoad={handleLoad}
             onError={handleError}

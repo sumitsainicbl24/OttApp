@@ -12,6 +12,8 @@ export const CommonColors = {
   textGrey: '#b5afaf',
   yellow: '#FAAC1B',
   blueText: 'rgb(98,160,244)',
+  blueOpacity30: 'rgba(98,160,244,0.3)',
+
 
   //button colors
   buttonPrimary: '#1E9CE8',
@@ -23,6 +25,8 @@ export const CommonColors = {
   inputBorderColor: 'rgba(255, 255, 255, 0.06)',
   placeholderTextColor: 'rgba(255, 255, 255, 0.5)',
   blackOpacity70: 'rgba(255, 254, 254, 0.7)',
+  whiteOpacity30: 'rgba(255, 254, 254, 0.3)',
+
   blackOpacity40: 'rgba(0, 0, 0, 0.4)',
 
 

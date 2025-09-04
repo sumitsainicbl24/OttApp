@@ -19,6 +19,12 @@ import {imageResolutionHandlerForUrl} from '../utils/CommonFunctions';
 import {setCurrentlyPlaying} from '../redux/reducers/main';
 import {useDispatch} from 'react-redux';
 import SimpleMarquee from './MarqueeText';
+import {EPGProgram, processEPGData} from '../utils/epgUtils';
+import {
+  calculateProgramPositions,
+  createTimelineConfig,
+  createTimelineSlots,
+} from '../utils/timelineUtils';
 
 interface ShowData {
   group?: string;
@@ -26,6 +32,7 @@ interface ShowData {
   logo?: string;
   url?: string;
   channelIndex?: number;
+  epg?: EPGProgram[];
 }
 
 interface ShowChannelCatCardProps {
@@ -36,6 +43,14 @@ interface ShowChannelCatCardProps {
   onPress?: (programIndex: number) => void;
   channelIndex?: number;
   setChannelUrl?: (url: string) => void;
+  setProgramDetails?: (details: {
+    showTitle: string;
+    timeSlot: string;
+    progressPercentage: number;
+    duration: string;
+  }) => void;
+  timelineConfig?: any;
+  onProgramFocusWithAutoScroll?: (channelIndex: number, programIndex: number, programPosition: any) => void;
 }
 
 const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
@@ -46,9 +61,12 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   onPress,
   channelIndex = 0,
   setChannelUrl,
+  setProgramDetails,
+  timelineConfig: externalTimelineConfig,
+  onProgramFocusWithAutoScroll,
 }) => {
   const [imageError, setImageError] = useState(false);
-  const [streamUrl, setStreamUrl] = useState<string | null>(null)
+  const [streamUrl, setStreamUrl] = useState<string | null>(null);
   const [focusedProgramIndex, setFocusedProgramIndex] = useState<number | null>(
     null,
   );
@@ -56,6 +74,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
 
   const dispatch = useDispatch();
+
   // Reset image error state when show changes
   useEffect(() => {
     setImageError(false);
@@ -64,6 +83,22 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   const handleProgramFocus = (event: any, programIndex: number) => {
     setFocusedProgramIndex(programIndex);
     onFocus?.(event, programIndex);
+    
+    // Set program details without changing the stream URL
+    if (setProgramDetails) {
+      const programDetails = getProgramDetails(programIndex);
+      setProgramDetails(programDetails);
+    }
+
+    // Trigger auto-scroll if program is near the edge of visible area
+    if (onProgramFocusWithAutoScroll) {
+      // Get the program position for timeline-based programs
+      if (programPositions.length > 0 && programIndex < programPositions.length) {
+        const programPosition = programPositions[programIndex];
+        onProgramFocusWithAutoScroll(channelIndex, programIndex, programPosition);
+      }
+      // For fallback programs, we don't have precise positioning, so skip auto-scroll
+    }
   };
 
   const handleProgramBlur = (event: any, programIndex: number) => {
@@ -84,6 +119,137 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     setImageError(true);
   };
 
+  const getProgramDetails = (programIndex: number) => {
+    // Get program data from either timeline positions or fallback programs
+    let programData = null;
+    let epgData = null;
+    
+    if (programPositions.length > 0 && programIndex < programPositions.length) {
+      // Use timeline program data
+      programData = programPositions[programIndex];
+      epgData = programData.program; // Timeline positions have EPG data in .program
+    } else if (fallbackPrograms.length > 0 && programIndex < fallbackPrograms.length) {
+      // Use fallback program data
+      programData = fallbackPrograms[programIndex];
+      epgData = programData.epgData; // Fallback programs have EPG data in .epgData
+    }
+
+    if (programData) {
+      // Extract time information from EPG data if available
+      let timeSlot = '02:00 - 03:00PM'; // Default
+      let progressPercentage = 0; // Default to 0 for non-current programs
+      let duration = '26 min'; // Default
+
+      if (epgData && epgData.start_timestamp && epgData.stop_timestamp) {
+        try {
+          const startTime = new Date(parseInt(epgData.start_timestamp) * 1000);
+          const endTime = new Date(parseInt(epgData.stop_timestamp) * 1000);
+          const now = new Date();
+          
+          // Format time slot
+          const formatTime = (date: Date) => {
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const hour12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            return `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+          };
+          
+          timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
+          
+          // Only calculate progress percentage for current programs
+          if (programData.duration === 'current') {
+            const totalDuration = endTime.getTime() - startTime.getTime();
+            const elapsed = now.getTime() - startTime.getTime();
+            progressPercentage = Math.max(0, Math.min(100, (elapsed / totalDuration) * 100));
+          } else {
+            // For future programs, set progress to 0
+            progressPercentage = 0;
+          }
+          
+          // Calculate duration
+          const durationMs = endTime.getTime() - startTime.getTime();
+          const durationMinutes = Math.round(durationMs / (1000 * 60));
+          duration = `${durationMinutes} min`;
+        } catch (error) {
+          console.warn('Error parsing EPG timestamps:', error);
+          // Fall back to default values if timestamp parsing fails
+        }
+      } else {
+        // For programs without EPG data, generate reasonable time slots
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        
+        // Generate time slots based on program index and current time
+        let startHour = currentHour;
+        let startMinute = Math.floor(currentMinute / 30) * 30; // Round to nearest 30 minutes
+        
+        if (programData.duration === 'current') {
+          // Current program starts at current time
+          startHour = currentHour;
+          startMinute = Math.floor(currentMinute / 30) * 30;
+        } else if (programData.duration === 'next') {
+          // Next program starts 30 minutes from current time
+          startMinute += 30;
+          if (startMinute >= 60) {
+            startMinute = 0;
+            startHour = (startHour + 1) % 24;
+          }
+        } else {
+          // Future programs - add more time based on index
+          const additionalMinutes = (programIndex - 1) * 30;
+          startMinute += additionalMinutes;
+          while (startMinute >= 60) {
+            startMinute -= 60;
+            startHour = (startHour + 1) % 24;
+          }
+        }
+        
+        const endMinute = startMinute + 30;
+        let endHour = startHour;
+        let finalEndMinute = endMinute;
+        
+        if (endMinute >= 60) {
+          finalEndMinute = endMinute - 60;
+          endHour = (startHour + 1) % 24;
+        }
+        
+        // Format time slot
+        const formatTime = (hour: number, minute: number) => {
+          const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+          const ampm = hour >= 12 ? 'PM' : 'AM';
+          return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
+        };
+        
+        timeSlot = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, finalEndMinute)}`;
+        duration = '30 min';
+        
+        // Only show progress for current programs
+        if (programData.duration === 'current') {
+          progressPercentage = 65; // Default progress for current programs without EPG
+        } else {
+          progressPercentage = 0; // No progress for future programs
+        }
+      }
+
+      return {
+        showTitle: programData.title || 'No Information',
+        timeSlot,
+        progressPercentage,
+        duration,
+      };
+    }
+
+    // Return default values if no program data found
+    return {
+      showTitle: 'No Information',
+      timeSlot: '02:00 - 03:00PM',
+      progressPercentage: 0, // Default to 0 for unknown programs
+      duration: '26 min',
+    };
+  };
+
   const handleDoubleClick = () => {
     dispatch(
       setCurrentlyPlaying({
@@ -102,44 +268,56 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   };
 
   const handlePress = (index: number) => {
-    if(streamUrl === show.url){
-      handleDoubleClick()
-      setLastTap(null)
-      return
+    if (streamUrl === show.url) {
+      handleDoubleClick();
+      setLastTap(null);
+      return;
     }
-    const now = Date.now()
-    const DOUBLE_PRESS_DELAY = 300
- 
-    if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
-      // Double click detected
-      handleDoubleClick()
-      setLastTap(null)
-    } else {
-      // Single click - execute original functionality
-      setStreamUrl(show.url || '')
-      setChannelUrl?.('')
-      setTimeout(() => {
-        setChannelUrl?.(show.url || '')
-      }, 250);
-      setLastTap(now)
-    }
-  }
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
 
-  // Mock program data - in real app this would come from props or API
-  const programs = [
-    {title: 'No information', duration: 'current', color: '#3E4756'},
-    {title: 'No information', duration: 'next', color: '#232629'},
-    {
-      title: 'No information',
-      duration: 'later',
-      color: 'rgba(255, 255, 255, 0.2)',
-    },
-    {
-      title: 'No information',
-      duration: 'evening',
-      color: 'rgba(255, 255, 255, 0.2)',
-    },
-  ];
+    if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
+      // Double click detected
+      handleDoubleClick();
+      setLastTap(null);
+    } else {
+      // Single click - change the stream URL (OK button press)
+      setStreamUrl(show.url || '');
+      setChannelUrl?.('');
+      setTimeout(() => {
+        setChannelUrl?.(show.url || '');
+      }, 250);
+      setLastTap(now);
+    }
+  };
+
+  // Use external timeline configuration or create default one for 24 hours
+  const timelineConfig = React.useMemo(
+    () =>
+      externalTimelineConfig || createTimelineConfig(30, 48, moderateScale(200)),
+    [externalTimelineConfig],
+  );
+
+  // Generate timeline slots
+  const timelineSlots = React.useMemo(
+    () => createTimelineSlots(timelineConfig),
+    [timelineConfig],
+  );
+
+  // Calculate program positions within timeline
+  const programPositions = React.useMemo(() => {
+    if (!show.epg || show.epg.length === 0) return [];
+    return calculateProgramPositions(
+      show.epg,
+      timelineSlots,
+      timelineConfig.slotWidth,
+    );
+  }, [show.epg, timelineSlots, timelineConfig.slotWidth]);
+
+  // Fallback to old method if no EPG data
+  const fallbackPrograms = React.useMemo(() => {
+    return processEPGData(show.epg || []);
+  }, [show.epg, show.title]);
   const getProxyImageUrl = (url: any) => {
     if (!url) return null;
 
@@ -185,59 +363,79 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       </View>
 
       <View style={styles.programSchedule}>
-        {/* {programs.map((program, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.programBlock,
-              { backgroundColor: 'rgba(27,30,33,1)' },
-              focusedProgramIndex === index && styles.programBlockFocused,
-            ]}
-            hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
-            activeOpacity={1}
-            onFocus={(event) => handleProgramFocus(event, index)}
-            onBlur={(event) => handleProgramBlur(event, index)}
-            onPress={() => handlePress(index)}
-          >
-            <Text style={[styles.programText, focusedProgramIndex === index && {color:CommonColors.black}]} numberOfLines={1}>
-              {program.title}
-            </Text>
-          </TouchableOpacity>
-        ))} */}
-        <FlatList
-          data={programs}
-          renderItem={({item, index}) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.programBlock,
-                {backgroundColor: 'rgba(27,30,33,1)'},
-                focusedProgramIndex === index && styles.programBlockFocused,
-              ]}
-              hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
-              activeOpacity={1}
-              onFocus={event => handleProgramFocus(event, index)}
-              onBlur={event => handleProgramBlur(event, index)}
-              onPress={() => handlePress(index)}>
-              <Text
+        {programPositions.length > 0 ? (
+          <View style={styles.timelineProgramContainer}>
+            {programPositions.map((position, index) => (
+              <TouchableOpacity
+                key={position.program.id || index}
                 style={[
-                  styles.programText,
-                  focusedProgramIndex === index && {color: CommonColors.black},
+                  styles.timelineProgramBlock,
+                  {
+                    left: position.left,
+                    width: position.width,
+                    backgroundColor: 'rgba(27,30,33,1)',
+                  },
+                  focusedProgramIndex === index && styles.programBlockFocused,
                 ]}
-                numberOfLines={1}>
-                {item.title}
-              </Text>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            gap: moderateScale(8),
-            paddingHorizontal: moderateScale(10),
-            height: moderateScale(40),
-          }}
-        />
+                hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+                activeOpacity={1}
+                onFocus={event => handleProgramFocus(event, index)}
+                onBlur={event => handleProgramBlur(event, index)}
+                onPress={() => handlePress(index)}>
+                <Text
+                  style={[
+                    styles.programText,
+                    focusedProgramIndex === index && {
+                      color: CommonColors.black,
+                    },
+                  ]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {position.width < 60
+                    ? position.title.substring(0, 1) + '...'
+                    : position.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          <FlatList
+            data={fallbackPrograms}
+            renderItem={({item, index}) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.programBlock,
+                  {backgroundColor: 'rgba(27,30,33,1)'},
+                  focusedProgramIndex === index && styles.programBlockFocused,
+                ]}
+                hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+                activeOpacity={1}
+                onFocus={event => handleProgramFocus(event, index)}
+                onBlur={event => handleProgramBlur(event, index)}
+                onPress={() => handlePress(index)}>
+                <Text
+                  style={[
+                    styles.programText,
+                    focusedProgramIndex === index && {
+                      color: CommonColors.black,
+                    },
+                  ]}
+                  numberOfLines={1}>
+                  {item.title}
+                </Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              gap: moderateScale(8),
+              paddingHorizontal: moderateScale(10),
+              height: moderateScale(40),
+            }}
+          />
+        )}
       </View>
     </View>
   );
@@ -303,14 +501,13 @@ const styles = StyleSheet.create({
   programBlock: {
     // flex: 1,
     // height: moderateScale(44),
-    width: moderateScale(400),
+    width: "100%",
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(12),
-    // paddingVertical: moderateScale(8),
     justifyContent: 'center',
-    // alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
+   
   },
   programBlockFocused: {
     borderColor: CommonColors.white,
@@ -331,9 +528,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#232629',
   },
   programText: {
-    fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(17),
+    fontFamily: FontFamily.PublicSans_Regular,
+    fontSize: scale(20),
     color: CommonColors.white,
     textAlign: 'left',
+  },
+  timelineProgramContainer: {
+    position: 'relative',
+    height: moderateScale(40), // Single row height
+    width: '100%',
+    marginLeft: moderateScale(10),
+  },
+  timelineProgramBlock: {
+    position: 'absolute',
+    top: 0,
+    height: moderateScale(40),
+    borderRadius: moderateScale(6),
+    paddingHorizontal: moderateScale(8),
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  smallProgramText: {
+    fontSize: moderateScale(14),
+  },
+  verySmallProgramText: {
+    fontSize: moderateScale(12),
   },
 });

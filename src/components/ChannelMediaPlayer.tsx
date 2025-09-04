@@ -36,6 +36,7 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
   const [isRetrying, setIsRetrying] = useState(false);
   const [videoKey, setVideoKey] = useState(0); // Force video re-render on retry
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
 
   // Reset states when streamUrl changes
   useEffect(() => {
@@ -142,9 +143,11 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
         <Text style={styles.showTitle}>{showTitle}</Text>
         <Text style={styles.showTimeSlot}>{timeSlot}</Text>
         <View style={styles.progressContainer}>
-          <View style={styles.progressBarContainer}>
-            <View style={[styles.progressBar, {width: `${progressPercentage}%`}]} />
-          </View>
+          {progressPercentage > 0 && (
+            <View style={styles.progressBarContainer}>
+              <View style={[styles.progressBar, {width: `${progressPercentage}%`}]} />
+            </View>
+          )}
           <Text style={styles.durationText}>{duration}</Text>
         </View>
       </View>

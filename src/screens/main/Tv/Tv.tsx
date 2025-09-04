@@ -17,6 +17,7 @@ import {getCategoryData} from '../../../redux/actions/auth';
 import {RootState} from '../../../redux/store';
 import {CommonColors} from '../../../styles/Colors';
 import {debounce} from '../../../utils/CommonFunctions';
+import {clearEPGCaches} from '../../../utils/epgUtils';
 import {styles} from './styles';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
@@ -32,6 +33,17 @@ const Tv = () => {
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [streamUrl, setStreamUrl] = useState<string>('');
+  const [currentProgramDetails, setCurrentProgramDetails] = useState<{
+    showTitle: string;
+    timeSlot: string;
+    progressPercentage: number;
+    duration: string;
+  }>({
+    showTitle: 'No Information',
+    timeSlot: '02:00 - 03:00PM',
+    progressPercentage: 0,
+    duration: '26 min',
+  });
 
   useEffect(() => {
     setSelectedCategory(channelsData[0]?.category_id);
@@ -42,12 +54,26 @@ const Tv = () => {
   };
 
   const handleCategoryListFocus = useCallback((category: number) => {
+    setLoading(true);
     setShowCategoryAndSidebar(true);
     setSelectedCategory(category);
+    // Clear EPG caches when switching categories to free memory
+    clearEPGCaches();
+    // Clear previous category data immediately to show loading state
+    setSelectedCategoryData([]);
   }, []);
 
   const handleChannelUrl = (url: string) => {
     setStreamUrl(url);
+  };
+
+  const handleProgramDetails = (details: {
+    showTitle: string;
+    timeSlot: string;
+    progressPercentage: number;
+    duration: string;
+  }) => {
+    setCurrentProgramDetails(details);
   };
 
   const memorizeChannelsData = useMemo(() => {
@@ -62,15 +88,48 @@ const Tv = () => {
     return streamUrl;
   }, [streamUrl]);
 
+  // Get category name from category ID
+  const getCategoryName = useCallback((categoryId: any) => {
+    if (!channelsData || !categoryId) return 'Unknown Category';
+    
+    // Find the category in channelsData
+    const category = Object.values(channelsData).find((cat: any) => 
+      cat.category_id === categoryId || cat.category_id === String(categoryId)
+    ) as any;
+    
+    return category?.category_name || 'Unknown Category';
+  }, [channelsData]);
+
+  // Memoize the selected category name
+  const selectedCategoryName = useMemo(() => {
+    return getCategoryName(selectedCategory);
+  }, [selectedCategory, getCategoryName]);
+
   const getMovieData = async (category: string) => {
     try {
+      setLoading(true);
       const res = await getCategoryData('live', category);
       const movieData = res?.data?.data?.data?.channels;
       if (movieData && movieData.length > 0) {
-        setSelectedCategoryData(movieData);
+        // Optimized processing - only process channels that actually have EPG data
+        const processedChannels = movieData.map((channel: any) => {
+          // Only create new object if EPG data exists, otherwise return original
+          if (channel.epg && Array.isArray(channel.epg) && channel.epg.length > 0) {
+            return {
+              ...channel,
+              epg: channel.epg
+            };
+          }
+          return channel; // Return original object to avoid unnecessary re-renders
+        });
+        setSelectedCategoryData(processedChannels);
+      } else {
+        // Set empty array if no data
+        setSelectedCategoryData([]);
       }
     } catch (error) {
       console.error('Error fetching movie data:', error);
+      setSelectedCategoryData([]);
     } finally {
       setLoading(false);
     }
@@ -118,27 +177,25 @@ const Tv = () => {
         <View>
           <ChannelMediaPlayer
             imageSource={imagepath.TvDemoImage}
-            showTitle="No Information"
-            timeSlot="02:00 - 03:00PM"
-            progressPercentage={65}
-            duration="26 min"
+            showTitle={currentProgramDetails.showTitle}
+            timeSlot={currentProgramDetails.timeSlot}
+            progressPercentage={currentProgramDetails.progressPercentage}
+            duration={currentProgramDetails.duration}
             streamUrl={memorizeStreamUrl}
+            selectedCategory={selectedCategoryName}
             loading={loading}
           />
           <View style={styles.scrollContainer}>
             <View style={styles.showChannelCatCarouselContainer}>
-              {(selectedCategory && channelsData) ||
-              selectedCategoryData.length > 0 ? (
-                <ShowChannelCatCarousel
-                  title={`${selectedCategory}`}
-                  data={selectedCategoryData}
-                  onFocus={handleScrollViewFocus}
-                  type="channels"
-                  setChannelUrl={handleChannelUrl}
-                />
-              ) : (
-                <ActivityIndicator size="large" color={CommonColors.white} />
-              )}
+              <ShowChannelCatCarousel
+                title={`${selectedCategory}`}
+                data={selectedCategoryData}
+                onFocus={handleScrollViewFocus}
+                type="channels"
+                setChannelUrl={handleChannelUrl}
+                setProgramDetails={handleProgramDetails}
+                loading={loading}
+              />
             </View>
           </View>
         </View>
