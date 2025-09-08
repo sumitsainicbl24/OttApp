@@ -1,7 +1,9 @@
-import { StyleSheet } from 'react-native'
-import { CommonColors } from '../../../styles/Colors'
-import { moderateScale, scale, verticalScale } from '../../../styles/scaling'
-import FontFamily from '../../../constants/FontFamily'
+import {StyleSheet, Dimensions} from 'react-native';
+import {CommonColors} from '../../../styles/Colors';
+import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
+import FontFamily from '../../../constants/FontFamily';
+
+const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
@@ -15,6 +17,11 @@ export const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
   },
+  navButtonImage: {
+    width: scale(48),
+    height: scale(48),
+    marginBottom: verticalScale(12),
+  },
   touchOverlay: {
     position: 'absolute',
     top: 0,
@@ -23,7 +30,7 @@ export const styles = StyleSheet.create({
     right: 0,
     backgroundColor: 'transparent',
   },
-  
+
   // Loading states
   loadingContainer: {
     position: 'absolute',
@@ -42,7 +49,7 @@ export const styles = StyleSheet.create({
     marginTop: verticalScale(10),
     textAlign: 'center',
   },
-  
+
   // Error states
   errorContainer: {
     position: 'absolute',
@@ -105,7 +112,7 @@ export const styles = StyleSheet.create({
     fontSize: moderateScale(16),
     fontFamily: FontFamily.PublicSans_Medium,
   },
-  
+
   // Controls overlay
   controlsOverlay: {
     position: 'absolute',
@@ -115,7 +122,7 @@ export const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'flex-end',
   },
-  
+
   // Top info section
   topInfoSection: {
     flexDirection: 'row',
@@ -136,6 +143,7 @@ export const styles = StyleSheet.create({
     height: scale(140),
     tintColor: CommonColors.white,
     marginRight: scale(45),
+    borderRadius: moderateScale(8),
   },
   channelInfoSection: {
     flex: 1,
@@ -195,7 +203,7 @@ export const styles = StyleSheet.create({
     height: scale(24),
     tintColor: CommonColors.white,
   },
-  
+
   // Progress bar
   progressContainer: {
     paddingHorizontal: scale(40),
@@ -212,7 +220,7 @@ export const styles = StyleSheet.create({
     backgroundColor: CommonColors.white,
     borderRadius: moderateScale(2),
   },
-  
+
   // Bottom controls bar
   bottomControlsBar: {
     flexDirection: 'row',
@@ -269,72 +277,79 @@ export const styles = StyleSheet.create({
     fontFamily: FontFamily.PublicSans_Bold,
     fontWeight: 'bold',
   },
-  
+
   // Common control styles
   controlButtonFocused: {
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderColor: CommonColors.white,
   },
-  
+
   // Bottom navigation bar
   bottomNavigationBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
     paddingHorizontal: scale(40),
     paddingBottom: verticalScale(40),
-    width: '35%',
+    width: '100%',
+  },
+  flatListContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: scale(40),
   },
   navButton: {
     alignItems: 'center',
-    paddingVertical: verticalScale(15),
-    paddingHorizontal: scale(20),
-    borderRadius: moderateScale(8),
-    // borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    width: scale(160),
+    borderRadius: moderateScale(12),
+
+    marginHorizontal: scale(10),
+    width: scale(200),
     height: scale(140),
-    // backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(37, 36, 36, 0.8)',
   },
   navButtonFocused: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderColor: CommonColors.white,
-    transform: [{ scale: 1.05 }],
-    // shadowColor: CommonColors.white,
-    // shadowOffset: { width: 0, height: 0 },
-    // shadowOpacity: 0.5,
-    // shadowRadius: moderateScale(10),
-    // elevation: 10,
+    paddingBottom: 0,
+    width: scale(220),
+    height: scale(160),
+    borderRadius: moderateScale(12),
   },
   navButtonIcon: {
-    width: scale(160),
-    height: scale(160),
+    width: scale(200),
+    height: scale(140),
+
+    borderRadius: moderateScale(10),
+  },
+  progressBarNavBtn: {
+    height: 2,
+    backgroundColor: CommonColors?.blueOpacity30,
+    width: '100%',
+  },
+
+  navButtonIconContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: verticalScale(8),
-    backgroundColor: CommonColors.inputBackgroundColor,
-    borderRadius: moderateScale(10),
-    // padding: moderateScale(0),
+    // marginBottom: verticalScale(8),
+    // borderRadius: moderateScale(10),
   },
-  navButtonImage: {
-    width: scale(24),
-    height: scale(24),
-    tintColor: CommonColors.white,
-  },
+
   navButtonText: {
     color: CommonColors.white,
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(16),
     fontFamily: FontFamily.PublicSans_Medium,
     textAlign: 'center',
   },
+
   navButtonSubtext: {
-    color: CommonColors.textGrey,
-    fontSize: moderateScale(12),
+    color: CommonColors.blueText,
+    fontSize: moderateScale(14),
     fontFamily: FontFamily.PublicSans_Regular,
     textAlign: 'center',
     marginTop: verticalScale(2),
+    textTransform: 'capitalize',
+    marginBottom: verticalScale(6),
+    marginHorizontal: scale(10),
   },
-  
+
   // TV Guide icon styles
   tvGuideIcon: {
     width: scale(24),
@@ -357,7 +372,7 @@ export const styles = StyleSheet.create({
     backgroundColor: CommonColors.white,
     borderRadius: moderateScale(1),
   },
-  
+
   // Welcome icon styles
   welcomeIcon: {
     width: scale(24),
@@ -373,7 +388,7 @@ export const styles = StyleSheet.create({
     backgroundColor: CommonColors.white,
     borderRadius: moderateScale(4),
   },
-  
+
   // Down arrow indicator
   downArrowContainer: {
     alignItems: 'center',
@@ -389,4 +404,40 @@ export const styles = StyleSheet.create({
     borderRightColor: 'transparent',
     borderTopColor: CommonColors.white,
   },
-})
+
+  // TV Guide Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(25, 24, 24, 0.76)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: screenWidth,
+    height: screenHeight,
+    backgroundColor: 'transparent',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: verticalScale(50),
+    right: scale(30),
+    width: scale(50),
+    height: scale(50),
+    borderRadius: moderateScale(25),
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  closeButtonFocused: {
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    borderColor: CommonColors.white,
+  },
+  closeButtonText: {
+    color: CommonColors.white,
+    fontSize: scale(24),
+    fontFamily: FontFamily.PublicSans_Bold,
+  },
+});

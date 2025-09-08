@@ -26,6 +26,7 @@ import {
   setIsPlaylistProcessedLocalStorage,
   setUserDataLocalStorage,
 } from '../../localStorage/mmkv';
+import { channelData } from '../../screens/main/Tv/TvWithoutMediaPlayer';
 
 const {dispatch} = store;
 
@@ -121,3 +122,5 @@ export const getCategoryData = async (type: string, category: string) => {
   );
   return response;
 };
+
+

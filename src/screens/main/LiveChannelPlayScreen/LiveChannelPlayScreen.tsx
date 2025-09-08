@@ -1,52 +1,46 @@
-// 1. React Native core imports
-import React, {useState, useEffect, useRef} from 'react';
 import {
-  Text,
-  View,
-  TouchableOpacity,
-  StatusBar,
-  Image,
-  Dimensions,
-  Platform,
-  BackHandler,
-  useTVEventHandler,
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
+import {
   ActivityIndicator,
   Alert,
+  BackHandler,
+  Dimensions,
+  FlatList,
+  Image,
   Pressable,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  useTVEventHandler,
+  View,
 } from 'react-native';
-
-// 2. Third-party library imports
-import Video from 'react-native-video';
 import LinearGradient from 'react-native-linear-gradient';
-
-// 3. Navigation imports
-import {
-  useNavigation,
-  RouteProp,
-  useRoute,
-  NavigationProp,
-} from '@react-navigation/native';
-
-// 4. Redux imports
-import {useAppSelector, useAppDispatch} from '../../../redux/hooks';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../redux/store';
-
-// 5. Global styles and utilities
-import {CommonColors} from '../../../styles/Colors';
-import {moderateScale, verticalScale, scale} from '../../../styles/scaling';
-import FontFamily from '../../../constants/FontFamily';
-import imagepath from '../../../constants/imagepath';
-
-// 6. Component imports
+import Video, {VideoRef} from 'react-native-video';
+import {useDispatch, useSelector} from 'react-redux';
 import MainLayout from '../../../components/MainLayout';
-import MarqueeText from '../../../components/MarqueeText';
+import imagepath from '../../../constants/imagepath';
+import {RootState} from '../../../redux/store';
+import {CommonColors} from '../../../styles/Colors';
+import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
+import TvGuideModal from './TvGuideModal';
 
-// 7. Utils and helpers
 import {MainStackParamList} from '../../../navigation/NavigationsTypes';
 
-// 8. Local styles import (ALWAYS LAST)
+import {
+  clearLiveTvHistoryApi,
+  getLiveTvHistoryApi,
+  saveHistoryApi,
+} from '../../../redux/actions/main';
+import {setCurrentlyPlaying} from '../../../redux/reducers/main';
+import {channelData} from '../Tv/TvWithoutMediaPlayer';
 import {styles} from './styles';
+import FastImage from 'react-native-fast-image';
+import {getProxyImageUrl} from '../../../utils/CommonFunctions';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
@@ -57,36 +51,94 @@ type LiveChannelPlayScreenRouteProp = RouteProp<
 
 const LiveChannelPlayScreen = () => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
-  const dispatch = useAppDispatch();
   const route = useRoute<LiveChannelPlayScreenRouteProp>();
-  const videoRef = useRef<any>(null);
-
+  const videoRef = useRef<VideoRef>(null);
+  const focusIndexRef = useRef<number>(0);
   const {currentlyPlaying} = useSelector(
     (state: RootState) => state.rootReducer.main,
   );
+  const dispatch = useDispatch();
   const {channel} = route.params;
-
-  // State management for live channel
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showControls, setShowControls] = useState(true);
   const [focused, setFocused] = useState<string | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState(0);
   const [volume, setVolume] = useState(1.0);
   const [muted, setMuted] = useState(false);
-  const [fullscreen, setFullscreen] = useState(true);
   const [networkError, setNetworkError] = useState(false);
-
-  // Hide controls timer
+  const [showTvGuide, setShowTvGuide] = useState(false);
+  const [tvGuideLoading, setTvGuideLoading] = useState(false);
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [channelName, setChannelName] = useState(
+    channel?.name || channel?.title || 'Live Channel',
+  );
+  const {userToken} = useSelector((state: RootState) => state.rootReducer.auth);
 
-  // Channel information
-  const channelName = channel?.name || channel?.title || 'Live Channel';
-  const channelLogo = channel?.logo || channel?.image;
-  const streamUrl = channel?.url || '';
+  // Create navigation items array for FlatList
+  type NavigationItem =
+    | {id: string; type: 'button'; label: string; icon?: any; data?: any}
+    | {id: string; type: 'historyItem'; label: string; data?: any; icon?: any};
 
-  console.log('streamUrlstreamUrlstreamUrl', streamUrl);
+  const navigationItems: NavigationItem[] = [
+    {id: 'tvGuide', type: 'button', label: 'TV Guide', icon: 'tvGuide'},
+    {id: 'history', type: 'button', label: 'History', icon: 'history'},
+    ...historyData.map((item, index) => ({
+      id: `historyItem_${index}`,
+      type: 'historyItem' as const,
+      label: item.name,
+      data: item,
+    })),
+    {id: 'clear', type: 'button', label: 'Clear', icon: 'clear'},
+  ];
 
-  // Auto-hide controls after 3 seconds of inactivity
+  useEffect(() => {
+    if (currentlyPlaying) {
+      // videoRef.current?.setSource({uri: currentlyPlaying?.url});
+      setChannelName(
+        currentlyPlaying?.name || currentlyPlaying?.title || 'Live Channel',
+      );
+    }
+  }, [currentlyPlaying]);
+
+
+
+  useEffect(() => {
+    if (userToken) {
+      getLiveTvHistory();
+      saveHistory(channel);
+    }
+  }, [channel]);
+
+  async function saveHistory(channel: channelData) {
+    try {
+      const response = await saveHistoryApi(channel);
+      console.log('response from saveHistory', response);
+    } catch (error) {
+      console.error('Error saving history:', error);
+    }
+  }
+
+  async function getLiveTvHistory() {
+    try {
+      const response = await getLiveTvHistoryApi();
+      setHistoryData(response?.data?.data?.channels);
+    } catch (error) {
+      console.error('Error saving history:', error);
+    }
+  }
+
+  async function clearLiveTvHistory() {
+    try {
+      const response = await clearLiveTvHistoryApi();
+      const newData = await getLiveTvHistoryApi();
+      setHistoryData(newData?.data?.data?.channels);
+    } catch (error) {
+      console.error('Error clearing history:', error);
+    }
+  }
+
   const resetControlsTimer = () => {
     if (hideControlsTimer.current) {
       clearTimeout(hideControlsTimer.current);
@@ -97,30 +149,98 @@ const LiveChannelPlayScreen = () => {
     }, 3000);
   };
 
+  const handleTvGuidePress = () => {
+    setShowControls(false);
+    setShowTvGuide(true);
+    setTvGuideLoading(true);
+    setTimeout(() => {
+      setTvGuideLoading(false);
+    }, 1000);
+  };
+
+  const handleTvGuideClose = () => {
+    setShowTvGuide(false);
+    setTvGuideLoading(false);
+  };
+
+  // Navigation functions
+  const navigateFocus = (direction: 'left' | 'right') => {
+    const totalItems = navigationItems.length;
+    if (totalItems === 0) return;
+
+    // Use ref for more reliable state tracking
+    const currentIndex = focusIndexRef.current;
+   
+    let newIndex = currentIndex;
+
+    if (direction === 'left') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : totalItems - 1;
+    } else {
+      newIndex = currentIndex < totalItems - 1 ? currentIndex + 1 : 0;
+    }
+
+
+
+    // Update ref first, then state
+    focusIndexRef.current = newIndex;
+    setFocusedIndex(newIndex);
+    setFocused(navigationItems[newIndex].id);
+    resetControlsTimer();
+    console.log(
+      `Focus moved ${direction}: index ${currentIndex} -> ${newIndex}, item: ${navigationItems[newIndex].label}`,
+    );
+  };
+
   // TV remote event handler
   const myTVEventHandler = (evt: any) => {
-    console.log('TV Event:', evt?.eventType, 'Current focus:', focused);
+    if (evt && evt.eventType === 'select' && !showTvGuide) {
+      resetControlsTimer();
+      // Handle select action based on focused element
+      const currentItem = navigationItems[focusedIndex];
+      if (currentItem) {
+        if (currentItem.id === 'tvGuide') {
+          handleTvGuidePress();
+        } else if (currentItem.id === 'history') {
+          console.log('History button pressed');
+        } else if (currentItem.id === 'clear') {
+          clearLiveTvHistory();
+        } else if (currentItem.type === 'historyItem') {
+          console.log('History item selected:', currentItem.data);
 
+          dispatch(
+            setCurrentlyPlaying({
+              ...currentItem?.data,
+              type: 'live', // Mark this as a live TV channel
+            }),
+          );
+        }
+      }
+    } else if (evt && evt.eventType === 'up' && !showTvGuide) {
+      resetControlsTimer();
+    } else if (evt && evt.eventType === 'down' && !showTvGuide) {
+      resetControlsTimer();
+    } else if (evt && evt.eventType === 'left' && !showTvGuide) {
+      if(showControls){
+
+        navigateFocus('left');
+      }
+      else{
+        Alert.alert("hehehe")
+      }
+    } else if (evt && evt.eventType === 'right' && !showTvGuide) {
+      console.log('right pressed');
+      navigateFocus('right');
+    }
+  };
+
+  const TVEventHandlerTvGuide = (evt: any) => {
     if (evt && evt.eventType === 'select') {
-      resetControlsTimer();
     } else if (evt && evt.eventType === 'up') {
-      resetControlsTimer();
     } else if (evt && evt.eventType === 'down') {
-      resetControlsTimer();
     } else if (evt && evt.eventType === 'left') {
-      resetControlsTimer();
-      // Navigate to previous button
-      if (focused === 'history') setFocused('tvGuide');
-      else if (focused === 'welcome') setFocused('history');
-      else if (focused === 'clear') setFocused('welcome');
-      else if (focused === 'tvGuide') setFocused('clear');
+      console.log('left pressed');
     } else if (evt && evt.eventType === 'right') {
-      resetControlsTimer();
-      // Navigate to next button
-      if (focused === 'tvGuide') setFocused('history');
-      else if (focused === 'history') setFocused('welcome');
-      else if (focused === 'clear') setFocused('tvGuide');
-      else if (focused === 'welcome') setFocused('clear');
+      console.log('right pressed');
     }
   };
 
@@ -143,14 +263,38 @@ const LiveChannelPlayScreen = () => {
   // Initialize controls timer
   useEffect(() => {
     resetControlsTimer();
-    // Set initial focus to WELCOME button
-    setFocused('welcome');
+    // Set initial focus to first button
+    focusIndexRef.current = 0;
+    setFocused('tvGuide');
+    setFocusedIndex(0);
     return () => {
       if (hideControlsTimer.current) {
         clearTimeout(hideControlsTimer.current);
       }
     };
   }, []);
+
+  // Update focus when navigation items change
+  useEffect(() => {
+    if (
+      navigationItems.length > 0 &&
+      focusIndexRef.current >= navigationItems.length
+    ) {
+      console.log(
+        `Resetting focus: focusedIndex ${focusIndexRef.current} >= length ${navigationItems.length}`,
+      );
+      focusIndexRef.current = 0;
+      setFocusedIndex(0);
+      setFocused(navigationItems[0].id);
+    }
+  }, [navigationItems]);
+
+  // Debug effect to track focus changes
+  useEffect(() => {
+    console.log(
+      `Focus state changed: focusedIndex=${focusedIndex}, focused=${focused}`,
+    );
+  }, [focusedIndex, focused]);
 
   // Video event handlers
   const handleLoad = (data: any) => {
@@ -183,20 +327,78 @@ const LiveChannelPlayScreen = () => {
 
   // Focus handlers
   const handleFocus = (buttonName: string) => {
-    console.log('Focus changed to:', buttonName);
-    setFocused(buttonName);
+    const index = navigationItems.findIndex(item => item.id === buttonName);
+    if (index !== -1) {
+      focusIndexRef.current = index;
+      setFocusedIndex(index);
+      setFocused(buttonName);
+    }
     resetControlsTimer();
   };
 
-  const handleBlur = () => {
-    console.log('Focus blurred');
-    setFocused(null);
+  // Render function for FlatList items
+  const renderNavigationItem = ({
+    item,
+    index,
+  }: {
+    item: NavigationItem;
+    index: number;
+  }) => {
+    const isFocused = focusedIndex === index;
+    return (
+      <Pressable
+        style={[styles.navButton, isFocused && styles.navButtonFocused]}
+        onFocus={() => handleFocus(item.id)}
+        accessible={true}
+        accessibilityRole="button">
+        <View style={styles.navButtonIcon}>
+          <View style={styles.navButtonIconContainer}>
+            {item.icon === 'tvGuide' && imagepath.tvGuide && (
+              <FastImage
+                source={imagepath.tvGuide}
+                style={styles.navButtonImage}
+              />
+            )}
+            {item.icon === 'clear' && imagepath.tvGuide && (
+              <FastImage
+                source={imagepath.clear}
+                style={styles.navButtonImage}
+                tintColor={CommonColors.white}
+              />
+            )}
+            {item.icon === 'history' && imagepath.history && (
+              <FastImage
+                source={imagepath.history}
+                style={styles.navButtonImage}
+              />
+            )}
+            {item?.data?.stream_icon && (
+              <FastImage
+                source={{
+                  uri: getProxyImageUrl(item?.data?.stream_icon)!,
+                  priority: 'high',
+                }}
+                style={styles.navButtonImage}
+                resizeMode="cover"
+              />
+            )}
+       {!item?.data &&     <Text style={styles.navButtonText} numberOfLines={1}>
+              {item.label}
+            </Text>}
+          </View>
+          {item?.data  && <Text style={styles.navButtonSubtext} numberOfLines={1}>{item.label}</Text>}
+          {(item?.data && !isFocused) && <View style={styles.progressBarNavBtn} />}
+        </View>
+      </Pressable>
+    );
   };
 
   const renderError = () => (
     <View style={styles.errorContainer}>
       <View style={styles.errorContent}>
-        <Image source={imagepath.TvIcon} style={styles.errorIcon} />
+        {imagepath.TvIcon && (
+          <Image source={imagepath.TvIcon} style={styles.errorIcon} />
+        )}
         <Text style={styles.errorTitle}>Connection Error</Text>
         <Text style={styles.errorMessage}>
           Unable to load the live channel. Please check your connection and try
@@ -209,9 +411,10 @@ const LiveChannelPlayScreen = () => {
           ]}
           onPress={handleReload}
           onFocus={() => handleFocus('retry')}
-          onBlur={handleBlur}
           activeOpacity={1}>
-          <Image source={imagepath.reload} style={styles.retryIcon} />
+          {imagepath.reload && (
+            <Image source={imagepath.reload} style={styles.retryIcon} />
+          )}
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -246,12 +449,24 @@ const LiveChannelPlayScreen = () => {
           {/* Top info section */}
           <View style={styles.topInfoSection}>
             <View style={styles.topLeftInfo}>
-              <Image source={imagepath.tv} style={styles.tvLogo} />
+              {imagepath.tv && (
+                <FastImage
+                  source={
+                    currentlyPlaying?.stream_icon
+                      ? {
+                          uri: getProxyImageUrl(currentlyPlaying?.stream_icon)!,
+                          priority: 'high',
+                        }
+                      : imagepath.tv
+                  }
+                  resizeMode="contain"
+                  style={styles.tvLogo}
+                />
+              )}
               <View style={styles.channelInfoSection}>
                 <Text style={styles.noInfoText}>No information</Text>
                 <View style={styles.channelDetailsRow}>
-                  <Text style={styles.channelNumber}>1</Text>
-                  <Text style={styles.channelDetails}>16K | {channelName}</Text>
+                  <Text style={styles.channelDetails}>{channelName}</Text>
                   <View style={styles.qualityBadges}>
                     <View style={styles.qualityBadge}>
                       <Text style={styles.qualityText}>4K</Text>
@@ -275,88 +490,14 @@ const LiveChannelPlayScreen = () => {
 
           {/* Bottom navigation buttons */}
           <View style={styles.bottomNavigationBar}>
-            {/* TV Guide button */}
-            <Pressable
-              style={[
-                styles.navButton,
-                focused === 'tvGuide' && styles.navButtonFocused,
-              ]}
-              onPress={() => {}}
-              onFocus={() => handleFocus('tvGuide')}
-              onBlur={handleBlur}
-              hasTVPreferredFocus={false}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="TV Guide"
-              accessibilityHint="Navigate to TV Guide">
-              <View style={styles.navButtonIcon}>
-                <Image
-                  source={imagepath.tvGuide}
-                  style={{
-                    width: scale(48),
-                    height: scale(48),
-                    tintColor: CommonColors.white,
-                    marginBottom: verticalScale(8),
-                  }}
-                />
-                <Text style={styles.navButtonText}>TV guide</Text>
-              </View>
-            </Pressable>
-
-            {/* History button */}
-            <Pressable
-              style={[
-                styles.navButton,
-                focused === 'history' && styles.navButtonFocused,
-              ]}
-              onPress={() => {}}
-              onFocus={() => handleFocus('history')}
-              onBlur={handleBlur}
-              hasTVPreferredFocus={false}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="History"
-              accessibilityHint="View viewing history">
-              <View style={styles.navButtonIcon}>
-                <Image
-                  source={imagepath.history}
-                  style={{
-                    width: scale(48),
-                    height: scale(48),
-                    tintColor: CommonColors.white,
-                    marginBottom: verticalScale(8),
-                  }}
-                />
-                <Text style={styles.navButtonText}>History</Text>
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={[
-                styles.navButton,
-                focused === 'clear' && styles.navButtonFocused,
-              ]}
-              onPress={() => {}}
-              onFocus={() => handleFocus('clear')}
-              onBlur={handleBlur}
-              hasTVPreferredFocus={false}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Clear"
-              accessibilityHint="Clear current selection">
-              <View style={styles.navButtonIcon}>
-                <Image
-                  source={imagepath.history}
-                  style={{
-                    width: scale(48),
-                    height: scale(48),
-                    tintColor: CommonColors.white,
-                    marginBottom: verticalScale(8),
-                  }}
-                />
-                <Text style={styles.navButtonText}>Clear</Text>
-              </View>
-            </Pressable>
+            <FlatList
+              data={navigationItems}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={item => item.id}
+              renderItem={renderNavigationItem}
+              contentContainerStyle={styles.flatListContent}
+            />
           </View>
 
           {/* Down arrow indicator */}
@@ -381,7 +522,7 @@ const LiveChannelPlayScreen = () => {
         {!error && (
           <Video
             ref={videoRef}
-            source={{uri: streamUrl}}
+            source={{uri: currentlyPlaying?.url}}
             style={styles.videoPlayer}
             volume={volume}
             muted={muted}
@@ -410,6 +551,13 @@ const LiveChannelPlayScreen = () => {
           style={styles.touchOverlay}
           onPress={resetControlsTimer}
           activeOpacity={1}
+        />
+
+        {/* TV Guide Modal */}
+        <TvGuideModal
+          visible={showTvGuide}
+          onClose={handleTvGuideClose}
+          channelData={channel}
         />
       </View>
     </MainLayout>

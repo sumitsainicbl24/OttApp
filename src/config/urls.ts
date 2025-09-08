@@ -50,6 +50,13 @@ export const mylistCheckUrl = getApiUrl('/mylist/check');
 
 export const homepageUrl = getApiUrl('/homepage-new');
 
+export const saveHistoryUrl = getApiUrl('/livetvhistory');
+
+export const getLiveTvHistoryUrl = getApiUrl('/livetvhistory');
+
+
+export const clearLiveTvHistoryUrl = getApiUrl('/livetvhistory/clear');
+
 // movie details urls
 export const ShowDetailsApi = 'http://www.omdbapi.com';
 export const DIAtunnelBaseUrl = `http://line.diatunnel.link/player_api.php?username=${USERNAME}&password=${PASSWORD}&action=get_vod_info&vod_id=`;

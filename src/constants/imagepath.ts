@@ -66,6 +66,7 @@ export default{
     continueWatching5:require('../assets/images/continueWatching5.png'),
 
     TvDemoImage:require('../assets/images/TvDemoImage.jpg'),
+    clear:require('../assets/images/delete.png'),
     
 
 }

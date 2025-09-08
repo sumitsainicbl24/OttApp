@@ -64,6 +64,7 @@ interface ShowChannelCatCarouselProps {
     duration: string;
   }) => void;
   loading?: boolean;
+  handleBlockPress?: (show: ShowData) => void;
 }
 
 const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
@@ -80,6 +81,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   setChannelUrl,
   setProgramDetails,
   loading = false,
+  handleBlockPress,
 }) => {
   const flashListRef = useRef<FlashList<ShowData>>(null);
   const timelineScrollRef = useRef<ScrollView>(null);
@@ -323,6 +325,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   const renderShowItem = React.useCallback(
     ({item, index}: {item: ShowData; index: number}) => (
       <ShowChannelCatCard
+        handleBlockPress={handleBlockPress}
         show={item}
         channelIndex={index}
         onPress={() => handleShowPress(item)}

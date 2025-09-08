@@ -75,7 +75,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
   // Memoize the container style
   const containerStyle = useMemo(() => [
     styles.sideNavigationContainer, 
-    focusedItem && {width: scale(410)}
+    focusedItem && {width: scale(250)}
   ], [focusedItem])
 
   // Memoize the logo section

@@ -295,6 +295,13 @@ export const formatTime = (seconds: number): string => {
   return `${minutes} m ${secs < 10 ? '0' : ''}${secs} s left`;
 }; 
 
+export const getProxyImageUrl = (url: any) => {
+  if (!url) return null;
 
+  // Remove protocol (weserv requires host/path only)
+  const cleanUrl = url.replace(/^https?:\/\//, '');
+
+  return `https://images.weserv.nl/?url=${cleanUrl}`;
+};
 
 

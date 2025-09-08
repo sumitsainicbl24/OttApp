@@ -15,7 +15,7 @@ import FontFamily from '../constants/FontFamily';
 import imagepath from '../constants/imagepath';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {MainStackParamList} from '../navigation/NavigationsTypes';
-import {imageResolutionHandlerForUrl} from '../utils/CommonFunctions';
+import {getProxyImageUrl, imageResolutionHandlerForUrl} from '../utils/CommonFunctions';
 import {setCurrentlyPlaying} from '../redux/reducers/main';
 import {useDispatch} from 'react-redux';
 import SimpleMarquee from './MarqueeText';
@@ -50,7 +50,12 @@ interface ShowChannelCatCardProps {
     duration: string;
   }) => void;
   timelineConfig?: any;
-  onProgramFocusWithAutoScroll?: (channelIndex: number, programIndex: number, programPosition: any) => void;
+  onProgramFocusWithAutoScroll?: (
+    channelIndex: number,
+    programIndex: number,
+    programPosition: any,
+  ) => void;
+  handleBlockPress?: () => void;
 }
 
 const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
@@ -64,6 +69,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   setProgramDetails,
   timelineConfig: externalTimelineConfig,
   onProgramFocusWithAutoScroll,
+  handleBlockPress,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
@@ -83,7 +89,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   const handleProgramFocus = (event: any, programIndex: number) => {
     setFocusedProgramIndex(programIndex);
     onFocus?.(event, programIndex);
-    
+
     // Set program details without changing the stream URL
     if (setProgramDetails) {
       const programDetails = getProgramDetails(programIndex);
@@ -93,9 +99,16 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     // Trigger auto-scroll if program is near the edge of visible area
     if (onProgramFocusWithAutoScroll) {
       // Get the program position for timeline-based programs
-      if (programPositions.length > 0 && programIndex < programPositions.length) {
+      if (
+        programPositions.length > 0 &&
+        programIndex < programPositions.length
+      ) {
         const programPosition = programPositions[programIndex];
-        onProgramFocusWithAutoScroll(channelIndex, programIndex, programPosition);
+        onProgramFocusWithAutoScroll(
+          channelIndex,
+          programIndex,
+          programPosition,
+        );
       }
       // For fallback programs, we don't have precise positioning, so skip auto-scroll
     }
@@ -123,12 +136,15 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     // Get program data from either timeline positions or fallback programs
     let programData = null;
     let epgData = null;
-    
+
     if (programPositions.length > 0 && programIndex < programPositions.length) {
       // Use timeline program data
       programData = programPositions[programIndex];
       epgData = programData.program; // Timeline positions have EPG data in .program
-    } else if (fallbackPrograms.length > 0 && programIndex < fallbackPrograms.length) {
+    } else if (
+      fallbackPrograms.length > 0 &&
+      programIndex < fallbackPrograms.length
+    ) {
       // Use fallback program data
       programData = fallbackPrograms[programIndex];
       epgData = programData.epgData; // Fallback programs have EPG data in .epgData
@@ -145,7 +161,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
           const startTime = new Date(parseInt(epgData.start_timestamp) * 1000);
           const endTime = new Date(parseInt(epgData.stop_timestamp) * 1000);
           const now = new Date();
-          
+
           // Format time slot
           const formatTime = (date: Date) => {
             const hours = date.getHours();
@@ -154,19 +170,22 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             const ampm = hours >= 12 ? 'PM' : 'AM';
             return `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
           };
-          
+
           timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
-          
+
           // Only calculate progress percentage for current programs
           if (programData.duration === 'current') {
             const totalDuration = endTime.getTime() - startTime.getTime();
             const elapsed = now.getTime() - startTime.getTime();
-            progressPercentage = Math.max(0, Math.min(100, (elapsed / totalDuration) * 100));
+            progressPercentage = Math.max(
+              0,
+              Math.min(100, (elapsed / totalDuration) * 100),
+            );
           } else {
             // For future programs, set progress to 0
             progressPercentage = 0;
           }
-          
+
           // Calculate duration
           const durationMs = endTime.getTime() - startTime.getTime();
           const durationMinutes = Math.round(durationMs / (1000 * 60));
@@ -180,11 +199,11 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         const now = new Date();
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
-        
+
         // Generate time slots based on program index and current time
         let startHour = currentHour;
         let startMinute = Math.floor(currentMinute / 30) * 30; // Round to nearest 30 minutes
-        
+
         if (programData.duration === 'current') {
           // Current program starts at current time
           startHour = currentHour;
@@ -205,26 +224,29 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             startHour = (startHour + 1) % 24;
           }
         }
-        
+
         const endMinute = startMinute + 30;
         let endHour = startHour;
         let finalEndMinute = endMinute;
-        
+
         if (endMinute >= 60) {
           finalEndMinute = endMinute - 60;
           endHour = (startHour + 1) % 24;
         }
-        
+
         // Format time slot
         const formatTime = (hour: number, minute: number) => {
           const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
           const ampm = hour >= 12 ? 'PM' : 'AM';
           return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
         };
-        
-        timeSlot = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, finalEndMinute)}`;
+
+        timeSlot = `${formatTime(startHour, startMinute)} - ${formatTime(
+          endHour,
+          finalEndMinute,
+        )}`;
         duration = '30 min';
-        
+
         // Only show progress for current programs
         if (programData.duration === 'current') {
           progressPercentage = 65; // Default progress for current programs without EPG
@@ -268,6 +290,14 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   };
 
   const handlePress = (index: number) => {
+    dispatch(
+      setCurrentlyPlaying({
+        ...show,
+        type: 'live', // Mark this as a live TV channel
+        url: show.url,
+      }),
+    );
+    handleBlockPress?.();
     if (streamUrl === show.url) {
       handleDoubleClick();
       setLastTap(null);
@@ -294,7 +324,8 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   // Use external timeline configuration or create default one for 24 hours
   const timelineConfig = React.useMemo(
     () =>
-      externalTimelineConfig || createTimelineConfig(30, 48, moderateScale(200)),
+      externalTimelineConfig ||
+      createTimelineConfig(30, 48, moderateScale(200)),
     [externalTimelineConfig],
   );
 
@@ -318,14 +349,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   const fallbackPrograms = React.useMemo(() => {
     return processEPGData(show.epg || []);
   }, [show.epg, show.title]);
-  const getProxyImageUrl = (url: any) => {
-    if (!url) return null;
 
-    // Remove protocol (weserv requires host/path only)
-    const cleanUrl = url.replace(/^https?:\/\//, '');
-
-    return `https://images.weserv.nl/?url=${cleanUrl}`;
-  };
   return (
     <View style={styles.channelRow}>
       <View style={styles.channelInfo}>
@@ -373,7 +397,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
                   {
                     left: position.left,
                     width: position.width,
-                    backgroundColor: 'rgba(27,30,33,1)',
+                    backgroundColor: 'rgba(27,30,33,0.5)',
                   },
                   focusedProgramIndex === index && styles.programBlockFocused,
                 ]}
@@ -501,13 +525,12 @@ const styles = StyleSheet.create({
   programBlock: {
     // flex: 1,
     // height: moderateScale(44),
-    width: "100%",
+    width: '100%',
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(12),
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
-   
   },
   programBlockFocused: {
     borderColor: CommonColors.white,
