@@ -408,14 +408,13 @@ export const styles = StyleSheet.create({
   // TV Guide Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(25, 24, 24, 0.76)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   modalContent: {
     width: screenWidth,
     height: screenHeight,
-    backgroundColor: 'transparent',
+    // backgroundColor: 'transparent',
+    backgroundColor: 'rgba(25, 24, 24, 0.76)',
   },
   closeButton: {
     position: 'absolute',

@@ -1,6 +1,6 @@
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Image,
   ImageSourcePropType,
@@ -9,17 +9,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import FontFamily from '../constants/FontFamily';
 import imagepath from '../constants/imagepath';
-import { MainStackParamList } from '../navigation/NavigationsTypes';
-import {
-  addToMyListApi,
-  removeFromMyList
-} from '../redux/actions/main';
-import { RootState } from '../redux/store';
-import { CommonColors } from '../styles/Colors';
-import { moderateScale, scale, verticalScale } from '../styles/scaling';
+import {MainStackParamList} from '../navigation/NavigationsTypes';
+import {addToMyListApi, removeFromMyList} from '../redux/actions/main';
+import {RootState} from '../redux/store';
+import {CommonColors} from '../styles/Colors';
+import {moderateScale, scale, verticalScale} from '../styles/scaling';
 
 interface ShowData {
   title: string;
@@ -37,6 +34,7 @@ interface ShowDetailsProps {
   showDetails?: any;
   onFocus?: () => void;
   PosterMovieName?: any;
+  showButtons?: boolean;
 }
 
 const ShowDetails: React.FC<ShowDetailsProps> = ({
@@ -45,6 +43,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   showDetails,
   onFocus,
   PosterMovieName,
+  showButtons = true,
 }) => {
   const [focused, setFocused] = useState<string | null>(null);
   const [isInMyList, setIsInMyList] = useState<boolean>(false);
@@ -86,7 +85,9 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   return (
     <View style={styles.featuredContainer}>
       {/* <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} /> */}
-      <Text style={styles.title} numberOfLines={2}>{showDetails?.info?.name}</Text>
+      <Text style={styles.title} numberOfLines={2}>
+        {showDetails?.info?.name}
+      </Text>
       <View style={styles.metadataContainer}>
         <Text style={styles.metadataText}>
           {moment(showDetails?.info?.releasedate).format('YYYY')}
@@ -96,41 +97,43 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
         <Text style={styles.metadataText}>{showDetails?.info?.rating}</Text>
       </View>
 
-      <View style={styles.actionButtonsContainer}>
-        <TouchableOpacity
-          style={[
-            styles.playButton,
-            focused === 'play' && styles.playButtonFocused,
-          ]}
-          onPress={onPlayPress}
-          activeOpacity={1}
-          onFocus={() => handleFocus('play')}
-          onBlur={handleBlur}>
-          <Image
-            source={imagepath.playIconWhite}
-            style={styles.playIconPlaceholder}
-          />
-          <Text style={styles.playButtonText}>Play Now</Text>
-        </TouchableOpacity>
+      {showButtons && (
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity
+            style={[
+              styles.playButton,
+              focused === 'play' && styles.playButtonFocused,
+            ]}
+            onPress={onPlayPress}
+            activeOpacity={1}
+            onFocus={() => handleFocus('play')}
+            onBlur={handleBlur}>
+            <Image
+              source={imagepath.playIconWhite}
+              style={styles.playIconPlaceholder}
+            />
+            <Text style={styles.playButtonText}>Play Now</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.myListButton,
-            focused === 'myList' && styles.myListButtonFocused,
-          ]}
-          onPress={
-            // onMyListPress
-            handleMyListPress
-          }
-          activeOpacity={1}
-          onFocus={() => handleFocus('myList')}
-          onBlur={handleBlur}>
-          <Text style={styles.plusSymbol}>{isInMyList ? '-' : '+'}</Text>
-          <Text style={styles.myListButtonText}>
-            {isInMyList ? 'Remove from My List' : 'Add to My List'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={[
+              styles.myListButton,
+              focused === 'myList' && styles.myListButtonFocused,
+            ]}
+            onPress={
+              // onMyListPress
+              handleMyListPress
+            }
+            activeOpacity={1}
+            onFocus={() => handleFocus('myList')}
+            onBlur={handleBlur}>
+            <Text style={styles.plusSymbol}>{isInMyList ? '-' : '+'}</Text>
+            <Text style={styles.myListButtonText}>
+              {isInMyList ? 'Remove from My List' : 'Add to My List'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <View style={styles.descriptionContainer}>
         <Text numberOfLines={3} style={styles.description}>

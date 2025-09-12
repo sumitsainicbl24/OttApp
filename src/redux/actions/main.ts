@@ -5,6 +5,7 @@ import {
   addToMyListUrl,
   clearLiveTvHistoryUrl,
   clearMyListUrl,
+  clearSingleChannelHistoryUrl,
   continueWatchingCurrentUrl,
   continueWatchingGetUrl,
   continueWatchingUpdateUrl,
@@ -250,6 +251,7 @@ export const continueWatchingCurrentApi = async (data: any) => {
 export const getHomepageApi = async () => {
   try {
     const response = await apiGet(homepageUrl);
+    console.log('response from homepage--->>>>>', response);
     return response;
   } catch (error) {
     console.log('error from homepage', error);
@@ -267,14 +269,19 @@ export const saveHistoryApi = async (channel: channelData) => {
   }
 };
 
+export const clearSingleChannelHistoryApi = async (data: any) => {
+  try {
+    const response = await apiPost(clearSingleChannelHistoryUrl, data, undefined, true);
+    return response;
+  } catch (error) {
+    console.log('error from homepage', error);
+    return null;
+  }
+};
+
 export const clearLiveTvHistoryApi = async () => {
   try {
-    const response = await apiPost(
-      clearLiveTvHistoryUrl,
-      {},
-      undefined,
-      true,
-    );
+    const response = await apiPost(clearLiveTvHistoryUrl, {}, undefined, true);
     return response;
   } catch (error) {
     console.log('error from homepage', error);
@@ -285,12 +292,24 @@ export const clearLiveTvHistoryApi = async () => {
 export const getLiveTvHistoryApi = async () => {
   try {
     const response = await apiGet(getLiveTvHistoryUrl, undefined, true);
+    console.log('response from getLiveTvHistoryApi--->>>', response);
     return response;
   } catch (error) {
     console.log('error from homepage', error);
     return null;
   }
 };
+
+export const getLiveTvHistoryApiWithDateApi = async () => {
+  try {
+    const response = await apiGet(`${getLiveTvHistoryUrl}/date`, undefined, true);
+    return response;
+  } catch (error) {
+    console.log('error from homepage', error);
+    return null;
+  }
+};
+
 
 export const getDiaPosterDetail = async (stream_id: string) => {
   const response = await apiGet(`${DIAtunnelBaseUrl}${stream_id}`);

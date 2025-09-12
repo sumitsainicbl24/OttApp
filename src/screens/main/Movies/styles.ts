@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
   
   scrollContainer: {
     flex: 1,
+    zIndex: 1000,
     // backgroundColor: CommonColors.themeMain,
     // marginTop: -moderateScale(150),
   },

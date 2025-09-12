@@ -15,7 +15,10 @@ import FontFamily from '../constants/FontFamily';
 import imagepath from '../constants/imagepath';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {MainStackParamList} from '../navigation/NavigationsTypes';
-import {getProxyImageUrl, imageResolutionHandlerForUrl} from '../utils/CommonFunctions';
+import {
+  getProxyImageUrl,
+  imageResolutionHandlerForUrl,
+} from '../utils/CommonFunctions';
 import {setCurrentlyPlaying} from '../redux/reducers/main';
 import {useDispatch} from 'react-redux';
 import SimpleMarquee from './MarqueeText';
@@ -285,6 +288,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         ...show,
         url: show.url,
         type: 'live',
+        epg: show?.epg?.[0]!,
       },
     });
   };

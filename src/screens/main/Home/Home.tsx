@@ -162,7 +162,7 @@ const Home = () => {
           barStyle="light-content"
         />
 
-    <LinearGradient
+        <LinearGradient
           colors={[
             'rgba(0, 0, 0, 1)',
             'rgba(0, 0, 0, 1)',
@@ -188,11 +188,11 @@ const Home = () => {
             end={{x: 1, y: 0}}
             style={styles.homeGradientFocused}
           />
-        )} 
+        )}
 
         {!PosterMovieName?.info?.youtube_trailer ? (
           <ImageBackground
-            source={getImageSource(PosterMovieName?.info)}
+            source={{uri: PosterMovieName?.info?.backdrop_path?.[0]}}
             style={{
               ...styles.backgroundImagePlaceholder,
             }}

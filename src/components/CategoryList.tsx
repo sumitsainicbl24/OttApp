@@ -1,5 +1,5 @@
 import React, {useState, useRef, useMemo, useEffect, useCallback} from 'react';
-import {View, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, StyleProp, ViewStyle} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {samepleCategoryData} from '../screens/main/Movies/DummyData';
 import FontFamily from '../constants/FontFamily';
@@ -20,6 +20,8 @@ interface CategoryListProps {
   categories?: CategoryInput[];
   selectedCategory?: CategoryInput;
   onFocus?: (category: number) => void;
+  onBlur?: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 type NormalizedCategory = {
@@ -36,6 +38,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
   categories,
   selectedCategory,
   onFocus,
+  onBlur,
+  style,
 }) => {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [containerHeight, setContainerHeight] = useState(400);
@@ -175,11 +179,11 @@ const CategoryList: React.FC<CategoryListProps> = ({
 
   // Memoize focus handler
   const handleFocus = useCallback(
-    (index: number, categoryId: string) => {
+    (index: number, categoryId: string, categoryName: string) => {
       // Convert the index from the padded list back to the original index
       const originalIndex = index - PADDING_ITEMS; // Remove the top padding offset
       setFocusedIndex(originalIndex);
-      onFocus?.(Number(categoryId));
+      onFocus?.(Number(categoryId), categoryName);
       scrollToIndex(index);
     },
     [onFocus, scrollToIndex],
@@ -188,6 +192,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   // Memoize blur handler
   const handleBlur = useCallback(() => {
     setFocusedIndex(null);
+    onBlur?.();
   }, []);
 
   // Memoize layout handler
@@ -210,17 +215,21 @@ const CategoryList: React.FC<CategoryListProps> = ({
         );
       }
 
-      const categoryItem = item.data;
+      const categoryItem:any = item.data;
       const isSelected = categoryItem.id === selectedCategoryId;
-      const isFocused = focusedIndex === index - PADDING_ITEMS; // Adjust for padding offset
+      const isFocused = focusedIndex === index - PADDING_ITEMS;
+
 
       return (
         <TouchableOpacity
           style={[
             styles.categoryItem,
             (isFocused || isSelected) && styles.categoryItemFocused,
+            style
           ]}
-          onFocus={() => handleFocus(index, categoryItem.id)}
+          onFocus={() =>
+            handleFocus(index, categoryItem.id, categoryItem?.name)
+          }
           onBlur={handleBlur}
           activeOpacity={1}>
           <SimpleMarquee

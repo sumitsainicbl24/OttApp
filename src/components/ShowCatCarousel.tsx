@@ -80,11 +80,6 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
     return Math.max(minColumns, maxColumns);
   }, [horizontal]);
 
-  // Create a debounced version of getMovieDetails
-  const debouncedGetMovieDetails = useMemo(
-    () => (getMovieDetails ? debounce(getMovieDetails, 300) : undefined),
-    [getMovieDetails],
-  );
 
   const handleShowPress = (show: ShowData) => {
     console.log(show, 'showshowshow');
@@ -100,9 +95,8 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   };
 
   const handleItemFocus = (index: number, item: ShowData) => {
+    console.log('item-->>>>>>>', item)
     onFocus?.(item);
-    debouncedGetMovieDetails?.(item?.title);
-    // scrollToRow(index)
   };
 
   const renderShowItem = ({item, index}: {item: ShowData; index: number}) =>{

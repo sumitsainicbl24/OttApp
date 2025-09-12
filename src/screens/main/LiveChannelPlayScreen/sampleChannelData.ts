@@ -1,0 +1,128 @@
+// Sample channel data for testing the ChannelList component
+export const sampleChannelData = [
+  {
+    "num": 1,
+    "name": "4K | NPO 1",
+    "stream_type": "live",
+    "stream_id": 2995,
+    "stream_icon": "https://logo.diamondtv.one/images/logos/NEDERLAND-NEW1/NPO1.png",
+    "epg_channel_id": "npo1.nl",
+    "added": "1572546370",
+    "is_adult": 0,
+    "category_id": "362",
+    "category_ids": [362],
+    "custom_sid": "",
+    "tv_archive": 0,
+    "direct_source": "",
+    "tv_archive_duration": 0,
+    "title": "4K | NPO 1",
+    "logo": "https://logo.diamondtv.one/images/logos/NEDERLAND-NEW1/NPO1.png",
+    "group": "",
+    "url": "http://line.diatunnel.link:80/mrKQdWmJ/jSxeKrs/2995",
+    "epg": [
+      {
+        "id": "135291144",
+        "epg_id": "12",
+        "title": "TWNEb25hbGQgYW5kIERvZGRz",
+        "lang": "en",
+        "start": "2025-09-08 00:20:00",
+        "end": "2025-09-08 01:50:00",
+        "description": "V2FubmVlciBlZW4gbGljaGFhbSB3b3JkdCBnZXZvbmRlbiBpbiBlZW4gb25kaWVwIGdyYWYsIGluIGRlIHNjaGFkdXcgdmFuIGRlIEdsYXN0b25idXJ5IFRvciwgd29yZHQgZWVuIHNpbmlzdGVyZSByZWVrcyBnZWJldXJ0ZW5pc3NlbiBnZWFjdGl2ZWVyZCwgZGllIGFsbGVlbiBEUyBEb2RkcyBrYW4gb250Y2lqZmVyZW4u",
+        "channel_id": "npo1.nl",
+        "start_timestamp": "1757283600",
+        "stop_timestamp": "1757289000",
+        "now_playing": 0,
+        "has_archive": 0
+      },
+      {
+        "id": "135291145",
+        "epg_id": "12",
+        "title": "Tk9TIEpvdXJuYWFs",
+        "lang": "en",
+        "start": "2025-09-08 01:50:00",
+        "end": "2025-09-08 02:00:00",
+        "description": "TWV0IGhldCBsYWF0c3RlIG5pZXV3cywgZ2ViZXVydGVuaXNzZW4gdmFuIG5hdGlvbmFhbCBlbiBpbnRlcm5hdGlvbmFhbCBiZWxhbmcgZW4gZGUgd2VlcnN2ZXJ3YWNodGluZyB2b29yIGRlIGF2b25kIGVuIGtvbWVuZGUgZGFnZW4u",
+        "channel_id": "npo1.nl",
+        "start_timestamp": "1757289000",
+        "stop_timestamp": "1757289600",
+        "now_playing": 0,
+        "has_archive": 0
+      }
+    ],
+    "type": "live"
+  },
+  {
+    "num": 2,
+    "name": "4K | NPO 2",
+    "stream_type": "live",
+    "stream_id": 2996,
+    "stream_icon": "https://logo.diamondtv.one/images/logos/NEDERLAND-NEW1/NPO2.png",
+    "epg_channel_id": "npo2.nl",
+    "added": "1572546370",
+    "is_adult": 0,
+    "category_id": "362",
+    "category_ids": [362],
+    "custom_sid": "",
+    "tv_archive": 0,
+    "direct_source": "",
+    "tv_archive_duration": 0,
+    "title": "4K | NPO 2",
+    "logo": "https://logo.diamondtv.one/images/logos/NEDERLAND-NEW1/NPO2.png",
+    "group": "",
+    "url": "http://line.diatunnel.link:80/mrKQdWmJ/jSxeKrs/2996",
+    "epg": [
+      {
+        "id": "135291146",
+        "epg_id": "13",
+        "title": "Tk9TIEpvdXJuYWFs",
+        "lang": "en",
+        "start": "2025-09-08 00:00:00",
+        "end": "2025-09-08 01:00:00",
+        "description": "TWV0IGhldCBsYWF0c3RlIG5pZXV3cywgZ2ViZXVydGVuaXNzZW4gdmFuIG5hdGlvbmFhbCBlbiBpbnRlcm5hdGlvbmFhbCBiZWxhbmcgZW4gZGUgd2VlcnN2ZXJ3YWNodGluZyB2b29yIGRlIGF2b25kIGVuIGtvbWVuZGUgZGFnZW4u",
+        "channel_id": "npo2.nl",
+        "start_timestamp": "1757280000",
+        "stop_timestamp": "1757283600",
+        "now_playing": 1,
+        "has_archive": 0
+      }
+    ],
+    "type": "live"
+  },
+  {
+    "num": 3,
+    "name": "4K | NPO 3",
+    "stream_type": "live",
+    "stream_id": 2997,
+    "stream_icon": "https://logo.diamondtv.one/images/logos/NEDERLAND-NEW1/NPO3.png",
+    "epg_channel_id": "npo3.nl",
+    "added": "1572546370",
+    "is_adult": 0,
+    "category_id": "362",
+    "category_ids": [362],
+    "custom_sid": "",
+    "tv_archive": 0,
+    "direct_source": "",
+    "tv_archive_duration": 0,
+    "title": "4K | NPO 3",
+    "logo": "https://logo.diamondtv.one/images/logos/NEDERLAND-NEW1/NPO3.png",
+    "group": "",
+    "url": "http://line.diatunnel.link:80/mrKQdWmJ/jSxeKrs/2997",
+    "epg": [
+      {
+        "id": "135291147",
+        "epg_id": "14",
+        "title": "R29lZGVtb3JnZW4gTmVkZXJsYW5k",
+        "lang": "en",
+        "start": "2025-09-08 00:00:00",
+        "end": "2025-09-08 01:00:00",
+        "description": "T2NodGVuZHNob3cuIEFjdHVhbGl0ZWl0IG1ldCBlZW4gZm9jdXMgb3AgcG9saXRpZWssIGVjb25vbWllLCB2ZWlsaWdoZWlkIGVuIGRlIE5lZGVybGFuZHNlIGlkZW50aXRlaXQu",
+        "channel_id": "npo3.nl",
+        "start_timestamp": "1757280000",
+        "stop_timestamp": "1757283600",
+        "now_playing": 0,
+        "has_archive": 0
+      }
+    ],
+    "type": "live"
+  }
+];

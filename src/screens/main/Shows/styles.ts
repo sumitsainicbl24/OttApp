@@ -48,8 +48,9 @@ export const styles = StyleSheet.create({
   },
   
   scrollContainer: {
-    flex: 1,
+    flex: 0.9,
     width:width,
+    zIndex: 1000,
     // backgroundColor: CommonColors.themeMain,
     // marginTop: -moderateScale(150),
   },

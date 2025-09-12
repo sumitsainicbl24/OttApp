@@ -149,46 +149,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
     scrollToRow(index);
   };
 
-  // Generate timeline data starting from current time with 30-minute intervals for 24 hours
-  const generateTimelineData = (): TimelineItem[] => {
-    const timeline: TimelineItem[] = [];
-    const now = new Date();
 
-    // Start from the current time, rounded down to nearest 30-minute slot
-    const startTime = new Date(now);
-    const currentMinutes = startTime.getMinutes();
-    const roundedMinutes = Math.floor(currentMinutes / 30) * 30;
-    startTime.setMinutes(roundedMinutes, 0, 0);
-
-    // Generate 48 time slots (24 hours worth of 30-minute intervals)
-    for (let i = 0; i < 48; i++) {
-      const slotTime = new Date(startTime.getTime() + i * 30 * 60 * 1000); // 30-minute intervals
-      const nextSlotTime = new Date(slotTime.getTime() + 30 * 60 * 1000); // Next 30-minute slot
-
-      const formatTime = (date: Date) => {
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const hour12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        return `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-      };
-
-      const startTimeStr = formatTime(slotTime);
-      const endTimeStr = formatTime(nextSlotTime);
-
-      timeline.push({
-        id: `time-slot-${i}`,
-        startTime: startTimeStr,
-        middleTime: startTimeStr, // For 30-minute slots, start and middle are the same
-        endTime: endTimeStr,
-        displayTimeRange: `${startTimeStr}  -  ${endTimeStr}`,
-        startTimestamp: slotTime.getTime(),
-        endTimestamp: nextSlotTime.getTime(),
-      });
-    }
-
-    return timeline;
-  };
 
   // Create timeline configuration for 24 hours (48 slots of 30 minutes each)
   const timelineConfig = useMemo(

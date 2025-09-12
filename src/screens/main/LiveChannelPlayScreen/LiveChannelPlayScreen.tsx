@@ -28,12 +28,15 @@ import {RootState} from '../../../redux/store';
 import {CommonColors} from '../../../styles/Colors';
 import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
 import TvGuideModal from './TvGuideModal';
+import HistoryModal from './HistoryModal';
 
 import {MainStackParamList} from '../../../navigation/NavigationsTypes';
 
 import {
   clearLiveTvHistoryApi,
+  clearSingleChannelHistoryApi,
   getLiveTvHistoryApi,
+  getLiveTvHistoryApiWithDateApi,
   saveHistoryApi,
 } from '../../../redux/actions/main';
 import {setCurrentlyPlaying} from '../../../redux/reducers/main';
@@ -41,6 +44,7 @@ import {channelData} from '../Tv/TvWithoutMediaPlayer';
 import {styles} from './styles';
 import FastImage from 'react-native-fast-image';
 import {getProxyImageUrl} from '../../../utils/CommonFunctions';
+import LeftChannelModal from './LeftChannelModal';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
@@ -69,8 +73,11 @@ const LiveChannelPlayScreen = () => {
   const [networkError, setNetworkError] = useState(false);
   const [showTvGuide, setShowTvGuide] = useState(false);
   const [tvGuideLoading, setTvGuideLoading] = useState(false);
+  const [showLeftChannelModal, setShowLeftChannelModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
   const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyDataWithDate, setHistoryDataWithDate] = useState<any[]>([]);
   const [channelName, setChannelName] = useState(
     channel?.name || channel?.title || 'Live Channel',
   );
@@ -84,7 +91,7 @@ const LiveChannelPlayScreen = () => {
   const navigationItems: NavigationItem[] = [
     {id: 'tvGuide', type: 'button', label: 'TV Guide', icon: 'tvGuide'},
     {id: 'history', type: 'button', label: 'History', icon: 'history'},
-    ...historyData.map((item, index) => ({
+    ...historyData?.map((item, index) => ({
       id: `historyItem_${index}`,
       type: 'historyItem' as const,
       label: item.name,
@@ -102,12 +109,11 @@ const LiveChannelPlayScreen = () => {
     }
   }, [currentlyPlaying]);
 
-
-
   useEffect(() => {
     if (userToken) {
       getLiveTvHistory();
       saveHistory(channel);
+      getLiveTvHistoryWithDate();
     }
   }, [channel]);
 
@@ -129,10 +135,36 @@ const LiveChannelPlayScreen = () => {
     }
   }
 
+  async function getLiveTvHistoryWithDate() {
+    try {
+      const response = await getLiveTvHistoryApiWithDateApi();
+      console.log('newDataforModal--->>>', response);
+
+      setHistoryDataWithDate(response?.data?.data?.historyByDate);
+    } catch (error) {
+      console.error('Error saving history:', error);
+    }
+  }
+
   async function clearLiveTvHistory() {
     try {
-      const response = await clearLiveTvHistoryApi();
+      await clearLiveTvHistoryApi();
+      const newDataforModal = await getLiveTvHistoryApiWithDateApi();
       const newData = await getLiveTvHistoryApi();
+      setHistoryDataWithDate(newDataforModal?.data?.data?.historyByDate);
+      setHistoryData(newData?.data?.data?.channels);
+      setShowHistoryModal(false);
+    } catch (error) {
+      console.error('Error clearing history:', error);
+    }
+  }
+
+  async function clearSingleChannelHistory(data: any) {
+    try {
+      await clearSingleChannelHistoryApi(data);
+      const newDataforModal = await getLiveTvHistoryApiWithDateApi();
+      const newData = await getLiveTvHistoryApi();
+      setHistoryDataWithDate(newDataforModal?.data?.data?.historyByDate);
       setHistoryData(newData?.data?.data?.channels);
     } catch (error) {
       console.error('Error clearing history:', error);
@@ -163,6 +195,49 @@ const LiveChannelPlayScreen = () => {
     setTvGuideLoading(false);
   };
 
+  const handleLeftChannelModalOpen = () => {
+    setShowControls(false);
+    setShowLeftChannelModal(true);
+  };
+
+  const handleLeftChannelModalClose = () => {
+    setShowLeftChannelModal(false);
+  };
+
+  const handleHistoryModalOpen = () => {
+    setShowControls(false);
+    setShowHistoryModal(true);
+  };
+
+  const handleHistoryModalClose = () => {
+    setShowHistoryModal(false);
+  };
+
+  const handleHistoryItemSelect = (item: any) => {
+    dispatch(
+      setCurrentlyPlaying({
+        ...item,
+        type: 'live',
+      }),
+    );
+    setShowHistoryModal(false);
+  };
+
+  const handleDeleteHistoryItem = async (item: any) => {
+    try {
+      // You can implement individual item deletion API here
+      // For now, we'll just refresh the history list
+      console.log('Deleting history item:', item);
+      let data = {
+        stream_id: item?.stream_id,
+      };
+      await clearSingleChannelHistory(data);
+      const newData = await getLiveTvHistory();
+    } catch (error) {
+      console.error('Error deleting history item:', error);
+    }
+  };
+
   // Navigation functions
   const navigateFocus = (direction: 'left' | 'right') => {
     const totalItems = navigationItems.length;
@@ -170,7 +245,7 @@ const LiveChannelPlayScreen = () => {
 
     // Use ref for more reliable state tracking
     const currentIndex = focusIndexRef.current;
-   
+
     let newIndex = currentIndex;
 
     if (direction === 'left') {
@@ -178,8 +253,6 @@ const LiveChannelPlayScreen = () => {
     } else {
       newIndex = currentIndex < totalItems - 1 ? currentIndex + 1 : 0;
     }
-
-
 
     // Update ref first, then state
     focusIndexRef.current = newIndex;
@@ -193,15 +266,20 @@ const LiveChannelPlayScreen = () => {
 
   // TV remote event handler
   const myTVEventHandler = (evt: any) => {
-    if (evt && evt.eventType === 'select' && !showTvGuide) {
+    if (
+      evt &&
+      evt.eventType === 'select' &&
+      !showTvGuide &&
+      !showHistoryModal &&
+      !showLeftChannelModal
+    ) {
       resetControlsTimer();
-      // Handle select action based on focused element
       const currentItem = navigationItems[focusedIndex];
       if (currentItem) {
         if (currentItem.id === 'tvGuide') {
           handleTvGuidePress();
         } else if (currentItem.id === 'history') {
-          console.log('History button pressed');
+          handleHistoryModalOpen();
         } else if (currentItem.id === 'clear') {
           clearLiveTvHistory();
         } else if (currentItem.type === 'historyItem') {
@@ -215,19 +293,42 @@ const LiveChannelPlayScreen = () => {
           );
         }
       }
-    } else if (evt && evt.eventType === 'up' && !showTvGuide) {
+    } else if (
+      evt &&
+      evt.eventType === 'up' &&
+      !showTvGuide &&
+      !showHistoryModal &&
+      !showLeftChannelModal
+    ) {
       resetControlsTimer();
-    } else if (evt && evt.eventType === 'down' && !showTvGuide) {
+    } else if (
+      evt &&
+      evt.eventType === 'down' &&
+      !showTvGuide &&
+      !showHistoryModal &&
+      !showLeftChannelModal
+    ) {
       resetControlsTimer();
-    } else if (evt && evt.eventType === 'left' && !showTvGuide) {
-      if(showControls){
-
+    } else if (
+      evt &&
+      evt.eventType === 'left' &&
+      !showTvGuide &&
+      !showHistoryModal &&
+      !showLeftChannelModal
+    ) {
+      if (showControls) {
         navigateFocus('left');
+      } else {
+        // Alert.alert("hehehe")
+        handleLeftChannelModalOpen();
       }
-      else{
-        Alert.alert("hehehe")
-      }
-    } else if (evt && evt.eventType === 'right' && !showTvGuide) {
+    } else if (
+      evt &&
+      evt.eventType === 'right' &&
+      !showTvGuide &&
+      !showHistoryModal &&
+      !showLeftChannelModal
+    ) {
       console.log('right pressed');
       navigateFocus('right');
     }
@@ -378,16 +479,29 @@ const LiveChannelPlayScreen = () => {
                   uri: getProxyImageUrl(item?.data?.stream_icon)!,
                   priority: 'high',
                 }}
-                style={styles.navButtonImage}
+                style={{
+                  ...styles.navButtonImage,
+                  width: 30,
+                  height: 30,
+                  borderRadius: moderateScale(6),
+                }}
                 resizeMode="cover"
               />
             )}
-       {!item?.data &&     <Text style={styles.navButtonText} numberOfLines={1}>
-              {item.label}
-            </Text>}
+            {!item?.data && (
+              <Text style={styles.navButtonText} numberOfLines={1}>
+                {item.label}
+              </Text>
+            )}
           </View>
-          {item?.data  && <Text style={styles.navButtonSubtext} numberOfLines={1}>{item.label}</Text>}
-          {(item?.data && !isFocused) && <View style={styles.progressBarNavBtn} />}
+          {item?.data && (
+            <Text style={styles.navButtonSubtext} numberOfLines={1}>
+              {item.label}
+            </Text>
+          )}
+          {item?.data && !isFocused && (
+            <View style={styles.progressBarNavBtn} />
+          )}
         </View>
       </Pressable>
     );
@@ -558,6 +672,23 @@ const LiveChannelPlayScreen = () => {
           visible={showTvGuide}
           onClose={handleTvGuideClose}
           channelData={channel}
+        />
+
+        {/* Left Channel Modal */}
+        <LeftChannelModal
+          visible={showLeftChannelModal}
+          onClose={handleLeftChannelModalClose}
+          channelData={channel}
+        />
+
+        {/* History Modal */}
+        <HistoryModal
+          visible={showHistoryModal}
+          onClose={handleHistoryModalClose}
+          historyData={historyDataWithDate}
+          onItemSelect={handleHistoryItemSelect}
+          // onClearHistory={clearLiveTvHistory}
+          onDeleteItem={handleDeleteHistoryItem}
         />
       </View>
     </MainLayout>

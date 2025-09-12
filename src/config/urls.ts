@@ -1,4 +1,6 @@
-export const API_BASE_URL = 'https://api-ott.netsolutionindia.com/api';
+// export const API_BASE_URL = 'https://api-ott.netsolutionindia.com/api';
+// export const API_BASE_URL = 'http://192.168.102.57:5003/api';
+export const API_BASE_URL = 'https://802b28ccc8ed.ngrok-free.app/api';
 // export const API_BASE_URL = "http://192.168.102.57:5003/api";
 
 const USERNAME = 'mrKQdWmJ';
@@ -51,6 +53,8 @@ export const mylistCheckUrl = getApiUrl('/mylist/check');
 export const homepageUrl = getApiUrl('/homepage-new');
 
 export const saveHistoryUrl = getApiUrl('/livetvhistory');
+
+export const clearSingleChannelHistoryUrl = getApiUrl('/deletesinglelivetvhistory');
 
 export const getLiveTvHistoryUrl = getApiUrl('/livetvhistory');
 

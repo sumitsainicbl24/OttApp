@@ -1,87 +1,110 @@
 // 1. React Native core imports
-import React, { useState } from 'react'
-import { Text, View, TouchableOpacity, ImageBackground, Image } from 'react-native'
+import React, {useState} from 'react';
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  ImageBackground,
+  Image,
+} from 'react-native';
 
 // 2. Navigation imports
-import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import {
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 
 // 3. Redux imports (if needed for future login logic)
 // import { useAppSelector, useAppDispatch } from '../../../redux/hooks'
 
 // 4. Global styles and utilities
-import { CommonColors } from '../../../styles/Colors'
-import { moderateScale, verticalScale, scale, width, height } from '../../../styles/scaling'
-import FontFamily from '../../../constants/FontFamily'
+import {CommonColors} from '../../../styles/Colors';
+import {
+  moderateScale,
+  verticalScale,
+  scale,
+  width,
+  height,
+} from '../../../styles/scaling';
+import FontFamily from '../../../constants/FontFamily';
 
 // 5. Component imports
-import WrapperContainer from '../../../components/WrapperContainer'
-import InputComp from '../../../components/InputComp'
-import ButtonComp from '../../../components/ButtonComp'
+import WrapperContainer from '../../../components/WrapperContainer';
+import InputComp from '../../../components/InputComp';
+import ButtonComp from '../../../components/ButtonComp';
 
 // 6. Local styles import (ALWAYS LAST)
-import { styles } from './styles'
-import imagepath from '../../../constants/imagepath'
-import { MainStackParamList } from '../../../navigation/NavigationsTypes'
-import { setUserAction, setUserTokenAction, signinApi } from '../../../redux/actions/main'
-import Toast from 'react-native-toast-message'
+import {styles} from './styles';
+import imagepath from '../../../constants/imagepath';
+import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import {
+  setUserAction,
+  setUserTokenAction,
+  signinApi,
+} from '../../../redux/actions/main';
+import Toast from 'react-native-toast-message';
 
-type LoginScreenRouteProp = RouteProp<MainStackParamList, 'LoginScreen'>
+type LoginScreenRouteProp = RouteProp<MainStackParamList, 'LoginScreen'>;
 
 const LoginScreen = () => {
-  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
-  const route = useRoute<LoginScreenRouteProp>()
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>();
+  const route = useRoute<LoginScreenRouteProp>();
   // State management
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [focused, setFocused] = useState<string | null>(null)
-  
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [focused, setFocused] = useState<string | null>(null);
+
   // Handler functions
-  const handleLogin = async() => {
+  const handleLogin = async () => {
     // TODO: Implement login logic
     try {
-        const data:any = {
-          email:username,
-          password
+      const data: any = {
+        email: username,
+        password,
+        m3uUrl:
+          'http://line.diatunnel.link/get.php?username=mrKQdWmJ&password=jSxeKrs&type=m3u_plus&output=ts',
+      };
+      const response = await signinApi(data);
+      if (response.status === 200) {
+        Toast.show({
+          text1: 'Login successful',
+          type: 'success',
+        });
+
+        setUserAction(response?.data?.data?.user);
+        setUserTokenAction(response?.data?.data?.token);
+        if (route?.params?.from !== 'settings') {
+          navigation.goBack();
+        } else {
+          navigation.navigate('Home', {activeScreen: 'Home'});
         }
-        const response = await signinApi(data)
-        if(response.status === 200){
+      }
+      console.log(response);
+    } catch (error: any) {
+      {
+        error?.response?.data?.error &&
           Toast.show({
-            text1: 'Login successful',
-            type: 'success',
-          })
-
-          setUserAction(response?.data?.data?.user)
-          setUserTokenAction(response?.data?.data?.token)
-          if(route?.params?.from !== 'settings'){
-            navigation.goBack()
-          }else{
-            navigation.navigate('Home', {activeScreen: 'Home'})
-          }
-        }
-        console.log(response);
-    } catch (error:any) {
-
-        {error?.response?.data?.error &&
-            Toast.show({
-                text1: error?.response?.data?.error,
-                type: 'error',
-              })
-        }
+            text1: error?.response?.data?.error,
+            type: 'error',
+          });
+      }
       console.log(error);
     }
-  }
+  };
 
   const handleSignUp = () => {
-    navigation.navigate('SignupScreen')
-  }
+    navigation.navigate('SignupScreen');
+  };
 
   const handleFocus = (buttonName: string) => {
-    setFocused(buttonName)
-  }
+    setFocused(buttonName);
+  };
 
   const handleBlur = () => {
-    setFocused(null)
-  }
+    setFocused(null);
+  };
 
   return (
     <WrapperContainer containerStyle={styles.container}>
@@ -176,6 +199,6 @@ const LoginScreen = () => {
       </View>
     </WrapperContainer>
   );
-}
+};
 
-export default LoginScreen 
+export default LoginScreen;

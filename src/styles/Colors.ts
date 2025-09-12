@@ -26,6 +26,11 @@ export const CommonColors = {
   placeholderTextColor: 'rgba(255, 255, 255, 0.5)',
   blackOpacity70: 'rgba(255, 254, 254, 0.7)',
   whiteOpacity30: 'rgba(255, 254, 254, 0.3)',
+  whiteOpacity20: 'rgba(255, 254, 254, 0.2)',
+  whiteOpacity05: 'rgba(255, 254, 254, 0.05)',
+
+  whiteOpacity50: 'rgba(255, 254, 254, 0.5)',
+
 
   blackOpacity40: 'rgba(0, 0, 0, 0.4)',
 
