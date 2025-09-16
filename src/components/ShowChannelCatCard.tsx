@@ -22,7 +22,7 @@ import {
 import {setCurrentlyPlaying} from '../redux/reducers/main';
 import {useDispatch} from 'react-redux';
 import SimpleMarquee from './MarqueeText';
-import {EPGProgram, processEPGData} from '../utils/epgUtils';
+import {EPGProgram, processEPGData, decodeEPGDescription} from '../utils/epgUtils';
 import {
   calculateProgramPositions,
   createTimelineConfig,
@@ -51,6 +51,7 @@ interface ShowChannelCatCardProps {
     timeSlot: string;
     progressPercentage: number;
     duration: string;
+    description: string;
   }) => void;
   timelineConfig?: any;
   onProgramFocusWithAutoScroll?: (
@@ -96,6 +97,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     // Set program details without changing the stream URL
     if (setProgramDetails) {
       const programDetails = getProgramDetails(programIndex);
+      console.log('programDetails', programDetails);
       setProgramDetails(programDetails);
     }
 
@@ -154,6 +156,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     }
 
     if (programData) {
+      console.log('programData', programData);
       // Extract time information from EPG data if available
       let timeSlot = '02:00 - 03:00PM'; // Default
       let progressPercentage = 0; // Default to 0 for non-current programs
@@ -258,11 +261,23 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         }
       }
 
+      // Extract and decode description from EPG data
+      let description = 'No description available';
+      if (epgData && epgData.description) {
+        try {
+          description = decodeEPGDescription(epgData.description);
+        } catch (error) {
+          console.warn('Failed to decode EPG description:', error);
+          description = 'No description available';
+        }
+      }
+
       return {
         showTitle: programData.title || 'No Information',
         timeSlot,
         progressPercentage,
         duration,
+        description,
       };
     }
 
@@ -272,6 +287,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       timeSlot: '02:00 - 03:00PM',
       progressPercentage: 0, // Default to 0 for unknown programs
       duration: '26 min',
+      description: 'No description available',
     };
   };
 

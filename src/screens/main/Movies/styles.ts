@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: CommonColors.themeMain,
+    backgroundColor: CommonColors.black,
   },
   
   scrollContainer: {
@@ -25,6 +25,16 @@ export const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(40),
     paddingVertical: verticalScale(20),
     zIndex: 10,
+  },
+
+  homeGradientFocused: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2000,
+    height: 1000,
   },
   
   navMenuContainer: {

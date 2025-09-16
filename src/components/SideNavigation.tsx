@@ -1,144 +1,188 @@
-import React, { useState, useMemo } from 'react'
-import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native'
-import { height, moderateScale, scale, verticalScale } from '../styles/scaling'
-import { CommonColors } from '../styles/Colors'
-import imagepath from '../constants/imagepath'
-import FontFamily from '../constants/FontFamily'
-import { NavigationProp } from '@react-navigation/native'
-import { MainStackParamList } from '../navigation/NavigationsTypes'
-import { useNavigation } from '@react-navigation/native'
+import React, {useState, useMemo} from 'react';
+import {View, TouchableOpacity, StyleSheet, Image, Text} from 'react-native';
+import {height, moderateScale, scale, verticalScale} from '../styles/scaling';
+import {CommonColors} from '../styles/Colors';
+import imagepath from '../constants/imagepath';
+import FontFamily from '../constants/FontFamily';
+import {NavigationProp} from '@react-navigation/native';
+import {MainStackParamList} from '../navigation/NavigationsTypes';
+import {useNavigation} from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
 interface SideNavigationProps {
-  onNavigate?: (screen: string) => void
-  activeScreen?: string
-  setIsFocused?: (isFocused: boolean) => void
+  onNavigate?: (screen: string) => void;
+  activeScreen?: string;
+  setIsFocused?: (isFocused: boolean) => void;
 }
 
-const SideNavigation: React.FC<SideNavigationProps> = ({ 
-  onNavigate = () => {}, 
+const SideNavigation: React.FC<SideNavigationProps> = ({
+  onNavigate = () => {},
   activeScreen = 'Movies',
-  setIsFocused = () => {}
+  setIsFocused = () => {},
 }) => {
-  const [focusedItem, setFocusedItem] = useState<string | null>(null)
-  const navigation = useNavigation<NavigationProp<MainStackParamList>>()
+  const [focusedItem, setFocusedItem] = useState<string | null>(null);
+  const navigation = useNavigation<NavigationProp<MainStackParamList>>();
 
   const handleNavPress = (screen: string) => {
-    console.log(`${screen} pressed`)
+    console.log(`${screen} pressed`);
+
     // Type-safe navigation
-    switch(screen) {
+    switch (screen) {
       case 'Home':
       case 'Tv':
       case 'Movies':
       case 'Shows':
       case 'Favorites':
       case 'Search':
-        navigation.navigate(screen, { activeScreen: screen })
-        break
+        navigation.navigate(screen, {activeScreen: screen});
+        break;
       case 'Settings':
         // Settings doesn't take activeScreen parameter according to types
-        navigation.navigate('Settings')
-        break
+        navigation.navigate('Settings');
+        break;
       case 'Radio':
       default:
         // Handle other screens or add them to MainStackParamList if needed
-        console.log(`Navigation to ${screen} not implemented yet`)
-        break
+        console.log(`Navigation to ${screen} not implemented yet`);
+        break;
     }
-  }
+  };
 
   const handleFocus = (screen: string) => {
-    setIsFocused(true)
-    setFocusedItem(screen)
-  }
+    setIsFocused(true);
+    setFocusedItem(screen);
+  };
 
   const handleBlur = () => {
-    setIsFocused(false)
-    setFocusedItem(null)
-  }
+    setIsFocused(false);
+    setFocusedItem(null);
+  };
 
   // Memoize the getIconStyle function to prevent recreating style arrays on each render
   const getIconStyle = useMemo(() => {
     return (screen: string) => {
-      const isActive = activeScreen === screen
-      const isFocused = focusedItem === screen
-      
+      const isActive = activeScreen === screen;
+      const isFocused = focusedItem === screen;
+
       return [
         styles.sideNavIconContainer,
         !focusedItem && {justifyContent: 'center'},
         isActive && styles.sideNavActiveIconContainer,
         !isActive && styles.sideNavInactiveIconContainer,
-        isFocused && styles.sideNavFocusedIconContainer
-      ]
-    }
-  }, [activeScreen, focusedItem])
+        isFocused && styles.sideNavFocusedIconContainer,
+      ];
+    };
+  }, [activeScreen, focusedItem]);
 
   // Memoize the container style
-  const containerStyle = useMemo(() => [
-    styles.sideNavigationContainer, 
-    focusedItem && {width: scale(250)}
-  ], [focusedItem])
+  const containerStyle = useMemo(
+    () => [styles.sideNavigationContainer, focusedItem && {width: scale(250)}],
+    [focusedItem],
+  );
 
   // Memoize the logo section
-  const logoSection = useMemo(() => (
-    <View style={styles.sideNavLogoContainer}>
-      <Image source={imagepath.appIconSiderBar} style={styles.sideNavLogo} />
-    </View>
-  ), [])
+  const logoSection = useMemo(
+    () => (
+      <View style={styles.sideNavLogoContainer}>
+        <Image source={imagepath.appIconSiderBar} style={styles.sideNavLogo} />
+      </View>
+    ),
+    [],
+  );
 
   // Navigation items configuration to reduce repetitive code
-  const navItems = useMemo(() => [
-    {
-      id: 'Home',
-      icon: activeScreen === 'Home' || focusedItem === 'Home' ? imagepath.homeIcon : imagepath.homeIcon,
-    },
-    {
-      id: 'Search',
-      icon: activeScreen === 'Search' || focusedItem === 'Search' ? imagepath.searchIconActive : imagepath.searchIcon,
-    },
-    {
-      id: 'Tv',
-      icon: activeScreen === 'Tv' || focusedItem === 'Tv' ? imagepath.TvIconActive : imagepath.TvIcon,
-    },
-    {
-      id: 'Movies',
-      icon: activeScreen === 'Movies' || focusedItem === 'Movies' ? imagepath.movieIconActive : imagepath.movieIcon,
-    },
-    {
-      id: 'Shows',
-      icon: activeScreen === 'Shows' || focusedItem === 'Shows' ? imagepath.showIconActive : imagepath.showsIcon,
-    },
-    {
-      id: 'Radio',
-      icon: activeScreen === 'Radio' || focusedItem === 'Radio' ? imagepath.radioIconActive : imagepath.radioIcon,
-    },
-    {
-      id: 'Favorites',
-      icon: activeScreen === 'Favorites' || focusedItem === 'Favorites' ? imagepath.favlistIconActive : imagepath.favlistIcon,
-    }
-  ], [activeScreen, focusedItem])
+  const navItems = useMemo(
+    () => [
+      {
+        id: 'Home',
+        icon:
+          activeScreen === 'Home' || focusedItem === 'Home'
+            ? imagepath.homeIcon
+            : imagepath.homeIcon,
+      },
+      {
+        id: 'Search',
+        icon:
+          activeScreen === 'Search' || focusedItem === 'Search'
+            ? imagepath.searchIconActive
+            : imagepath.searchIcon,
+      },
+      {
+        id: 'Tv',
+        icon:
+          activeScreen === 'Tv' || focusedItem === 'Tv'
+            ? imagepath.TvIconActive
+            : imagepath.TvIcon,
+      },
+      {
+        id: 'Movies',
+        icon:
+          activeScreen === 'Movies' || focusedItem === 'Movies'
+            ? imagepath.movieIconActive
+            : imagepath.movieIcon,
+      },
+      {
+        id: 'Shows',
+        icon:
+          activeScreen === 'Shows' || focusedItem === 'Shows'
+            ? imagepath.showIconActive
+            : imagepath.showsIcon,
+      },
+      {
+        id: 'Radio',
+        icon:
+          activeScreen === 'Radio' || focusedItem === 'Radio'
+            ? imagepath.radioIconActive
+            : imagepath.radioIcon,
+      },
+      {
+        id: 'Favorites',
+        icon:
+          activeScreen === 'Favorites' || focusedItem === 'Favorites'
+            ? imagepath.favlistIconActive
+            : imagepath.favlistIcon,
+      },
+    ],
+    [activeScreen, focusedItem],
+  );
 
   // Memoize the settings button
-  const settingsButton = useMemo(() => (
-    <TouchableOpacity 
-      style={getIconStyle('Settings')}
-      onPress={() => handleNavPress('Settings')}
-      onFocus={() => handleFocus('Settings')}
-      onBlur={handleBlur}
-      activeOpacity={1}
-      {...({ 
-        isTVSelectable: true,
-        nextFocusLeft: undefined,
-        nextFocusRight: undefined
-      } as any)}
-    >
-      <Image source={imagepath.settingIcon} style={[styles.sideNavIcon, focusedItem=='Settings' && {tintColor: CommonColors.white , opacity: 1}]} />
-      {
-        focusedItem && (
-          <Text style={[styles.sideNavIconText, focusedItem=='Settings' && {color: CommonColors.white, opacity: 1}]}>Settings</Text>
-        )
-      }
-    </TouchableOpacity>
-  ), [focusedItem, getIconStyle])
+  const settingsButton = useMemo(
+    () => (
+      <TouchableOpacity
+        style={getIconStyle('Settings')}
+        onPress={() => handleNavPress('Settings')}
+        onFocus={() => handleFocus('Settings')}
+        onBlur={handleBlur}
+        activeOpacity={1}
+        {...({
+          isTVSelectable: true,
+          nextFocusLeft: undefined,
+          nextFocusRight: undefined,
+        } as any)}>
+        <Image
+          source={imagepath.settingIcon}
+          style={[
+            styles.sideNavIcon,
+            focusedItem == 'Settings' && {
+              tintColor: CommonColors.white,
+              opacity: 1,
+            },
+          ]}
+        />
+        {focusedItem && (
+          <Text
+            style={[
+              styles.sideNavIconText,
+              focusedItem == 'Settings' && styles.focusedTextGlow,
+            ]}>
+            Settings
+          </Text>
+        )}
+      </TouchableOpacity>
+    ),
+    [focusedItem, getIconStyle],
+  );
 
   return (
     <View style={containerStyle}>
@@ -146,41 +190,48 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
       {logoSection}
 
       <View>
-      {/* Main Navigation Icons */}
-      {navItems.map(item => (
-        <TouchableOpacity 
-          key={item.id}
-          style={getIconStyle(item.id)}
-          onPress={() => handleNavPress(item.id)}
-          onFocus={() => handleFocus(item.id)}
-          onBlur={handleBlur}
-          activeOpacity={1}
-          {...({ 
-            isTVSelectable: true,
-            nextFocusLeft: undefined,
-            nextFocusRight: undefined
-          } as any)}
-        >
-          <Image 
-            source={item.icon} 
-            style={[styles.sideNavIcon, focusedItem===item.id && {tintColor: CommonColors.white, opacity: 1}]} 
-          />
-          {
-            focusedItem && (
-              <Text style={[styles.sideNavIconText, focusedItem===item.id && {color: CommonColors.white, opacity: 1}]}>{item.id}</Text>
-            )
-          }
-        </TouchableOpacity>
-      ))}
+        {/* Main Navigation Icons */}
+        {navItems.map(item => (
+          <TouchableOpacity
+            key={item.id}
+            style={getIconStyle(item.id)}
+            onPress={() => handleNavPress(item.id)}
+            onFocus={() => handleFocus(item.id)}
+            onBlur={handleBlur}
+            activeOpacity={1}
+            {...({
+              isTVSelectable: true,
+              nextFocusLeft: undefined,
+              nextFocusRight: undefined,
+            } as any)}>
+            <Image
+              source={item.icon}
+              style={[
+                styles.sideNavIcon,
+                (focusedItem === item.id || activeScreen === item.id) && {
+                  tintColor: CommonColors.white,
+                  opacity: 1,
+                },
+              ]}
+            />
+            {focusedItem && (
+              <Text
+                style={[
+                  styles.sideNavIconText,
+                  focusedItem === item.id && styles.focusedTextGlow,
+                ]}>
+                {item.id}
+              </Text>
+            )}
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* Bottom Section */}
-      <View style={styles.sideNavBottomSection}>
-        {settingsButton}
-      </View>
+      <View style={styles.sideNavBottomSection}>{settingsButton}</View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   sideNavigationContainer: {
@@ -191,6 +242,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     zIndex: 100,
     height: height,
+    width: 50,
   },
 
   sideNavIconContainer: {
@@ -208,11 +260,11 @@ const styles = StyleSheet.create({
     height: moderateScale(25),
     borderRadius: moderateScale(2),
     tintColor: CommonColors.white,
-    opacity: 0.5
+    opacity: 0.5,
   },
 
   sideNavActiveIconContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    // backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: moderateScale(6),
   },
 
@@ -243,15 +295,30 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(6),
     borderWidth: 1,
     // borderColor: CommonColors.white,
-    transform: [{ scale: 1.05 }],
+    transform: [{scale: 1.05}],
     // backgroundColor: CommonColors.white,
   },
   sideNavIconText: {
     fontSize: scale(24),
     fontFamily: FontFamily.PublicSans_Bold,
     color: CommonColors.white,
-    opacity: 0.5
+    opacity: 0.5,
   },
-})
+  focusedTextGlow: {
+    color: CommonColors.white,
+    opacity: 1,
+    textShadowColor: CommonColors.white,
+    textShadowOffset: {width: 0, height: 0},
+    textShadowRadius: 20,
+    elevation: 5,
+  },
+  glow: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderRadius: 110,
+    opacity: 0.7,
+  },
+});
 
-export default SideNavigation 
+export default SideNavigation;

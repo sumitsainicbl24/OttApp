@@ -1,30 +1,25 @@
-import {
-  NavigationProp,
-  RouteProp,
-  useNavigation,
-} from '@react-navigation/native';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Dimensions,
   FlatList,
   StatusBar,
+  Text,
   TVFocusGuideView,
   useTVEventHandler,
   View,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
 import {getCategoryData} from '../../../redux/actions/auth';
-import {setCurrentlyPlaying} from '../../../redux/reducers/main';
 import {RootState} from '../../../redux/store';
+import {moderateScale} from '../../../styles/scaling';
 import {debounce} from '../../../utils/CommonFunctions';
 import {decodeEPGTitle} from '../../../utils/epgUtils';
-import LeftChannelItem from './LeftChannelItem';
 import EPGList from './EPGList';
-import ProgramDescriptionBox from './ProgramDescriptionBox';
+import LeftChannelItem from './LeftChannelItem';
 import {styles} from './LeftChannelViewStyles';
-import { CommonColors } from '../../../styles/Colors';
+import ProgramDescriptionBox from './ProgramDescriptionBox';
+import {CommonColors} from '../../../styles/Colors';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
@@ -70,8 +65,6 @@ export interface Epg {
   has_archive: number;
 }
 
-type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
-
 const LeftChannelView = ({
   channelData,
   handleBlockPress,
@@ -91,6 +84,7 @@ const LeftChannelView = ({
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
   const [showProgramDescription, setShowProgramDescription] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [categoryName, setCategoryName] = useState<string>('');
   const channelListRef = useRef<FlatList>(null);
   const categoryListRef = useRef<FlatList>(null);
   const epgListRef = useRef<FlatList>(null);
@@ -99,49 +93,29 @@ const LeftChannelView = ({
   }, []);
 
   const handleLeftNavigation = useCallback(() => {
-    console.log('Left navigation pressed, layer:', layerIndex, 'focus:', focusIndex);
-    
     if (focusIndex === 0 && layerIndex === 2) {
-      // From channel list in layer 2, go back to layer 1
       setLayerIndex(1);
-      setFocusIndex(1); // Focus on channel list in layer 1
-      console.log('Going back to layer 1, focusing on channel list');
+      setFocusIndex(1);
+      return;
+    } else if (focusIndex === 0 && layerIndex === 1) {
+      setFocusIndex(0);
       return;
     }
-    
-    if (focusIndex === 0) {
-      // Already at left list, do nothing
-      console.log('Already at left list');
-      return;
-    }
-    
-    // Move focus to left list
-    setFocusIndex(0);
     setShowProgramDescription(false);
   }, [layerIndex, focusIndex]);
 
   const handleRightNavigation = useCallback(() => {
-    console.log('Right navigation pressed, layer:', layerIndex, 'focus:', focusIndex);
-    
     if (focusIndex === 0) {
-      // Move focus to right list
       setFocusIndex(1);
-      console.log('Moving focus to right list');
     } else if (focusIndex === 1 && layerIndex === 1) {
-      // From channel list in layer 1, switch to layer 2
       setLayerIndex(2);
-      setFocusIndex(0); // Focus on channel list in layer 2
-      console.log('Switching to layer 2, focusing on channel list');
+      setFocusIndex(0);
     } else if (focusIndex === 1 && layerIndex === 2) {
-      // Already at right list in layer 2, do nothing
-      console.log('Already at right list in layer 2');
     }
   }, [layerIndex, focusIndex]);
 
   // TV Event Handler for navigation
   useTVEventHandler((evt: any) => {
-    console.log('TV Event:', evt?.eventType, 'Layer:', layerIndex, 'Focus:', focusIndex);
-    
     if (evt?.eventType === 'focus') {
       return;
     }
@@ -170,11 +144,15 @@ const LeftChannelView = ({
     }
   });
 
-  const handleCategoryListFocus = useCallback((category: number) => {
-    setLoading(true);
-    setSelectedCategory(category);
-    setSelectedCategoryData([]);
-  }, []);
+  const handleCategoryListFocus = useCallback(
+    (category: number, categoryName: string) => {
+      setLoading(true);
+      setSelectedCategory(category);
+      setCategoryName(categoryName);
+      setSelectedCategoryData([]);
+    },
+    [],
+  );
 
   const memorizeChannelsData = useMemo(() => {
     return Object.values(channelsData) as any[];
@@ -216,13 +194,6 @@ const LeftChannelView = ({
     }
   };
 
-  const categoryListContainerStyle = React.useMemo(() => {
-    return [
-      styles.categoryListContainer,
-      layerIndex !== 1 && {width: 0, overflow: 'hidden' as const},
-    ];
-  }, [layerIndex]);
-
   const debouncedGetMovieData = useCallback(
     debounce((category: string) => {
       getMovieData(category);
@@ -239,8 +210,8 @@ const LeftChannelView = ({
   const renderChannelItem = useCallback(
     ({item}: {item: channelData}) => {
       const isFocused = selectedChannel === item;
-      const currentProgram = item?.epg?.[0]?.title 
-        ? decodeEPGTitle(item.epg[0].title) 
+      const currentProgram = item?.epg?.[0]?.title
+        ? decodeEPGTitle(item.epg[0].title)
         : 'No information';
 
       return (
@@ -255,19 +226,6 @@ const LeftChannelView = ({
     },
     [selectedChannel, handleBlockPress],
   );
-
-  const handleCategoryListBlur = useCallback(() => {
-    channelListRef?.current?.scrollToOffset({
-      offset: 0,
-      animated: true,
-    });
-  }, []);
-
-
-  const handleProgramSelect = useCallback((program: any) => {
-    // Handle program selection if needed
-    console.log('Program selected:', program);
-  }, []);
 
   const handleProgramFocus = useCallback((program: any) => {
     setSelectedProgram(program);
@@ -285,7 +243,6 @@ const LeftChannelView = ({
         barStyle="light-content"
       />
 
-
       <View style={[styles.container, {width: screenWidth - 400}]}>
         {/* Layer 1: Category + Channel */}
         {layerIndex === 1 && (
@@ -294,60 +251,45 @@ const LeftChannelView = ({
             <TVFocusGuideView
               autoFocus={focusIndex === 0}
               style={styles.categoryListContainer}
-              onFocus={() => setFocusIndex(0)}
-              onBlur={() => {}}>
+              onFocus={() => setFocusIndex(0)}>
               <CategoryList
                 categories={memorizeChannelsData}
                 selectedCategory={memorizeSelectedCategory}
                 onFocus={handleCategoryListFocus}
-                onBlur={handleCategoryListBlur}
-                
-              />
-            </TVFocusGuideView>
-
-            {/* Channel List */}
-            <TVFocusGuideView
-              autoFocus={focusIndex === 1}
-              style={styles.channelListContainer}
-              onFocus={() => setFocusIndex(1)}
-              onBlur={() => {}}>
-              <FlatList
-                ref={channelListRef}
-                data={selectedCategoryData}
-                renderItem={renderChannelItem}
-                showsVerticalScrollIndicator={false}
-                removeClippedSubviews={true}
-                maxToRenderPerBatch={10}
-                windowSize={10}
-                initialNumToRender={10}
-                updateCellsBatchingPeriod={50}
+                style={{backgroundColor:'transparent'}}
               />
             </TVFocusGuideView>
           </View>
         )}
 
+        <TVFocusGuideView
+          autoFocus={layerIndex === 1 ? focusIndex === 1 : focusIndex === 0}
+          style={styles.channelListContainer}
+          onFocus={() => setFocusIndex(layerIndex === 1 ? 1 : 0)}>
+          <>
+            <View style={{paddingVertical: moderateScale(16)}}>
+              <Text style={styles.categoryListTitleChannel}>
+                {categoryName}
+              </Text>
+            </View>
+            <View style={styles.dividerLineTitle} />
+            <FlatList
+              ref={channelListRef}
+              data={selectedCategoryData}
+              renderItem={renderChannelItem}
+              showsVerticalScrollIndicator={false}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={10}
+              windowSize={10}
+              initialNumToRender={10}
+              updateCellsBatchingPeriod={50}
+            />
+          </>
+        </TVFocusGuideView>
+
         {/* Layer 2: Channel + EPG */}
         {layerIndex === 2 && (
           <View style={styles.sideBySideContainer}>
-            {/* Channel List */}
-            <TVFocusGuideView
-              autoFocus={focusIndex === 0}
-              style={styles.channelListContainer}
-              onFocus={() => setFocusIndex(0)}
-              onBlur={() => {}}>
-              <FlatList
-                ref={channelListRef}
-                data={selectedCategoryData}
-                renderItem={renderChannelItem}
-                showsVerticalScrollIndicator={false}
-                removeClippedSubviews={true}
-                maxToRenderPerBatch={10}
-                windowSize={10}
-                initialNumToRender={10}
-                updateCellsBatchingPeriod={50}
-              />
-            </TVFocusGuideView>
-
             {/* EPG List */}
             <TVFocusGuideView
               autoFocus={focusIndex === 1}
@@ -357,7 +299,6 @@ const LeftChannelView = ({
               <EPGList
                 epgData={selectedChannel?.epg || []}
                 selectedProgram={selectedProgram}
-                onProgramSelect={handleProgramSelect}
                 onProgramFocus={handleProgramFocus}
                 onProgramBlur={handleProgramBlur}
                 channelName={selectedChannel?.name || 'No Channel Selected'}
@@ -366,7 +307,7 @@ const LeftChannelView = ({
           </View>
         )}
       </View>
-      
+
       {/* Program Description Box */}
       <ProgramDescriptionBox
         program={selectedProgram}

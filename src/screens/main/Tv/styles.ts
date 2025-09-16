@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: CommonColors.themeMain,
+    backgroundColor: CommonColors.black,
   },
   showChannelCatCarouselContainer: {
     zIndex: 1000,
@@ -19,6 +19,24 @@ export const styles = StyleSheet.create({
     alignItems:'flex-start',
     paddingHorizontal: moderateScale(40),
     paddingVertical: verticalScale(45),
+  },
+  homeGradientFocused: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2000,
+    height: 1000,
+  },
+  homeGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 100,
+    height: 1000,
   },
   ShowImageContainer: {
     width: scale(680),
@@ -70,7 +88,7 @@ export const styles = StyleSheet.create({
   
   scrollContainer: {
     flex: 1,
-    backgroundColor: CommonColors.themeMain,
+    backgroundColor: CommonColors.black,
   },
   
   // Top Navigation Styles

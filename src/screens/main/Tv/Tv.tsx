@@ -19,6 +19,7 @@ import {CommonColors} from '../../../styles/Colors';
 import {debounce} from '../../../utils/CommonFunctions';
 import {clearEPGCaches} from '../../../utils/epgUtils';
 import {styles} from './styles';
+import LinearGradient from 'react-native-linear-gradient';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
@@ -38,11 +39,13 @@ const Tv = () => {
     timeSlot: string;
     progressPercentage: number;
     duration: string;
+    description: string;
   }>({
     showTitle: 'No Information',
     timeSlot: '02:00 - 03:00PM',
     progressPercentage: 0,
     duration: '26 min',
+    description: 'No description available',
   });
 
   useEffect(() => {
@@ -70,7 +73,9 @@ const Tv = () => {
     timeSlot: string;
     progressPercentage: number;
     duration: string;
+    description: string;
   }) => {
+    console.log('details', details);
     setCurrentProgramDetails(details);
   };
 
@@ -162,17 +167,38 @@ const Tv = () => {
     }
   }, [selectedCategory, debouncedGetMovieData]);
 
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <MainLayout
       activeScreen={activeScreen || 'Movies'}
-      hideSidebar={!showCategoryAndSidebar}>
+      hideSidebar={!showCategoryAndSidebar}
+      setIsFocused={setIsFocused}>
       <StatusBar
         backgroundColor="transparent"
         translucent
         barStyle="light-content"
       />
 
+     
+
+      {isFocused && (
+        <LinearGradient
+          colors={[
+            'rgba(0, 0, 0, 1)',
+            'rgba(0, 0, 0, 0.8)',
+            'rgba(0, 0, 0, 0.1)',
+            'transparent',
+            'transparent',
+          ]}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 0}}
+          style={styles.homeGradientFocused}
+        />
+      )}
+
       <View style={styles.container}>
+        
         <View style={categoryListContainerStyle} nativeID="categoryList">
           <CategoryList
             categories={memorizeChannelsData}
@@ -188,6 +214,7 @@ const Tv = () => {
             timeSlot={currentProgramDetails.timeSlot}
             progressPercentage={currentProgramDetails.progressPercentage}
             duration={currentProgramDetails.duration}
+            description={currentProgramDetails.description}
             streamUrl={memorizeStreamUrl}
             selectedCategory={selectedCategoryName}
             loading={loading}

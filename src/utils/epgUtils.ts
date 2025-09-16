@@ -19,6 +19,8 @@ export interface EPGProgram {
 
 // Cache for decoded titles to avoid repeated base64 decoding
 const titleDecodeCache = new Map<string, string>();
+// Cache for decoded descriptions to avoid repeated base64 decoding
+const descriptionDecodeCache = new Map<string, string>();
 
 /**
  * Decodes base64 encoded EPG title with caching for performance
@@ -41,6 +43,30 @@ export const decodeEPGTitle = (encodedTitle: string): string => {
     // Cache the original to avoid repeated failed attempts
     titleDecodeCache.set(encodedTitle, encodedTitle);
     return encodedTitle; // Return original if decoding fails
+  }
+};
+
+/**
+ * Decodes base64 encoded EPG description with caching for performance
+ * @param encodedDescription - Base64 encoded description string
+ * @returns Decoded description string
+ */
+export const decodeEPGDescription = (encodedDescription: string): string => {
+  // Check cache first
+  if (descriptionDecodeCache.has(encodedDescription)) {
+    return descriptionDecodeCache.get(encodedDescription)!;
+  }
+
+  try {
+    const decoded = atob(encodedDescription);
+    // Cache the result
+    descriptionDecodeCache.set(encodedDescription, decoded);
+    return decoded;
+  } catch (error) {
+    console.warn('Failed to decode EPG description:', error);
+    // Cache the original to avoid repeated failed attempts
+    descriptionDecodeCache.set(encodedDescription, encodedDescription);
+    return encodedDescription; // Return original if decoding fails
   }
 };
 
@@ -193,6 +219,7 @@ export const processEPGData = (epgData: EPGProgram[]): any[] => {
  */
 export const clearEPGCaches = (): void => {
   titleDecodeCache.clear();
+  descriptionDecodeCache.clear();
   epgProcessCache.clear();
 };
 
@@ -202,8 +229,9 @@ export const clearEPGCaches = (): void => {
 export const getEPGCacheStats = () => {
   return {
     titleCacheSize: titleDecodeCache.size,
+    descriptionCacheSize: descriptionDecodeCache.size,
     epgCacheSize: epgProcessCache.size,
-    totalCacheSize: titleDecodeCache.size + epgProcessCache.size
+    totalCacheSize: titleDecodeCache.size + descriptionDecodeCache.size + epgProcessCache.size
   };
 };
 

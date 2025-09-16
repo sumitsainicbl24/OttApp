@@ -211,17 +211,16 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
 
       // Look for the next history item
       while (newIndex <= listItems.length) {
-        if (newIndex === listItems.length) {
-          // Reached the end, wrap to clear button
-          newIndex = 0;
-          break;
-        }
-
         const listItem = listItems[newIndex - 1];
         if (listItem && listItem.type === 'historyItem') {
           break;
         }
         newIndex++;
+      }
+
+      // If we've gone past the end, wrap to clear button
+      if (newIndex > listItems.length) {
+        newIndex = 0;
       }
 
       focusIndexRef.current = newIndex;
@@ -561,7 +560,7 @@ const styles = {
     fontSize: moderateScale(16),
     fontFamily: FontFamily.PublicSans_Regular,
     marginBottom: verticalScale(4),
-    maxWidth: '90%',
+    maxWidth: scale(300),
   },
   historyItemTimeContainer: {
     flexDirection: 'row' as const,

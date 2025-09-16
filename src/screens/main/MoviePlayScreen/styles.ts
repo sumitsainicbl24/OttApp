@@ -6,7 +6,7 @@ import FontFamily from '../../../constants/FontFamily'
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: CommonColors.themeMain,
+    backgroundColor: CommonColors.black,
   },
   
   backgroundContainer: {
@@ -22,7 +22,6 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: CommonColors.themeSecondary,
-    // This will be replaced with actual image later
   },
   
   gradientOverlay: {

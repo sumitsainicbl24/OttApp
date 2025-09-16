@@ -5,12 +5,19 @@ import {height, moderateScale, width} from '../../../styles/scaling';
 import imagepath from '../../../constants/imagepath';
 import {imageResolutionHandlerForUrl} from '../../../utils/CommonFunctions';
 
-const YoutubeComp = ({data}: {data: any}) => {
+const YoutubeComp = ({
+  data,
+  height = 500,
+  VideoWidth = width - 150,
+}: {
+  data: any;
+  height?: number;
+  VideoWidth?: number;
+}) => {
   console.log('data', data);
   const playerRef = useRef<YoutubeIframeRef>(null);
   const [opacity, setOpacity] = useState(0);
   const [isVideoReady, setIsVideoReady] = useState(false);
-
 
   const onReady = () => {
     setTimeout(() => {
@@ -46,11 +53,11 @@ const YoutubeComp = ({data}: {data: any}) => {
           resizeMode="cover"
         />
       )}
-      
+
       <YoutubePlayer
         ref={playerRef}
-        height={500}
-        width={width-150}
+        height={height}
+        width={VideoWidth}
         play={true}
         mute={false}
         videoId={data?.youtube_trailer || 'dVIcn0XA0Sg'}
@@ -83,7 +90,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height:500 ,
+    height: 500,
     zIndex: 1,
   },
 });

@@ -1,11 +1,18 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import {Image, Text, View, StyleSheet, ImageSourcePropType, ActivityIndicator} from 'react-native';
+import React, {useState, useCallback, useEffect, useRef} from 'react';
+import {
+  Image,
+  Text,
+  View,
+  StyleSheet,
+  ImageSourcePropType,
+  ActivityIndicator,
+} from 'react-native';
 import {CommonColors} from '../styles/Colors';
 import {moderateScale, verticalScale, scale, height} from '../styles/scaling';
 import FontFamily from '../constants/FontFamily';
 import Video from 'react-native-video';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
+import {useSelector} from 'react-redux';
+import {RootState} from '../redux/store';
 import imagepath from '../constants/imagepath';
 
 interface ChannelMediaPlayerProps {
@@ -14,6 +21,7 @@ interface ChannelMediaPlayerProps {
   timeSlot?: string;
   progressPercentage?: number;
   duration?: string;
+  description?: string;
   streamUrl: string | null;
   selectedCategory?: string;
   loading: boolean;
@@ -25,18 +33,21 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
   timeSlot = '02:00 - 03:00PM',
   progressPercentage = 65,
   duration = '26 min',
-  streamUrl='',
+  description = 'No description available',
+  streamUrl = '',
   selectedCategory,
   loading,
 }) => {
-  const currentlyPlaying = useSelector((state: RootState) => state.rootReducer.main.currentlyPlaying)
-  
+  const currentlyPlaying = useSelector(
+    (state: RootState) => state.rootReducer.main.currentlyPlaying,
+  );
+
   // Video loading and error states
   const [videoLoading, setVideoLoading] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const [videoKey, setVideoKey] = useState(0); // Force video re-render on retry
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
+  console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
 
   // Reset states when streamUrl changes
   useEffect(() => {
@@ -53,7 +64,7 @@ console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
       setIsRetrying(false);
     }
   }, [streamUrl]);
-  
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -62,7 +73,7 @@ console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
       }
     };
   }, []);
-  
+
   // Video event handlers
   const handleLoadStart = useCallback(() => {
     setVideoLoading(true);
@@ -72,17 +83,17 @@ console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
       retryTimeoutRef.current = null;
     }
   }, []);
-  
+
   const handleLoad = useCallback(() => {
     setVideoLoading(false);
     setIsRetrying(false);
   }, []);
-  
+
   const handleError = useCallback((error: any) => {
     console.error('Video error:', error);
     setVideoLoading(false);
     setIsRetrying(true);
-    
+
     // Auto retry after 3 seconds
     console.log('Auto retrying in 3 seconds...');
     retryTimeoutRef.current = setTimeout(() => {
@@ -91,14 +102,14 @@ console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
       setIsRetrying(false);
     }, 3000);
   }, []);
-  
+
   return (
     <View style={styles.ShowDetailsContainer}>
       <View style={styles.videoContainer}>
         {streamUrl && (
-          <Video 
+          <Video
             key={videoKey} // Force re-render on retry
-            source={{ uri: streamUrl }} 
+            source={{uri: streamUrl}}
             style={styles.ShowImageContainer}
             paused={false}
             resizeMode="contain"
@@ -107,18 +118,18 @@ console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
             onLoad={handleLoad}
             onError={handleError}
             controlsStyles={{
-              hideSeekBar:true,
-              hideDuration:true,
-              hidePosition:true,
-              hideFullscreen:true,
-              hideNavigationBarOnFullScreenMode:true,
-              hideNotificationBarOnFullScreenMode:true,
-              hideSettingButton:true,
+              hideSeekBar: true,
+              hideDuration: true,
+              hidePosition: true,
+              hideFullscreen: true,
+              hideNavigationBarOnFullScreenMode: true,
+              hideNotificationBarOnFullScreenMode: true,
+              hideSettingButton: true,
             }}
             playInBackground={false}
           />
         )}
-        
+
         {/* No stream URL overlay */}
         {!streamUrl && (
           <View style={styles.overlayContainer}>
@@ -126,7 +137,7 @@ console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
             <Text style={styles.errorText}>No stream available</Text>
           </View>
         )}
-        
+
         {/* Loading overlay */}
         {streamUrl && (videoLoading || isRetrying) && (
           <View style={styles.overlayContainer}>
@@ -136,7 +147,6 @@ console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
             </Text>
           </View>
         )}
-        
       </View>
 
       <View style={styles.ShowDetailsContent}>
@@ -145,26 +155,36 @@ console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
         <View style={styles.progressContainer}>
           {progressPercentage > 0 && (
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, {width: `${progressPercentage}%`}]} />
+              <View
+                style={[styles.progressBar, {width: `${progressPercentage}%`}]}
+              />
             </View>
           )}
           <Text style={styles.durationText}>{duration}</Text>
         </View>
+        <Text style={styles.descriptionText} numberOfLines={3}>{description}</Text>
       </View>
 
-      {!false && <View style={{ 
-        position:'absolute',
-        top:moderateScale(50),
-        right:moderateScale(10),
-        alignItems:'flex-end',
-        gap:moderateScale(10)
-      }}>
-        <Image source={imagepath.empty_star} style={styles.filled_star} />
-      <Text style={{color:CommonColors.white, 
-        fontSize:moderateScale(18), 
-        fontFamily:FontFamily.PublicSans_Medium
-        }}>{selectedCategory}</Text>
-      </View>}
+      {!false && (
+        <View
+          style={{
+            position: 'absolute',
+            top: moderateScale(50),
+            right: moderateScale(10),
+            alignItems: 'flex-end',
+            gap: moderateScale(10),
+          }}>
+          <Image source={imagepath.empty_star} style={styles.filled_star} />
+          <Text
+            style={{
+              color: CommonColors.white,
+              fontSize: moderateScale(18),
+              fontFamily: FontFamily.PublicSans_Medium,
+            }}>
+            {selectedCategory}
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -229,6 +249,7 @@ const styles = StyleSheet.create({
     paddingRight: moderateScale(40),
     justifyContent: 'center',
     gap: verticalScale(30),
+    width: '40%',
   },
   showTitle: {
     fontFamily: FontFamily.PublicSans_SemiBold,
@@ -273,11 +294,20 @@ const styles = StyleSheet.create({
     letterSpacing: scale(0.48), // 2% of font size
     color: CommonColors.white,
   },
+  descriptionText: {
+    fontFamily: FontFamily.PublicSans_Regular,
+    fontSize: scale(20),
+    lineHeight: scale(22),
+    letterSpacing: scale(0.36),
+    color: CommonColors.white,
+    marginTop: verticalScale(8),
+    opacity: 0.8,
+  },
   filled_star: {
     width: scale(30),
     height: scale(30),
-    marginRight: scale(8),  
+    marginRight: scale(8),
   },
 });
 
-export default React.memo(ChannelMediaPlayer); 
+export default React.memo(ChannelMediaPlayer);

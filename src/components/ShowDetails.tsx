@@ -18,16 +18,6 @@ import {RootState} from '../redux/store';
 import {CommonColors} from '../styles/Colors';
 import {moderateScale, scale, verticalScale} from '../styles/scaling';
 
-interface ShowData {
-  title: string;
-  year: string;
-  duration: string;
-  genre: string;
-  rating: string;
-  description: string;
-  image: ImageSourcePropType;
-}
-
 interface ShowDetailsProps {
   onPlayPress?: () => void;
   onMyListPress?: () => void;

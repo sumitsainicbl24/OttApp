@@ -21,7 +21,7 @@ export interface Epg {
 interface EPGListProps {
   epgData: Epg[];
   selectedProgram: Epg | null;
-  onProgramSelect: (program: Epg) => void;
+  onProgramSelect?: (program: Epg) => void;
   onProgramFocus: (program: Epg) => void;
   onProgramBlur?: () => void;
   channelName: string;
@@ -79,7 +79,7 @@ const EPGList = memo<EPGListProps>(
             accessible={true}
             accessibilityRole="button"
             onFocus={() => onProgramFocus(item)}
-            onPress={() => onProgramSelect(item)}
+            onPress={() => onProgramSelect?.(item)}
             style={[
               styles.epgProgramItem,
             ]}>

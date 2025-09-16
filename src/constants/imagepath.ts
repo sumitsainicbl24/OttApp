@@ -7,6 +7,8 @@ export default{
     playIconWhite:require('../assets/images/playIconWhite.png'),
     showsIcon:require('../assets/images/showsIcon.png'),
     showIconActive:require('../assets/images/showIconActive.png'),
+    showIconActive2:require('../assets/images/video-play.png'),
+
     radioIcon:require('../assets/images/radioIcon.png'),
     radioIconActive:require('../assets/images/radioIconActive.png'),
     movieIcon:require('../assets/images/movieIcon.png'),

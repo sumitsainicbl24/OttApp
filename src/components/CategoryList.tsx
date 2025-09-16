@@ -1,5 +1,11 @@
 import React, {useState, useRef, useMemo, useEffect, useCallback} from 'react';
-import {View, TouchableOpacity, StyleSheet, StyleProp, ViewStyle} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {samepleCategoryData} from '../screens/main/Movies/DummyData';
 import FontFamily from '../constants/FontFamily';
@@ -19,7 +25,7 @@ type CategoryInput = string | ObjectCategory;
 interface CategoryListProps {
   categories?: CategoryInput[];
   selectedCategory?: CategoryInput;
-  onFocus?: (category: number) => void;
+  onFocus?: (category: number, categoryName: string) => void;
   onBlur?: () => void;
   style?: StyleProp<ViewStyle>;
 }
@@ -215,17 +221,15 @@ const CategoryList: React.FC<CategoryListProps> = ({
         );
       }
 
-      const categoryItem:any = item.data;
+      const categoryItem: any = item.data;
       const isSelected = categoryItem.id === selectedCategoryId;
       const isFocused = focusedIndex === index - PADDING_ITEMS;
-
 
       return (
         <TouchableOpacity
           style={[
             styles.categoryItem,
             (isFocused || isSelected) && styles.categoryItemFocused,
-            style
           ]}
           onFocus={() =>
             handleFocus(index, categoryItem.id, categoryItem?.name)
@@ -263,7 +267,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   );
 
   return (
-    <View style={styles.container} onLayout={handleLayout}>
+    <View style={[styles.container, style]} onLayout={handleLayout}>
       <FlashList
         ref={flashListRef}
         data={listData}
@@ -284,6 +288,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: moderateScale(25),
     width: scale(450),
+    backgroundColor: 'black',
   },
   categoryItem: {
     paddingVertical: moderateScale(15),

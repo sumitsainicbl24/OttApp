@@ -1,6 +1,6 @@
-import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
-import { API_BASE_URL } from '../config/urls';
-import { store } from '../redux/store';
+import axios, {AxiosResponse, AxiosError, AxiosRequestConfig} from 'axios';
+import {API_BASE_URL} from '../config/urls';
+import {store} from '../redux/store';
 
 // Extended AxiosRequestConfig type alias for consistency
 type ExtendedAxiosRequestConfig = AxiosRequestConfig;
@@ -18,37 +18,40 @@ const apiClient = axios.create({
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     // Always add the ngrok bypass header
     config.headers['ngrok-skip-browser-warning'] = 'true';
-    
+
     const state = store.getState();
     const authState = state.rootReducer.auth;
-    
+
     // Check if usertoken flag is set in custom header
     const useUserToken = config.headers?.['x-use-usertoken'] === 'true';
     const token = useUserToken ? authState.userToken : authState.auth_token;
-    
+
     // Remove the custom header so it doesn't get sent to the API
     if (config.headers && 'x-use-usertoken' in config.headers) {
       delete config.headers['x-use-usertoken'];
     }
-    
+
     console.log('Request interceptor - Using userToken:', useUserToken);
-    console.log('Request interceptor - Current token:', token ? '***TOKEN_SET***' : 'NO_TOKEN');
+    console.log(
+      'Request interceptor - Current token:',
+      token ? '***TOKEN_SET***' : 'NO_TOKEN',
+    );
     console.log('Request interceptor - URL:', config.url);
     console.log('Request interceptor - Method:', config.method?.toUpperCase());
-    
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     return config;
   },
-  (error) => {
+  error => {
     console.error('Request interceptor error:', error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor for error handling
@@ -57,7 +60,7 @@ apiClient.interceptors.response.use(
     console.log('Response success:', {
       status: response.status,
       url: response.config.url,
-      method: response.config.method?.toUpperCase()
+      method: response.config.method?.toUpperCase(),
     });
     return response;
   },
@@ -68,22 +71,22 @@ apiClient.interceptors.response.use(
       url: error.config?.url,
       method: error.config?.method?.toUpperCase(),
       data: error.response?.data,
-      message: error.message
+      message: error.message,
     });
-    
+
     // Handle common errors
     if (error.response?.status === 401) {
       // Handle unauthorized - clear token and redirect to login
       console.log('Unauthorized access - clearing token');
       // You can dispatch logout action here if needed
     }
-    
+
     if (error.response?.status === 500) {
       console.error('Server error:', error.response.data);
     }
-    
+
     return Promise.reject(error);
-  }
+  },
 );
 
 // Generic request function
@@ -91,7 +94,7 @@ const makeRequest = async <T = any>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   data?: any,
-  config?: ExtendedAxiosRequestConfig
+  config?: ExtendedAxiosRequestConfig,
 ): Promise<AxiosResponse<T>> => {
   try {
     const response = await apiClient.request<T>({
@@ -111,14 +114,14 @@ const makeRequest = async <T = any>(
 export const apiGet = async <T = any>(
   url: string,
   config?: ExtendedAxiosRequestConfig,
-  usertoken?: boolean
+  usertoken?: boolean,
 ): Promise<AxiosResponse<T>> => {
   const requestConfig: ExtendedAxiosRequestConfig = {
     ...config,
     headers: {
       ...config?.headers,
-      'x-use-usertoken': usertoken ? 'true' : 'false'
-    }
+      'x-use-usertoken': usertoken ? 'true' : 'false',
+    },
   };
   return makeRequest<T>('GET', url, undefined, requestConfig);
 };
@@ -128,14 +131,14 @@ export const apiPost = async <T = any>(
   url: string,
   data?: any,
   config?: ExtendedAxiosRequestConfig,
-  usertoken?: boolean
+  usertoken?: boolean,
 ): Promise<AxiosResponse<T>> => {
   const requestConfig: ExtendedAxiosRequestConfig = {
     ...config,
     headers: {
       ...config?.headers,
-      'x-use-usertoken': usertoken ? 'true' : 'false'
-    }
+      'x-use-usertoken': usertoken ? 'true' : 'false',
+    },
   };
   return makeRequest<T>('POST', url, data, requestConfig);
 };
@@ -145,14 +148,14 @@ export const apiPut = async <T = any>(
   url: string,
   data?: any,
   config?: ExtendedAxiosRequestConfig,
-  usertoken?: boolean
+  usertoken?: boolean,
 ): Promise<AxiosResponse<T>> => {
   const requestConfig: ExtendedAxiosRequestConfig = {
     ...config,
     headers: {
       ...config?.headers,
-      'x-use-usertoken': usertoken ? 'true' : 'false'
-    }
+      'x-use-usertoken': usertoken ? 'true' : 'false',
+    },
   };
   return makeRequest<T>('PUT', url, data, requestConfig);
 };
@@ -161,14 +164,14 @@ export const apiPut = async <T = any>(
 export const apiDelete = async <T = any>(
   url: string,
   config?: ExtendedAxiosRequestConfig,
-  usertoken?: boolean
+  usertoken?: boolean,
 ): Promise<AxiosResponse<T>> => {
   const requestConfig: ExtendedAxiosRequestConfig = {
     ...config,
     headers: {
       ...config?.headers,
-      'x-use-usertoken': usertoken ? 'true' : 'false'
-    }
+      'x-use-usertoken': usertoken ? 'true' : 'false',
+    },
   };
   return makeRequest<T>('DELETE', url, undefined, requestConfig);
 };
@@ -178,26 +181,35 @@ export const uploadFile = async <T = any>(
   url: string,
   formData: FormData,
   onUploadProgress?: (progressEvent: any) => void,
-  usertoken?: boolean
+  usertoken?: boolean,
 ): Promise<AxiosResponse<T>> => {
-  return apiPost<T>(url, formData, {
-    headers: {
-      'ngrok-skip-browser-warning': 'true',
-      'Content-Type': 'multipart/form-data',
+  return apiPost<T>(
+    url,
+    formData,
+    {
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress,
     },
-    onUploadProgress,
-  }, usertoken);
+    usertoken,
+  );
 };
 
 // Download file helper for React Native
 export const downloadFile = async (
   url: string,
-  usertoken?: boolean
+  usertoken?: boolean,
 ): Promise<Blob> => {
-  const response = await apiGet(url, {
-    responseType: 'blob',
-  }, usertoken);
-  
+  const response = await apiGet(
+    url,
+    {
+      responseType: 'blob',
+    },
+    usertoken,
+  );
+
   return response.data;
 };
 
@@ -205,7 +217,8 @@ export const downloadFile = async (
 export const handleApiError = (error: AxiosError): string => {
   if (error.response) {
     // Server responded with error status
-    const message = (error.response.data as any)?.message || error.response.statusText;
+    const message =
+      (error.response.data as any)?.message || error.response.statusText;
     return `Error ${error.response.status}: ${message}`;
   } else if (error.request) {
     // Request was made but no response received
@@ -234,13 +247,13 @@ export const isSuccessResponse = (status: number): boolean => {
 // Utility to create query string from object
 export const createQueryString = (params: Record<string, any>): string => {
   const searchParams = new URLSearchParams();
-  
+
   Object.entries(params).forEach(([key, value]) => {
     if (value !== null && value !== undefined) {
       searchParams.append(key, String(value));
     }
   });
-  
+
   return searchParams.toString();
 };
 
@@ -249,14 +262,12 @@ export const apiGetWithParams = async <T = any>(
   url: string,
   params?: Record<string, any>,
   config?: ExtendedAxiosRequestConfig,
-  usertoken?: boolean
+  usertoken?: boolean,
 ): Promise<AxiosResponse<T>> => {
   const queryString = params ? createQueryString(params) : '';
   const fullUrl = queryString ? `${url}?${queryString}` : url;
-  
+
   return apiGet<T>(fullUrl, config, usertoken);
 };
 
 export default apiClient;
-
-

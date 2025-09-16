@@ -49,7 +49,7 @@ export const styles = StyleSheet.create({
   
   scrollContainer: {
     flex: 1,
-    backgroundColor: CommonColors.themeMain,
+    backgroundColor: CommonColors.black,
   },
   
   // Top Navigation Styles

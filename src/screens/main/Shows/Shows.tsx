@@ -22,6 +22,7 @@ import {RootState} from '../../../redux/store';
 import {useSelector} from 'react-redux';
 import {CommonColors} from '../../../styles/Colors';
 import {moderateScale} from '../../../styles/scaling';
+import LinearGradient from 'react-native-linear-gradient';
 
 type MoviesScreenRouteProp = RouteProp<MainStackParamList, 'Movies'>;
 
@@ -51,7 +52,7 @@ const Shows = () => {
   const [selectedMovieName, setSelectedMovieName] = useState<string>('');
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
-
+  const [isFocused, setIsFocused] = useState(false);
   // Load movie data from MMKV on component mount
   useEffect(() => {
     loadMovieData();
@@ -111,12 +112,28 @@ const Shows = () => {
   return (
     <MainLayout
       activeScreen={activeScreen || 'Movies'}
-      hideSidebar={!showCategoryAndSidebar}>
+      hideSidebar={!showCategoryAndSidebar}
+      setIsFocused={setIsFocused}>
       <StatusBar
         backgroundColor="transparent"
         translucent
         barStyle="light-content"
       />
+
+{isFocused && (
+          <LinearGradient
+            colors={[
+              'rgba(0, 0, 0, 1)',
+              'rgba(0, 0, 0, 0.8)',
+              'rgba(0, 0, 0, 0.1)',
+              'transparent',
+              'transparent',
+            ]}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
+            style={styles.homeGradientFocused}
+          />
+        )}
 
       <View style={styles.container}>
         {/* category list */}

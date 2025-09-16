@@ -26,6 +26,7 @@ import {
   saveMoviesDataToMMKV,
   getMoviesDataFromMMKV,
 } from '../../../localStorage/mmkv';
+import LinearGradient from 'react-native-linear-gradient';
 
 type MoviesScreenRouteProp = RouteProp<MainStackParamList, 'Movies'>;
 
@@ -60,8 +61,6 @@ const Movies = () => {
     loadMovieData();
   }, []);
 
-
-
   const loadMovieData = async () => {
     try {
       setLoading(true);
@@ -74,10 +73,14 @@ const Movies = () => {
 
   const handleScrollViewFocus = (res: any) => {
     setShowCategoryAndSidebar(false);
+    console.log('res----->>>>', res);
     setSelectedMovie(res);
   };
 
-  const handleCategoryListFocus = async (category: any , categoryName: string) => {
+  const handleCategoryListFocus = async (
+    category: any,
+    categoryName: string,
+  ) => {
     console.log('categoryName----->>>>', categoryName);
     setShowCategoryAndSidebar(true);
     setSelectedCategory(category);
@@ -89,7 +92,7 @@ const Movies = () => {
       const res = await getCategoryData('movies', category);
       const movieData = res?.data?.data?.data?.movies;
       if (movieData && movieData.length > 0) {
-        setSelectedCategoryData(movieData); 
+        setSelectedCategoryData(movieData);
         if (movieData[0]?.stream_id) {
           setSelectedMovie(movieData[0]);
         }
@@ -114,32 +117,47 @@ const Movies = () => {
       debouncedGetMovieData(selectedCategory);
     }
   }, [selectedCategory, debouncedGetMovieData]);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <MainLayout
       activeScreen={activeScreen || 'Movies'}
-      hideSidebar={!showCategoryAndSidebar}>
+      hideSidebar={!showCategoryAndSidebar}
+      setIsFocused={setIsFocused}>
       <StatusBar
         backgroundColor="transparent"
         translucent
         barStyle="light-content"
       />
 
+      {isFocused && (
+        <LinearGradient
+          colors={[
+            'rgba(0, 0, 0, 1)',
+            'rgba(0, 0, 0, 0.8)',
+            'rgba(0, 0, 0, 0.1)',
+            'transparent',
+            'transparent',
+          ]}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 0}}
+          style={styles.homeGradientFocused}
+        />
+      )}
+
       <View style={styles.container}>
-        {
-          <View
-            style={[
-              styles.categoryListContainer,
-              !showCategoryAndSidebar && {width: 0, overflow: 'hidden'},
-            ]}
-            nativeID="categoryList">
-            <CategoryList
-              categories={Object.values(moviesData)}
-              selectedCategory={selectedCategory}
-              onFocus={handleCategoryListFocus}
-            />
-          </View>
-        }
+        <View
+          style={[
+            styles.categoryListContainer,
+            !showCategoryAndSidebar && {width: 0, overflow: 'hidden'},
+          ]}
+          nativeID="categoryList">
+          <CategoryList
+            categories={Object.values(moviesData)}
+            selectedCategory={selectedCategory}
+            onFocus={handleCategoryListFocus}
+          />
+        </View>
 
         <View>
           {((selectedCategory && moviesData) ||
@@ -158,12 +176,6 @@ const Movies = () => {
                 <ShowCatCarousel
                   title={`${selectedCategoryName}`}
                   data={selectedCategoryData}
-                  onShowPress={show =>
-                    console.log(
-                      `Featured ${selectedCategory} movie selected:`,
-                      show.title,
-                    )
-                  }
                   onFocus={handleScrollViewFocus}
                   type="movies"
                 />

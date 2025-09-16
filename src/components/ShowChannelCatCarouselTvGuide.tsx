@@ -68,7 +68,7 @@ interface ShowChannelCatCarouselProps {
   handleBlockPress?: (show: ShowData) => void;
 }
 
-const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
+const ShowChannelCatCarouselTvGuide: React.FC<ShowChannelCatCarouselProps> = ({
   title,
   data,
   onShowPress,
@@ -395,9 +395,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
                       styles.currentTimeLineAcrossChannels,
                       {left: currentTimePosition + moderateScale(360)}, // Offset by channel name width
                     ]}
-                  >
-                    <View style={styles.circle}/>
-                    </View>
+                  />
                 )}
 
                 {/* Auto-scroll indicator */}
@@ -415,21 +413,13 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   );
 };
 
-export default React.memo(ShowChannelCatCarousel);
+export default React.memo(ShowChannelCatCarouselTvGuide);
 
 const styles = StyleSheet.create({
   sectionContainer: {
     width: width,
     paddingHorizontal: moderateScale(20),
     height: height/1.8,
-  },
-  circle: {
-    width: 8,
-    height: 8,
-    backgroundColor: CommonColors.blueOpacity30,
-    borderRadius: moderateScale(5),
-    alignSelf: 'center',
-    bottom: 8,
   },
   sectionTitle: {
     fontFamily: FontFamily.PublicSans_Bold,

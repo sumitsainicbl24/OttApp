@@ -444,6 +444,7 @@ export const styles = StyleSheet.create({
   categoryListContainer: {
     flex: 1,
     paddingVertical: verticalScale(20),
+    backgroundColor:CommonColors.whiteOpacity05,
     // paddingHorizontal: moderateScale(20),
     alignItems: 'center',
     gap: verticalScale(16),
@@ -464,6 +465,13 @@ export const styles = StyleSheet.create({
     color: CommonColors.white,
     marginBottom: verticalScale(16),
     textAlign: 'center',
+  },
+  categoryListTitleChannel:{
+    fontFamily: FontFamily.PublicSans_Bold,
+    fontSize: scale(30),
+    color: CommonColors.white,
+    marginBottom: verticalScale(16),
+    textAlign: 'left',
   },
   
   // TV Show Details Content Styles - based on Figma design
@@ -545,6 +553,15 @@ export const styles = StyleSheet.create({
     height: 1,
     backgroundColor: CommonColors.white,
   },
+
+  dividerLineTitle: 
+    {
+      height: 1,
+      backgroundColor: CommonColors.whiteOpacity30,
+      width: '110%',
+      alignSelf: 'center',
+    }
+  ,
   
   tvGuideContainer: {
     paddingHorizontal: moderateScale(40),
@@ -619,8 +636,9 @@ export const styles = StyleSheet.create({
     fontFamily: FontFamily.PublicSans_Bold,
     fontSize: scale(24),
     color: CommonColors.white,
-    marginBottom: verticalScale(20),
+    marginVertical: moderateScale(16),
     marginLeft: moderateScale(16),
+  
     // textAlign: 'center',
   },
 

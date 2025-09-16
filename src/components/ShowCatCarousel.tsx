@@ -80,7 +80,6 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
     return Math.max(minColumns, maxColumns);
   }, [horizontal]);
 
-
   const handleShowPress = (show: ShowData) => {
     console.log(show, 'showshowshow');
 
@@ -95,20 +94,20 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   };
 
   const handleItemFocus = (index: number, item: ShowData) => {
-    console.log('item-->>>>>>>', item)
+    console.log('item-->>>>>>>', item);
     onFocus?.(item);
   };
 
-  const renderShowItem = ({item, index}: {item: ShowData; index: number}) =>{
-    return(
+  const renderShowItem = ({item, index}: {item: ShowData; index: number}) => {
+    return (
       <ShowCatCard
-      show={item}
-      onPress={() => handleShowPress(item)}
-      onFocus={() => handleItemFocus(index, item)}
-      style={horizontal ? styles.horizontalGridItem : styles.gridItem}
-    />
-    )
-  } ;
+        show={item}
+        onPress={() => handleShowPress(item)}
+        onFocus={() => handleItemFocus(index, item)}
+        style={horizontal ? styles.horizontalGridItem : styles.gridItem}
+      />
+    );
+  };
 
   return (
     <View
@@ -165,7 +164,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(20),
     height: verticalScale(595),
     // backgroundColor: 'red',
-
   },
   sectionTitle: {
     fontFamily: FontFamily.PublicSans_Bold,

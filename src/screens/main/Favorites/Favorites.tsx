@@ -10,6 +10,7 @@ import { RouteProp, useRoute } from '@react-navigation/native'
 import { MainStackParamList } from '../../../navigation/NavigationsTypes'
 import { getMyListApi } from '../../../redux/actions/main'
 import { height, width } from '../../../styles/scaling'
+import { CommonColors } from '../../../styles/Colors'
 
 type FavoritesScreenRouteProp = RouteProp<MainStackParamList, 'Favorites'>
 
@@ -61,7 +62,7 @@ const Favorites = () => {
       <StatusBar backgroundColor="transparent" translucent barStyle="light-content" />
 
       <View
-      style={{flexDirection: 'row'}}
+      style={{flexDirection: 'row' }}
       >
 
       

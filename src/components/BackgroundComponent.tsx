@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {CommonColors} from '../styles/Colors';
-import {moderateScale, verticalScale, scale, height} from '../styles/scaling';
+import {moderateScale, verticalScale, scale, height, width} from '../styles/scaling';
 import FontFamily from '../constants/FontFamily';
 import {
   getMovieDetails,
@@ -38,7 +38,7 @@ interface ShowDetails1Props {
   movie?: any;
 }
 
-const ShowDetails1: React.FC<ShowDetails1Props> = ({
+const BackgroundComponent: React.FC<ShowDetails1Props> = ({
   movieName,
   showName,
   movie,
@@ -82,7 +82,7 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
           resizeMode="cover"></ImageBackground>
       ) : (
         <View style={styles.backgroundImagePlaceholder}>
-          <YoutubeComp data={showDetails?.info} />
+          <YoutubeComp data={showDetails?.info} height={height} VideoWidth={width} />
         </View>
       )}
 
@@ -104,10 +104,9 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
         colors={[
           'rgba(0, 0, 0, 1)',
           'rgba(0, 0, 0, 1)',
-          'rgba(0, 0, 0, 1)',
+          'rgba(0, 0, 0, 0.5)',
           'rgba(0, 0, 0, 0.1)',
           'transparent',
-
           'transparent',
         ]}
         start={{x: 0, y: 1}}
@@ -139,12 +138,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: height / 1.5,
     justifyContent: 'center',
-    // paddingTop: verticalScale(40),
   },
 
   backgroundImageStyle: {
     width: '100%',
-    height: height / 1.5,
+    height: height / 1.2,
     flex: 1,
     alignSelf: 'flex-end',
   },
@@ -219,4 +217,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ShowDetails1;
+export default BackgroundComponent;

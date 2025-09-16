@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: CommonColors.themeMain,
+    backgroundColor: CommonColors.black,
   },
   
   backgroundImagePlaceholder: {
@@ -27,6 +27,15 @@ export const styles = StyleSheet.create({
     right: 0,
     height: height * 0.7,
     backgroundColor: 'rgba(11, 24, 48, 0.95)',
+  },
+  homeGradientFocused: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2000,
+    height: 1000,
   },
   gradientOverlay2: {
     position: 'absolute',

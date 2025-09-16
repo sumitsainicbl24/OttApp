@@ -1,6 +1,6 @@
-// export const API_BASE_URL = 'https://api-ott.netsolutionindia.com/api';
+export const API_BASE_URL = 'https://api-ott.netsolutionindia.com/api';
 // export const API_BASE_URL = 'http://192.168.102.57:5003/api';
-export const API_BASE_URL = 'https://802b28ccc8ed.ngrok-free.app/api';
+// export const API_BASE_URL = 'https://d55d0de07478.ngrok-free.app/api';
 // export const API_BASE_URL = "http://192.168.102.57:5003/api";
 
 const USERNAME = 'mrKQdWmJ';

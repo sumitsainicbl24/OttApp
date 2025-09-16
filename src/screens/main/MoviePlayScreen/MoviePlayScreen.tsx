@@ -1,68 +1,60 @@
 // 1. React Native core imports
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  Text,
-  View,
-  TouchableOpacity,
+  Alert,
+  FlatList,
+  Image,
+  Linking,
   ScrollView,
   StatusBar,
-  Image,
-  FlatList,
-  Linking,
-  Alert,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 // 2. Third-party library imports
-import LinearGradient from 'react-native-linear-gradient';
 
 // 3. Navigation imports
 import {
-  useNavigation,
-  RouteProp,
-  useRoute,
   NavigationProp,
+  RouteProp,
+  useNavigation,
+  useRoute,
 } from '@react-navigation/native';
 
 // 4. Redux imports
-import {useAppSelector, useAppDispatch} from '../../../redux/hooks';
+import {useAppDispatch} from '../../../redux/hooks';
 
 // 5. Global styles and utilities
-import CommonStyles from '../../../styles/CommonStyles';
-import {CommonColors} from '../../../styles/Colors';
-import {moderateScale, verticalScale, scale} from '../../../styles/scaling';
-import FontFamily from '../../../constants/FontFamily';
 import imagepath from '../../../constants/imagepath';
+import {CommonColors} from '../../../styles/Colors';
 
 // 6. Component imports
-import ButtonComp from '../../../components/ButtonComp';
 import MainLayout from '../../../components/MainLayout';
-import ShowDetails1 from '../../../components/ShowDetails1';
 
 // 7. Utils and helpers
 import {MainStackParamList} from '../../../navigation/NavigationsTypes';
 
 // 8. Local styles import (ALWAYS LAST)
-import {styles} from './styles';
+import {useSelector} from 'react-redux';
+import BackgroundComponent from '../../../components/BackgroundComponent';
 import LiveVideoComp from '../../../components/LiveVideoComp';
 import {
   addToMyListApi,
   continueWatchingCurrentApi,
   getDiaPosterDetail,
-  getMyListApi,
   getSeriesDetails,
-  getSeriesEpisodes,
   mylistCheckApi,
   removeFromMyList,
 } from '../../../redux/actions/main';
-import ShowCatCard from '../../../components/ShowCatCard';
+import {setCurrentSeriesEpisodes} from '../../../redux/reducers/main';
+import {RootState} from '../../../redux/store';
 import {
   extractStreamIdFromUrl,
   getEpisodeAndSeasonNumber,
   imageResolutionHandlerForUrl,
 } from '../../../utils/CommonFunctions';
-import {setCurrentSeriesEpisodes} from '../../../redux/reducers/main';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../redux/store';
+import {styles} from './styles';
 
 type MoviePlayScreenRouteProp = RouteProp<
   MainStackParamList,
@@ -104,7 +96,7 @@ const MoviePlayScreen = () => {
   const [posterMovieName, setPosterMovieName] = useState<any>(null);
 
   const getPosterMovieName = async () => {
-    console.log('teststststststts', show);
+    console.log(movie, 'teststststststts', show);
 
     if (show?.series_id) {
       setPosterMovieName({
@@ -334,9 +326,11 @@ const MoviePlayScreen = () => {
         <ScrollView
           style={styles.container}
           showsVerticalScrollIndicator={false}>
-          {/* ShowDetails1 Component - handles background, gradients, and movie details */}
-          <ShowDetails1 movieName={movieTitle} showName={showTitle} />
-
+          {movie ? (
+            <BackgroundComponent movieName={movieTitle} movie={movie} />
+          ) : (
+            <BackgroundComponent showName={showTitle} movie={show} />
+          )}
           {seriesEpisodes?.length > 0 && (
             <View style={styles.episodesSection}>
               <Text style={styles.episodesSectionTitle}>Episodes</Text>
@@ -350,7 +344,6 @@ const MoviePlayScreen = () => {
               />
             </View>
           )}
-
           {/* Action Buttons Section */}
           <View style={styles.actionButtonsSection}>
             <View style={styles.actionButtonsContainer}>
@@ -385,27 +378,6 @@ const MoviePlayScreen = () => {
                     : ''}
                 </Text>
               </TouchableOpacity>
-
-              {/* <TouchableOpacity 
-              style={[
-                styles.externalPlayerButton,
-                focusedButton === 'externalPlayer' && { backgroundColor: CommonColors.white }
-              ]}
-              onPress={handleExternalPlayerPress}
-              onFocus={() => handleFocus('externalPlayer')}
-              onBlur={handleBlur}
-              activeOpacity={1}
-            >
-              <Image 
-                source={imagepath.maximizeIcon} 
-                style={styles.externalPlayerIconPlaceholder} 
-                tintColor={focusedButton === 'externalPlayer' ? CommonColors.black : CommonColors.white}
-              />
-              <Text style={[
-                styles.externalPlayerButtonText,
-                focusedButton === 'externalPlayer' && { color: CommonColors.black }
-              ]}>Open in external player</Text>
-            </TouchableOpacity> */}
 
               <TouchableOpacity
                 style={[

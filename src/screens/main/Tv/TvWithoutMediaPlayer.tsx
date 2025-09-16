@@ -5,7 +5,12 @@ import {
   useTVEventHandler,
   View,
 } from 'react-native';
-import {NavigationProp, RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
 import ChannelMediaPlayer from '../../../components/ChannelMediaPlayer';
@@ -20,7 +25,8 @@ import {debounce} from '../../../utils/CommonFunctions';
 import {clearEPGCaches} from '../../../utils/epgUtils';
 import {styles} from './TvwithoutPlayerStyles';
 import {height} from '../../../styles/scaling';
-import { setCurrentlyPlaying } from '../../../redux/reducers/main';
+import {setCurrentlyPlaying} from '../../../redux/reducers/main';
+import ShowChannelCatCarouselTvGuide from '../../../components/ShowChannelCatCarouselTvGuide';
 
 export interface channelData {
   num: number;
@@ -62,13 +68,19 @@ export interface Epg {
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
-const TvWithoutMediaPlayer = ({channelData , handleBlockPress}: {channelData: channelData, handleBlockPress: (show: any) => void}) => {
+const TvWithoutMediaPlayer = ({
+  channelData,
+  handleBlockPress,
+}: {
+  channelData: channelData;
+  handleBlockPress: (show: any) => void;
+}) => {
   const {channelsData} = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
   const dispatch = useDispatch();
-  
+
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any>(0);
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
@@ -89,8 +101,6 @@ const TvWithoutMediaPlayer = ({channelData , handleBlockPress}: {channelData: ch
     clearEPGCaches();
     setSelectedCategoryData([]);
   }, []);
-
-
 
   const memorizeChannelsData = useMemo(() => {
     return Object.values(channelsData) as any[];
@@ -151,8 +161,6 @@ const TvWithoutMediaPlayer = ({channelData , handleBlockPress}: {channelData: ch
     }
   }, [selectedCategory, debouncedGetMovieData]);
 
- 
-
   return (
     <View style={{flex: 1, backgroundColor: 'transparent'}}>
       <StatusBar
@@ -167,13 +175,14 @@ const TvWithoutMediaPlayer = ({channelData , handleBlockPress}: {channelData: ch
             categories={memorizeChannelsData}
             selectedCategory={memorizeSelectedCategory}
             onFocus={handleCategoryListFocus}
+            style={{backgroundColor: 'transparent'}}
           />
         </View>
 
         <View>
           <View style={styles.scrollContainer}>
             <View style={styles.showChannelCatCarouselContainer}>
-              <ShowChannelCatCarousel
+              <ShowChannelCatCarouselTvGuide
                 title={`${selectedCategory}`}
                 data={selectedCategoryData}
                 onFocus={handleScrollViewFocus}

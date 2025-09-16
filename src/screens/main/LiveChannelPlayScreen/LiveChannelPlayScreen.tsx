@@ -623,6 +623,12 @@ const LiveChannelPlayScreen = () => {
     );
   };
 
+  const handleChannelSelect = (channel: channelData) => {
+    console.log('channelselected:---->>>>>>', channel);
+    // setChannel(channel);
+    // setChannelName(channel?.name || channel?.title || 'Live Channel');
+  };
+
   return (
     <MainLayout activeScreen="LiveChannelPlayScreen" hideSidebar={true}>
       <StatusBar
@@ -679,6 +685,7 @@ const LiveChannelPlayScreen = () => {
           visible={showLeftChannelModal}
           onClose={handleLeftChannelModalClose}
           channelData={channel}
+          onChannelSelect={handleChannelSelect}
         />
 
         {/* History Modal */}
