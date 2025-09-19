@@ -444,7 +444,7 @@ export const styles = StyleSheet.create({
   categoryListContainer: {
     flex: 1,
     paddingVertical: verticalScale(20),
-    backgroundColor:CommonColors.whiteOpacity05,
+    backgroundColor:'transparent',
     // paddingHorizontal: moderateScale(20),
     alignItems: 'center',
     gap: verticalScale(16),

@@ -44,6 +44,7 @@ import {
   continueWatchingCurrentApi,
   getDiaPosterDetail,
   getSeriesDetails,
+  getSeriesDetailsNew,
   mylistCheckApi,
   removeFromMyList,
 } from '../../../redux/actions/main';
@@ -83,7 +84,7 @@ const MoviePlayScreen = () => {
   );
   const {userToken} = useSelector((state: RootState) => state.rootReducer.auth);
   const {show, movie, live} = route.params;
-  const [movieTitle, setMovieTitle] = useState(movie?.title || movie?.name);
+  const [movieTitle, setMovieTitle] = useState();
   const [showTitle, setShowTitle] = useState(show?.title || show?.name);
   const [seriesEpisodes, setSeriesEpisodes] = useState<any[]>([]);
   // Focus state management
@@ -94,26 +95,6 @@ const MoviePlayScreen = () => {
   const [addedToMyList, setAddedToMyList] = useState<boolean>(false);
   const [timing, setTiming] = useState<any>(null);
   const [posterMovieName, setPosterMovieName] = useState<any>(null);
-
-  const getPosterMovieName = async () => {
-    console.log(movie, 'teststststststts', show);
-
-    if (show?.series_id) {
-      setPosterMovieName({
-        info: show,
-      });
-    } else {
-      let stream_id = extractStreamIdFromUrl(movie?.url);
-      let diaPosterDetail = await getDiaPosterDetail(stream_id!);
-      setPosterMovieName({
-        info: diaPosterDetail?.data?.info,
-      });
-    }
-  };
-
-  useEffect(() => {
-    getPosterMovieName();
-  }, []);
 
   // Focus handlers
   const handleFocus = (buttonName: string) => {
@@ -130,13 +111,7 @@ const MoviePlayScreen = () => {
 
   const handleTrailerPress = async () => {
     try {
-      // Get YouTube trailer URL from currentlyPlaying or posterMovieName
-
       const youtubeTrailer = posterMovieName?.info?.youtube_trailer;
-      console.log(
-        'posterMovieNameposterMovieNameposterMovieName-->>>',
-        posterMovieName,
-      );
       if (youtubeTrailer) {
         let youtubeUrl = youtubeTrailer;
         if (
@@ -203,24 +178,26 @@ const MoviePlayScreen = () => {
       setIsFocused(false);
     };
 
+    function onPressEpisode() {
+      setSelectedEpisode(episode);
+      if (episode?.url !== streamUrl) {
+        setTiming(null);
+      }
+      setStreamUrl(episode?.url);
+      setIsMoviePlaying(true);
+    }
+
     return (
       <TouchableOpacity
         style={[styles.episodeCard, isFocused && styles.episodeCardFocused]}
-        onPress={() => {
-          setSelectedEpisode(episode);
-          if (episode?.url !== streamUrl) {
-            setTiming(null);
-          }
-          setStreamUrl(episode?.url);
-          setIsMoviePlaying(true);
-        }}
+        onPress={onPressEpisode}
         onFocus={handleFocus}
         onBlur={handleBlur}
         activeOpacity={1}>
         <Image
           source={
-            episode?.logo && episode.logo.includes('https://')
-              ? {uri: imageResolutionHandlerForUrl(episode.logo)}
+            episode?.info?.movie_image
+              ? {uri: episode?.info?.movie_image}
               : imagepath.VideoPlaceHolder
           }
           style={styles.episodeImage}
@@ -234,49 +211,54 @@ const MoviePlayScreen = () => {
     );
   };
 
+  async function getMovieDetails() {
+    try {
+      const moviesDetailsResponse = await getSeriesDetailsNew(
+        'movies',
+        movie?.stream_id,
+      );
+      setPosterMovieName({
+        info: moviesDetailsResponse?.data?.data?.info,
+      });
+      dispatch(setCurrentSeriesEpisodes([]));
+      setMovieTitle(
+        moviesDetailsResponse?.data?.data?.movie_data?.title ||
+          moviesDetailsResponse?.data?.data?.movie_data?.name,
+      );
+      setStreamUrl(moviesDetailsResponse?.data?.data?.movie_data?.url);
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+
+  async function getSeriesDetails() {
+    try {
+      const sereisDetailsResponse = await getSeriesDetailsNew(
+        'series',
+        show?.series_id,
+      );
+
+      console.log('sereisDetailsResponse', sereisDetailsResponse);
+      setPosterMovieName({
+        info: sereisDetailsResponse?.data?.data?.info,
+      });
+      dispatch(
+        setCurrentSeriesEpisodes(sereisDetailsResponse?.data?.data?.episodes),
+      );
+      setSeriesEpisodes(sereisDetailsResponse?.data?.data?.episodes);
+      if (!streamUrl) {
+        setStreamUrl(sereisDetailsResponse?.data?.data?.episodes[0]?.url);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+
   useEffect(() => {
     if (movie) {
-      console.log('moviedata in play screen', movie);
-      dispatch(setCurrentSeriesEpisodes([]));
-      setMovieTitle(movie?.title || movie?.name);
-      setStreamUrl(movie?.url);
+      getMovieDetails();
     } else if (show) {
-      (async () => {
-        try {
-          // const res = await getSeriesEpisodes(show?.title || show?.name)
-
-          const res = await getSeriesDetails(
-            currentlyPlaying?.baseTitle ||
-              currentlyPlaying?.title ||
-              show?.title ||
-              show?.name,
-          );
-          console.log(
-            'res from series episodes',
-            res?.data?.data?.seasonsList[0]?.episodes,
-          );
-          dispatch(
-            setCurrentSeriesEpisodes(
-              res?.data?.data?.data?.episodes ||
-                res?.data?.data?.seasonsList[0]?.episodes ||
-                [],
-            ),
-          );
-          setSeriesEpisodes(
-            res?.data?.data?.data?.episodes ||
-              res?.data?.data?.seasonsList[0]?.episodes ||
-              [],
-          );
-          if (!streamUrl) {
-            setStreamUrl(
-              res?.data?.data?.data?.episodes[0]?.url ||
-                res?.data?.data?.seasonsList[0]?.episodes[0]?.url,
-            );
-          }
-        } catch (error) {
-          console.log('error', error);
-        }
-      })();
+      getSeriesDetails();
     } else if (live) {
       setStreamUrl(live?.url);
       setIsMoviePlaying(true);
@@ -284,30 +266,30 @@ const MoviePlayScreen = () => {
   }, [movie, show, live]);
 
   useEffect(() => {
-    (async () => {
-      const res = await mylistCheckApi(currentlyPlaying);
-      if (res?.data?.data?.exists) {
-        setAddedToMyList(true);
-      }
+    if (userToken) {
+      getContinueWatchingCurrent();
+    }
+  }, [currentlyPlaying, userToken]);
 
-      const res2 = await continueWatchingCurrentApi({
-        url: currentlyPlaying?.url || ' ',
-        type: currentlyPlaying?.type || 'series',
-        title: currentlyPlaying?.baseTitle || currentlyPlaying?.title,
-      });
-      console.log('res2 from continue watching current', res2);
-      if (res2?.data?.data?.found) {
-        setTiming(res2?.data?.data?.timing);
-        setStreamUrl(res2?.data?.data?.video?.url);
-      }
-      // if(currentlyPlaying){
-      //   const found = res?.data?.data?.data?.videos?.find((item: any) => item.title === currentlyPlaying.title && item.url === currentlyPlaying.url)
-      //   if(found){
-      //     setAddedToMyList(true)
-      //   }
-      // }
-    })();
-  }, [currentlyPlaying]);
+  async function getContinueWatchingCurrent() {
+    const res = await mylistCheckApi(currentlyPlaying);
+    if (res?.data?.data?.exists) {
+      setAddedToMyList(true);
+    }
+    const res2 = await continueWatchingCurrentApi({
+      url: currentlyPlaying?.url || ' ',
+      type: currentlyPlaying?.type || 'series',
+      title: currentlyPlaying?.baseTitle || currentlyPlaying?.title,
+    });
+    if (res2?.data?.data?.found) {
+      setTiming(res2?.data?.data?.timing);
+      setStreamUrl(res2?.data?.data?.video?.url);
+    }
+  }
+
+  function renderEpisodes({item}: any) {
+    return <EpisodeCard episode={item} />;
+  }
 
   return (
     <MainLayout activeScreen="MoviePlayScreen" hideSidebar={true}>
@@ -336,7 +318,7 @@ const MoviePlayScreen = () => {
               <Text style={styles.episodesSectionTitle}>Episodes</Text>
               <FlatList
                 data={seriesEpisodes}
-                renderItem={({item}) => <EpisodeCard episode={item} />}
+                renderItem={renderEpisodes}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal
                 showsHorizontalScrollIndicator={false}

@@ -1,5 +1,12 @@
-import React, {useState, useMemo} from 'react';
-import {View, TouchableOpacity, StyleSheet, Image, Text} from 'react-native';
+import React, {useState, useMemo, useRef, useEffect} from 'react';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Text,
+  Animated,
+} from 'react-native';
 import {height, moderateScale, scale, verticalScale} from '../styles/scaling';
 import {CommonColors} from '../styles/Colors';
 import imagepath from '../constants/imagepath';
@@ -21,7 +28,19 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
   setIsFocused = () => {},
 }) => {
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
+  const animatedWidth = useRef(new Animated.Value(50)).current;
+
+  // Animate width when focusedItem changes
+  useEffect(() => {
+    const targetWidth = focusedItem ? scale(250) : 50;
+    Animated.timing(animatedWidth, {
+      toValue: targetWidth,
+      duration: 300,
+      useNativeDriver: false, // width animation requires layout animation
+    }).start();
+  }, [drawerOpen]);
 
   const handleNavPress = (screen: string) => {
     console.log(`${screen} pressed`);
@@ -50,11 +69,13 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 
   const handleFocus = (screen: string) => {
     setIsFocused(true);
+    setDrawerOpen(true);
     setFocusedItem(screen);
   };
 
   const handleBlur = () => {
     setIsFocused(false);
+    setDrawerOpen(false);
     setFocusedItem(null);
   };
 
@@ -74,10 +95,10 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     };
   }, [activeScreen, focusedItem]);
 
-  // Memoize the container style
+  // Memoize the container style with animated width
   const containerStyle = useMemo(
-    () => [styles.sideNavigationContainer, focusedItem && {width: scale(250)}],
-    [focusedItem],
+    () => [styles.sideNavigationContainer, {width: animatedWidth}],
+    [animatedWidth],
   );
 
   // Memoize the logo section
@@ -97,7 +118,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         id: 'Home',
         icon:
           activeScreen === 'Home' || focusedItem === 'Home'
-            ? imagepath.homeIcon
+            ? imagepath.homeIconActive
             : imagepath.homeIcon,
       },
       {
@@ -125,15 +146,8 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         id: 'Shows',
         icon:
           activeScreen === 'Shows' || focusedItem === 'Shows'
-            ? imagepath.showIconActive
+            ? imagepath.showIconActive2
             : imagepath.showsIcon,
-      },
-      {
-        id: 'Radio',
-        icon:
-          activeScreen === 'Radio' || focusedItem === 'Radio'
-            ? imagepath.radioIconActive
-            : imagepath.radioIcon,
       },
       {
         id: 'Favorites',
@@ -161,7 +175,11 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
           nextFocusRight: undefined,
         } as any)}>
         <Image
-          source={imagepath.settingIcon}
+          source={
+            focusedItem == 'Settings'
+              ? imagepath.settingIconActive
+              : imagepath.settingIcon
+          }
           style={[
             styles.sideNavIcon,
             focusedItem == 'Settings' && {
@@ -185,7 +203,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
   );
 
   return (
-    <View style={containerStyle}>
+    <Animated.View style={containerStyle}>
       {/* Logo */}
       {logoSection}
 
@@ -204,6 +222,15 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
               nextFocusLeft: undefined,
               nextFocusRight: undefined,
             } as any)}>
+            {/* {focusedItem === item.id && <View style={styles.glow} />} */}
+            {(focusedItem === item.id || activeScreen === item.id) && (
+              <Image
+                source={imagepath.blur}
+                style={
+                  activeScreen === item.id ? styles.blurActive : styles.blur
+                }
+              />
+            )}
             <Image
               source={item.icon}
               style={[
@@ -214,7 +241,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 },
               ]}
             />
-            {focusedItem && (
+            {drawerOpen && (
               <Text
                 style={[
                   styles.sideNavIconText,
@@ -229,7 +256,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 
       {/* Bottom Section */}
       <View style={styles.sideNavBottomSection}>{settingsButton}</View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -243,6 +270,22 @@ const styles = StyleSheet.create({
     zIndex: 100,
     height: height,
     width: 50,
+  },
+  blur: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    left: 1,
+  },
+
+  blurActive: {
+    width: 30,
+    height: 30,
+    // left:2,
+    position: 'absolute',
+
+    // borderRadius: 60,
+    // opacity: 0.5,
   },
 
   sideNavIconContainer: {
@@ -293,7 +336,7 @@ const styles = StyleSheet.create({
 
   sideNavFocusedIconContainer: {
     borderRadius: moderateScale(6),
-    borderWidth: 1,
+    // borderWidth: 1,
     // borderColor: CommonColors.white,
     transform: [{scale: 1.05}],
     // backgroundColor: CommonColors.white,
@@ -303,6 +346,7 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.PublicSans_Bold,
     color: CommonColors.white,
     opacity: 0.5,
+    zIndex: -1000,
   },
   focusedTextGlow: {
     color: CommonColors.white,
@@ -314,10 +358,18 @@ const styles = StyleSheet.create({
   },
   glow: {
     position: 'absolute',
-    width: 20,
-    height: 20,
-    borderRadius: 110,
-    opacity: 0.7,
+    width: 12,
+    height: 12,
+    borderRadius: 60,
+    // backgroundColor: '#61dafb', // same tone as image
+    opacity: 0.8,
+    shadowColor: CommonColors.white,
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 1,
+    // shadowRadius: 20,
+    elevation: 1, // for Android
+    alignSelf: 'center',
+    left: 10,
   },
 });
 

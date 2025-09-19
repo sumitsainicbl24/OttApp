@@ -3,12 +3,12 @@ export default{
     checkboxTickBlue:require('../assets/images/checkboxTickBlue.png'),
     downloadIconWhite:require('../assets/images/downloadIconWhite.png'),
     settingIcon:require('../assets/images/settingIcon.png'),
+    settingIconActive:require('../assets/images/settingIconActive.png'),
     BellIcon:require('../assets/images/BellIcon.png'),
     playIconWhite:require('../assets/images/playIconWhite.png'),
     showsIcon:require('../assets/images/showsIcon.png'),
     showIconActive:require('../assets/images/showIconActive.png'),
     showIconActive2:require('../assets/images/video-play.png'),
-
     radioIcon:require('../assets/images/radioIcon.png'),
     radioIconActive:require('../assets/images/radioIconActive.png'),
     movieIcon:require('../assets/images/movieIcon.png'),
@@ -69,6 +69,8 @@ export default{
 
     TvDemoImage:require('../assets/images/TvDemoImage.jpg'),
     clear:require('../assets/images/delete.png'),
+    blur:require('../assets/images/BG.png'),
+
     
 
 }

@@ -31,7 +31,7 @@ const PlaylistProcessed = ({
   route: RouteProp<AuthStackParamList, 'PlaylistProcessed'>;
 }) => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
-  const {type, playlistUrl} = route.params;
+  const {type, playlistUrl, username, password} = route.params;
   // Focus state for buttons
   const [focused, setFocused] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,6 +43,10 @@ const PlaylistProcessed = ({
   const [retryCount, setRetryCount] = useState(0);
   const [authToken, setAuthToken] = useState('');
   const maxRetries = 3;
+
+  useEffect(() => {
+    console.log('paamsssmdsndmnsmdnmsdn--->>>', route.params);
+  }, []);
 
   // Animation value for loading text
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -75,7 +79,13 @@ const PlaylistProcessed = ({
 
   const login = async () => {
     try {
-      let res = await LoginApi(playlistUrl);
+      let data = {
+        type: type,
+        m3uUrl: playlistUrl,
+        username: username,
+        password: password,
+      };
+      let res = await LoginApi(data);
       // let res = await LoginApi("http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts")
       console.log('login response:', res);
       await setAuthTokenAction(res?.data?.token);

@@ -1,25 +1,22 @@
-import React, {useState, useEffect} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
-  Image,
-  StyleSheet,
-  Text,
-  View,
-  ActivityIndicator,
   ImageBackground,
+  StyleSheet,
+  TVFocusGuideView,
+  View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {CommonColors} from '../styles/Colors';
-import {moderateScale, verticalScale, scale, height} from '../styles/scaling';
 import FontFamily from '../constants/FontFamily';
-import {
-  getMovieDetails,
-  getSeriesShowDetails,
-  imageResolutionHandlerForUrl,
-} from '../utils/CommonFunctions';
-import {getDiaPosterDetail} from '../redux/actions/main';
+import {getSeriesDetailsNew} from '../redux/actions/main';
 import YoutubeComp from '../screens/main/Home/YoutubeComp';
+import {CommonColors} from '../styles/Colors';
+import {height, moderateScale, scale} from '../styles/scaling';
 import ShowDetails from './ShowDetails';
 
+// Constants
+const DEBOUNCE_DELAY_MS = 300;
+
+// Types
 interface ShowData {
   title: string;
   rating: string;
@@ -32,10 +29,25 @@ interface ShowData {
   Poster: string;
 }
 
+interface Movie {
+  stream_id?: number;
+  series_id?: number;
+  title?: string;
+  name?: string;
+}
+
 interface ShowDetails1Props {
   movieName?: string;
   showName?: string;
-  movie?: any;
+  movie?: Movie;
+}
+
+interface ShowDetailsState {
+  info?: {
+    youtube_trailer?: string;
+    backdrop_path?: string[];
+    [key: string]: any;
+  };
 }
 
 const ShowDetails1: React.FC<ShowDetails1Props> = ({
@@ -43,49 +55,135 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
   showName,
   movie,
 }) => {
-  const [showDetails, setShowDetails] = useState<any | null>(null);
+  // State management
+  const [contentDetails, setContentDetails] = useState<ShowDetailsState | null>(
+    null,
+  );
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (movieName) {
-      fetchMovieDetails();
-    }
-    if (showName) {
-      fetchShowDetails();
-    }
-  }, [movieName, showName]);
-
-  const fetchMovieDetails = async () => {
-    if (!movieName) return;
+  // API call handlers
+  const fetchMovieDetails = async (streamId: number): Promise<void> => {
     try {
-      const details = await getDiaPosterDetail(movie?.stream_id!);
-      console.log('details=--->>', details);
-      setShowDetails({info: details?.data?.info});
+      const response = await getSeriesDetailsNew('movies', streamId);
+      const movieInfo = response?.data?.data?.info;
+
+      if (movieInfo) {
+        setContentDetails({info: movieInfo});
+        console.log(
+          'Movie details fetched successfully for stream_id:',
+          streamId,
+        );
+      }
     } catch (error) {
-      console.error('Error fetching movie details:', error);
+      console.error(
+        'Failed to fetch movie details for stream_id:',
+        streamId,
+        error,
+      );
     }
   };
 
-  const fetchShowDetails = () => {
-    if (!showName) return;
-    console.log('showdedededed', movie);
-    setShowDetails({info: movie});
+  const fetchSeriesDetails = async (seriesId: number): Promise<void> => {
+    try {
+      const response = await getSeriesDetailsNew('series', seriesId);
+      const seriesInfo = response?.data?.data?.info;
+
+      if (seriesInfo) {
+        setContentDetails({info: seriesInfo});
+        console.log(
+          'Series details fetched successfully for series_id:',
+          seriesId,
+        );
+      }
+    } catch (error) {
+      console.error(
+        'Failed to fetch series details for series_id:',
+        seriesId,
+        error,
+      );
+    }
   };
 
-  return (
-    <View style={styles.backgroundImagePlaceholder}>
-      {!showDetails?.info?.youtube_trailer ? (
-        <ImageBackground
-          source={{uri: showDetails?.info?.backdrop_path?.[0]}}
-          style={{
-            ...styles.backgroundImageStyle,
-          }}
-          resizeMode="cover"></ImageBackground>
-      ) : (
-        <View style={styles.backgroundImagePlaceholder}>
-          <YoutubeComp data={showDetails?.info} />
-        </View>
-      )}
+  // Debounced content loading logic
+  const loadContentDetails = useCallback(() => {
+    const isMovie = movieName && movie?.stream_id;
+    const isSeries = showName && movie?.series_id;
 
+    if (isMovie) {
+      console.log(
+        'Loading movie details:',
+        movieName,
+        'stream_id:',
+        movie.stream_id,
+      );
+      fetchMovieDetails(movie.stream_id!);
+    } else if (isSeries) {
+      console.log(
+        'Loading series details:',
+        showName,
+        'series_id:',
+        movie.series_id,
+      );
+      fetchSeriesDetails(movie.series_id!);
+    }
+  }, [movieName, showName, movie?.stream_id, movie?.series_id]);
+
+  // Debounce effect to prevent excessive API calls
+  useEffect(() => {
+    console.log(
+      'ShowDetails1 useEffect triggered - movieName:',
+      movieName,
+      'showName:',
+      showName,
+      'stream_id:',
+      movie?.stream_id,
+      'series_id:',
+      movie?.series_id,
+    );
+
+    // Clear any pending API call
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+      console.log('Cancelled previous API call due to rapid selection changes');
+    }
+
+    // Schedule new API call after debounce delay
+    debounceTimeoutRef.current = setTimeout(() => {
+      loadContentDetails();
+    }, DEBOUNCE_DELAY_MS);
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [loadContentDetails]);
+
+  // Render helpers
+  const renderBackgroundContent = () => {
+    const hasTrailer = contentDetails?.info?.youtube_trailer;
+    const backdropImage = contentDetails?.info?.backdrop_path?.[0];
+
+    if (hasTrailer) {
+      return (
+        <View style={styles.backgroundImagePlaceholder}>
+          <YoutubeComp data={contentDetails?.info} />
+        </View>
+      );
+    }
+
+    return (
+      <ImageBackground
+        source={{uri: backdropImage}}
+        style={styles.backgroundImageStyle}
+        resizeMode="cover"
+      />
+    );
+  };
+
+  const renderGradientOverlays = () => (
+    <>
       {/* Horizontal gradient overlay - dark on left, transparent on right */}
       <LinearGradient
         colors={[
@@ -100,6 +198,7 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
         style={styles.horizontalGradientOverlay}
       />
 
+      {/* Vertical gradient overlay - dark at bottom, transparent at top */}
       <LinearGradient
         colors={[
           'rgba(0, 0, 0, 1)',
@@ -107,28 +206,33 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
           'rgba(0, 0, 0, 1)',
           'rgba(0, 0, 0, 0.1)',
           'transparent',
-
           'transparent',
         ]}
         start={{x: 0, y: 1}}
         end={{x: 0, y: 0}}
         style={styles.horizontalGradientOverlay}
       />
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-        }}>
-        <ShowDetails
-          showDetails={showDetails}
-          PosterMovieName={showDetails}
-          showButtons={false}
-        />
-      </View>
+    </>
+  );
+
+  const renderContentDetails = () => (
+    <View style={styles.contentDetailsContainer}>
+      <ShowDetails
+        showDetails={contentDetails}
+        PosterMovieName={contentDetails}
+        showButtons={false}
+      />
     </View>
+  );
+
+  return (
+    <TVFocusGuideView
+      focusable={false}
+      style={styles.backgroundImagePlaceholder}>
+      {renderBackgroundContent()}
+      {renderGradientOverlays()}
+      {renderContentDetails()}
+    </TVFocusGuideView>
   );
 };
 
@@ -157,6 +261,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 1,
     height: height / 1,
+  },
+
+  contentDetailsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
   },
 
   container: {

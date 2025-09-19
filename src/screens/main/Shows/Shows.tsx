@@ -1,28 +1,25 @@
 // 1. React Native core imports
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
-  ScrollView,
   StatusBar,
-  Text,
   TVFocusGuideView,
   View,
 } from 'react-native';
 
-import {styles} from './styles';
-import MainLayout from '../../../components/MainLayout';
-import CategoryList from '../../../components/CategoryList';
 import {RouteProp, useRoute} from '@react-navigation/native';
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import LinearGradient from 'react-native-linear-gradient';
+import {useSelector} from 'react-redux';
+import CategoryList from '../../../components/CategoryList';
+import MainLayout from '../../../components/MainLayout';
 import ShowCatCarousel from '../../../components/ShowCatCarousel';
 import ShowDetails1 from '../../../components/ShowDetails1';
+import {MainStackParamList} from '../../../navigation/NavigationsTypes';
 import {getCategoryData} from '../../../redux/actions/auth';
-import {debounce} from '../../../utils/CommonFunctions';
 import {RootState} from '../../../redux/store';
-import {useSelector} from 'react-redux';
 import {CommonColors} from '../../../styles/Colors';
-import {moderateScale} from '../../../styles/scaling';
-import LinearGradient from 'react-native-linear-gradient';
+import {debounce} from '../../../utils/CommonFunctions';
+import {styles} from './styles';
 
 type MoviesScreenRouteProp = RouteProp<MainStackParamList, 'Movies'>;
 
@@ -55,19 +52,10 @@ const Shows = () => {
   const [isFocused, setIsFocused] = useState(false);
   // Load movie data from MMKV on component mount
   useEffect(() => {
-    loadMovieData();
+    setSelectedCategory(seriesData[0]?.category_id);
+
   }, []);
 
-  const loadMovieData = async () => {
-    try {
-      setLoading(true);
-      setMovieCategories(seriesData);
-      setSelectedCategory(seriesData[0]);
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleScrollViewFocus = (res: any) => {
     setShowCategoryAndSidebar(false);
@@ -120,37 +108,34 @@ const Shows = () => {
         barStyle="light-content"
       />
 
-{isFocused && (
-          <LinearGradient
-            colors={[
-              'rgba(0, 0, 0, 1)',
-              'rgba(0, 0, 0, 0.8)',
-              'rgba(0, 0, 0, 0.1)',
-              'transparent',
-              'transparent',
-            ]}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
-            style={styles.homeGradientFocused}
-          />
-        )}
+      {isFocused && (
+        <LinearGradient
+          colors={[
+            'rgba(0, 0, 0, 1)',
+            'rgba(0, 0, 0, 0.8)',
+            'rgba(0, 0, 0, 0.1)',
+            'transparent',
+            'transparent',
+          ]}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 0}}
+          style={styles.homeGradientFocused}
+        />
+      )}
 
       <View style={styles.container}>
-        {/* category list */}
-        {
-          <View
-            style={[
-              styles.categoryListContainer,
-              !showCategoryAndSidebar && {width: 0, overflow: 'hidden'},
-            ]}
-            nativeID="categoryList">
-            <CategoryList
-              categories={movieCategories}
-              selectedCategory={selectedCategory}
-              onFocus={handleCategoryListFocus}
-            />
-          </View>
-        }
+        <View
+          style={[
+            styles.categoryListContainer,
+            !showCategoryAndSidebar && {width: 0, overflow: 'hidden'},
+          ]}
+          nativeID="categoryList">
+          <CategoryList
+            categories={seriesData}
+            selectedCategory={selectedCategory}
+            onFocus={handleCategoryListFocus}
+          />
+        </View>
 
         <View>
           <ShowDetails1 movie={selectedMovie} showName={selectedMovie?.title} />

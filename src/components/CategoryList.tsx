@@ -5,6 +5,7 @@ import {
   StyleSheet,
   StyleProp,
   ViewStyle,
+  TVFocusGuideView,
 } from 'react-native';
 import {FlashList} from '@shopify/flash-list';
 import {samepleCategoryData} from '../screens/main/Movies/DummyData';
@@ -98,7 +99,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
 
   // Memoize constants to avoid recalculation
   const ITEM_HEIGHT = moderateScale(50);
-  const PADDING_ITEMS = 7;
+  const PADDING_ITEMS = 5;
 
   const listData: ListItem[] = useMemo(() => {
     if (!normalizedData || normalizedData.length === 0) return [];
@@ -267,7 +268,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   );
 
   return (
-    <View style={[styles.container, style]} onLayout={handleLayout}>
+    <TVFocusGuideView autoFocus style={[styles.container, style]} onLayout={handleLayout}>
       <FlashList
         ref={flashListRef}
         data={listData}
@@ -279,7 +280,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
         keyExtractor={keyExtractor}
         removeClippedSubviews={true}
       />
-    </View>
+    </TVFocusGuideView>
   );
 };
 

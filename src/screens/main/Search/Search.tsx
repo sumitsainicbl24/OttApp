@@ -45,12 +45,17 @@ const Search = () => {
   const loadSearchData = async () => {
     try{
       let res = await getSearchData('movies', searchText)
+      console.log('res movies-->>>>', res)
       setSearchedMovies(res?.data?.data?.data || [])
 
       res = await getSearchData('series', searchText)
+      console.log('res sereis-->>>>', res)
+
       setSearchedShows(res?.data?.data?.data || [])
 
       res = await getSearchData('channel', searchText)
+      // console.log('res movies-->>>>', res)
+
       setSearchedChannels(res?.data?.data?.data || [])
     }catch(error){
       console.log('error in loadSearchData', error)

@@ -55,10 +55,8 @@ export const setIsPlaylistProcessedAction = async (
 
 //api
 
-export const LoginApi = async (m3uUrl: string) => {
-  const response = await apiPost(loginUrl, {
-    m3uUrl: m3uUrl,
-  });
+export const LoginApi = async (data: any) => {
+  const response = await apiPost(loginUrl,data);
   return response;
 };
 

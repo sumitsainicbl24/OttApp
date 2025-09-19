@@ -1,5 +1,5 @@
 // 1. React Native core imports
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -49,31 +49,19 @@ const Movies = () => {
   );
   const {activeScreen} = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<any>('');
+  const [selectedCategory, setSelectedCategory] = useState<any>(0);
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMovieName, setSelectedMovieName] = useState<string>('');
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
 
   // Load movie data from MMKV on component mount
   useEffect(() => {
-    loadMovieData();
+    setSelectedCategory(moviesData[0]?.category_id);
   }, []);
-
-  const loadMovieData = async () => {
-    try {
-      setLoading(true);
-      setSelectedCategory(moviesData[7]);
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleScrollViewFocus = (res: any) => {
     setShowCategoryAndSidebar(false);
-    console.log('res----->>>>', res);
     setSelectedMovie(res);
   };
 
@@ -81,7 +69,6 @@ const Movies = () => {
     category: any,
     categoryName: string,
   ) => {
-    console.log('categoryName----->>>>', categoryName);
     setShowCategoryAndSidebar(true);
     setSelectedCategory(category);
     setSelectedCategoryName(categoryName);
@@ -118,7 +105,7 @@ const Movies = () => {
     }
   }, [selectedCategory, debouncedGetMovieData]);
   const [isFocused, setIsFocused] = useState(false);
-
+  const scrollContainerRef = useRef<any>(null);
   return (
     <MainLayout
       activeScreen={activeScreen || 'Movies'}
@@ -169,7 +156,7 @@ const Movies = () => {
               />
             )}
 
-          <TVFocusGuideView style={styles.scrollContainer} autoFocus>
+          <View style={styles.scrollContainer}>
             {((selectedCategory && moviesData) ||
               selectedCategoryData.length > 0) &&
               !loading && (
@@ -184,7 +171,7 @@ const Movies = () => {
             {loading && (
               <ActivityIndicator size="large" color={CommonColors.white} />
             )}
-          </TVFocusGuideView>
+          </View>
         </View>
       </View>
     </MainLayout>

@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   TextStyle,
+  TVFocusGuideView,
   View,
   ViewStyle,
 } from 'react-native';
@@ -117,7 +118,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
         mainStyle,
       ]}>
       <Text style={[styles.sectionTitle, titleStyle]}>{title}</Text>
-      <View style={styles.carouselWrapper}>
+      <TVFocusGuideView  style={styles.carouselWrapper}>
         <FlashList
           ref={flashListRef}
           data={data}
@@ -151,7 +152,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
             pointerEvents="none"
           />
         )}
-      </View>
+      </TVFocusGuideView>
     </View>
   );
 };

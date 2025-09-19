@@ -19,6 +19,7 @@ import {
   saveHistoryUrl,
   searchUrl,
   seriesDetailsUrl,
+  seriesDetailsUrlNew,
   ShowDetailsApi,
   signInUrl,
   signupUrl,
@@ -163,6 +164,13 @@ export const getSeriesDetails = async (title: string) => {
   return response;
 };
 
+export const getSeriesDetailsNew = async (type: string, streamId: number) => {
+  const response = await apiGet(
+    `${seriesDetailsUrlNew}?type=${type}&streamid=${streamId}`,
+  );
+  return response;
+};
+
 //auth apis
 export const signupApi = async (data: any) => {
   const response = await apiPost(signupUrl, data);
@@ -271,7 +279,12 @@ export const saveHistoryApi = async (channel: channelData) => {
 
 export const clearSingleChannelHistoryApi = async (data: any) => {
   try {
-    const response = await apiPost(clearSingleChannelHistoryUrl, data, undefined, true);
+    const response = await apiPost(
+      clearSingleChannelHistoryUrl,
+      data,
+      undefined,
+      true,
+    );
     return response;
   } catch (error) {
     console.log('error from homepage', error);
@@ -302,14 +315,17 @@ export const getLiveTvHistoryApi = async () => {
 
 export const getLiveTvHistoryApiWithDateApi = async () => {
   try {
-    const response = await apiGet(`${getLiveTvHistoryUrl}/date`, undefined, true);
+    const response = await apiGet(
+      `${getLiveTvHistoryUrl}/date`,
+      undefined,
+      true,
+    );
     return response;
   } catch (error) {
     console.log('error from homepage', error);
     return null;
   }
 };
-
 
 export const getDiaPosterDetail = async (stream_id: string) => {
   const response = await apiGet(`${DIAtunnelBaseUrl}${stream_id}`);

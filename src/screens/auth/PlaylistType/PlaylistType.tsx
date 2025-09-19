@@ -56,7 +56,7 @@ const PlaylistType = () => {
               onFocus={() => handleTypeSelect(type)}
               onBlur={() => handleTypeSelect('')}
               onPress={() => {
-                navigation.navigate('PlaylistSetup', { type: type })
+                navigation.navigate('PlaylistSetup', { type: type==='Xtream Codes' ? 'xtream' : type })
               }}
             >
               <Text style={[

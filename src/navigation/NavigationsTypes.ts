@@ -2,7 +2,7 @@ export type AuthStackParamList = {
     AddPlaylist: undefined;
     PlaylistType: undefined;
     PlaylistSetup: { type: string };
-    PlaylistProcessed: { type: string, playlistUrl: string };
+    PlaylistProcessed: { type: string, playlistUrl: string, username: string, password: string };
     Settings: undefined;
     GeneralSettings: undefined;
     PlaylistSettings: undefined;

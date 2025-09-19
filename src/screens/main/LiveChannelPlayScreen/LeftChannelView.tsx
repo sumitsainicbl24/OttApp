@@ -248,8 +248,8 @@ const LeftChannelView = ({
         {layerIndex === 1 && (
           <View style={styles.sideBySideContainer}>
             {/* Category List */}
-            <TVFocusGuideView
-              autoFocus={focusIndex === 0}
+            <View
+         
               style={styles.categoryListContainer}
               onFocus={() => setFocusIndex(0)}>
               <CategoryList
@@ -258,12 +258,13 @@ const LeftChannelView = ({
                 onFocus={handleCategoryListFocus}
                 style={{backgroundColor:'transparent'}}
               />
-            </TVFocusGuideView>
+            </View>
           </View>
         )}
 
         <TVFocusGuideView
-          autoFocus={layerIndex === 1 ? focusIndex === 1 : focusIndex === 0}
+          autoFocus={true}
+          // enabled={layerIndex === 1 ? focusIndex === 1 : focusIndex === 0}
           style={styles.channelListContainer}
           onFocus={() => setFocusIndex(layerIndex === 1 ? 1 : 0)}>
           <>
@@ -292,7 +293,8 @@ const LeftChannelView = ({
           <View style={styles.sideBySideContainer}>
             {/* EPG List */}
             <TVFocusGuideView
-              autoFocus={focusIndex === 1}
+              // autoFocus={focusIndex === 1}
+              enabled={layerIndex===2}
               style={styles.epgListContainer}
               onFocus={() => setFocusIndex(1)}
               onBlur={() => {}}>
