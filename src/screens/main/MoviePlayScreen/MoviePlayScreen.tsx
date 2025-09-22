@@ -84,8 +84,10 @@ const MoviePlayScreen = () => {
   );
   const {userToken} = useSelector((state: RootState) => state.rootReducer.auth);
   const {show, movie, live} = route.params;
+
+  console.log('show--->>>>', show);
   const [movieTitle, setMovieTitle] = useState();
-  const [showTitle, setShowTitle] = useState(show?.title || show?.name);
+  const [showTitle, setShowTitle] = useState();
   const [seriesEpisodes, setSeriesEpisodes] = useState<any[]>([]);
   // Focus state management
   const [focusedButton, setFocusedButton] = useState<string | null>(null);
@@ -150,6 +152,8 @@ const MoviePlayScreen = () => {
         type: route?.params.show ? 'series' : 'movies',
         url: streamUrl,
       };
+
+      console.log('currentPlayingData', currentPlayingData);
       if (addedToMyList) {
         const res = await removeFromMyList(currentPlayingData);
         console.log('res from remove from my list', res);
@@ -245,6 +249,7 @@ const MoviePlayScreen = () => {
       dispatch(
         setCurrentSeriesEpisodes(sereisDetailsResponse?.data?.data?.episodes),
       );
+      setShowTitle(sereisDetailsResponse?.data?.data?.info?.title || sereisDetailsResponse?.data?.data?.info?.name);
       setSeriesEpisodes(sereisDetailsResponse?.data?.data?.episodes);
       if (!streamUrl) {
         setStreamUrl(sereisDetailsResponse?.data?.data?.episodes[0]?.url);

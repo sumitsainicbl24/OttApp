@@ -53,7 +53,9 @@ const Search = () => {
 
       setSearchedShows(res?.data?.data?.data || [])
 
-      res = await getSearchData('channel', searchText)
+      // res = await getSearchData('channel', searchText)
+
+      
       // console.log('res movies-->>>>', res)
 
       setSearchedChannels(res?.data?.data?.data || [])
