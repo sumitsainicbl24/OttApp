@@ -25,6 +25,7 @@ import {
   continueWatchingGetApi,
   getDiaPosterDetail,
   getHomepageApi,
+  getSeriesDetailsNew,
 } from '../../../redux/actions/main';
 import {useAppDispatch} from '../../../redux/hooks';
 import {setCurrentlyPlaying} from '../../../redux/reducers/main';
@@ -38,7 +39,9 @@ import {styles} from './styles';
 import YoutubeComp from './YoutubeComp';
 
 const Home = () => {
-  const {userToken} = useSelector((state: RootState) => state.rootReducer.auth);
+  const {userToken, auth_token} = useSelector(
+    (state: RootState) => state.rootReducer.auth,
+  );
   const dispatch = useAppDispatch();
   const [PosterMovieName, setPosterMovieName] = useState<any>(null);
   const [homeContent, setHomeContent] = useState<any>([]);
@@ -47,6 +50,8 @@ const Home = () => {
   const [ContinueWatchingDynamicData, setContinueWatchingDynamicData] =
     useState<any>(null);
   const playerRef = useRef<YoutubeIframeRef>(null);
+
+  console.log(auth_token);
 
   useEffect(() => {
     if (playerRef.current) {
@@ -59,19 +64,21 @@ const Home = () => {
     navigation.navigate('MoviePlayScreen', {movie: PosterMovieName});
   };
 
-  const handleOnFocus = async (data: any) => {
-    if (data?.category_id) {
-      setPosterMovieName({
-        info: data,
-      });
-    } else {
-      let stream_id = extractStreamIdFromUrl(data?.url);
-      let diaPosterDetail = await getDiaPosterDetail(stream_id!);
-      setPosterMovieName({
-        info: diaPosterDetail?.data?.info,
-      });
-    }
-  };
+  // Debounced focus handler to avoid excessive API calls on rapid focus changes
+  const handleOnFocus = React.useMemo(() => {
+    const {debounce} = require('../../../utils/CommonFunctions');
+    return debounce(async (data: any) => {
+      try {
+        if (data?.category_id) {
+          await fetchSeriesDetails(data?.series_id);
+        } else {
+          await fetchMovieDetails(data?.stream_id);
+        }
+      } catch (error) {
+        console.error('Error handling focus change:', error);
+      }
+    }, 400);
+  }, []);
 
   const loadContinueWatchingData = async () => {
     setTimeout(async () => {
@@ -88,10 +95,8 @@ const Home = () => {
   const allHomepageData = async () => {
     const res = await getHomepageApi();
     console.log('res from homepage', res?.data?.data);
-    let stream_id = extractStreamIdFromUrl(
-      res?.data?.data?.randomPoster?.data?.url,
-    );
-    let diaPosterDetail = await getDiaPosterDetail(stream_id!);
+    let stream_id = res?.data?.data?.randomPoster?.data?.stream_id;
+    await fetchMovieDetails(stream_id!);
     setHomeContent([
       {
         id: 1,
@@ -113,9 +118,6 @@ const Home = () => {
         type: 'series',
       },
     ]);
-    setPosterMovieName({
-      info: diaPosterDetail?.data?.info,
-    });
   };
 
   useEffect(() => {
@@ -131,18 +133,44 @@ const Home = () => {
     }, [userToken]),
   );
 
-  const getImageSource = (info: any) => {
-    if (info?.cover_big) {
-      return {
-        uri: info.backdrop_path[0],
-      };
-    } else if (info?.cover) {
-      return {
-        uri: info.backdrop_path[0],
-      };
+  const fetchMovieDetails = async (streamId: number): Promise<void> => {
+    try {
+      const response = await getSeriesDetailsNew('movies', streamId);
+      const movieInfo = response?.data?.data?.info;
+      const logos = response?.data?.data?.logos;
+
+      console.log('responseresponsemoviedetails---->>>>>', response);
+      if (movieInfo) {
+        setPosterMovieName({info: movieInfo, logos: logos});
+      }
+    } catch (error) {
+      console.error(
+        'Failed to fetch movie details for stream_id:',
+        streamId,
+        error,
+      );
     }
-    return undefined;
   };
+
+  const fetchSeriesDetails = async (seriesId: number): Promise<void> => {
+    try {
+      const response = await getSeriesDetailsNew('series', seriesId);
+      const seriesInfo = response?.data?.data?.info;
+      const logos = response?.data?.data?.logos;
+      console.log('responseresponseseriesdetails---->>>>>', response);
+
+      if (seriesInfo) {
+        setPosterMovieName({info: seriesInfo, logos: logos});
+      }
+    } catch (error) {
+      console.error(
+        'Failed to fetch series details for series_id:',
+        seriesId,
+        error,
+      );
+    }
+  };
+
   const ListFooterComponent = () => {
     if (ContinueWatchingDynamicData?.length > 0) {
       return <ContinueWatchingCarousel data={ContinueWatchingDynamicData} />;
@@ -161,27 +189,28 @@ const Home = () => {
           translucent
           barStyle="light-content"
         />
+        {!isFocused && (
+          <LinearGradient
+            colors={[
+              'rgba(0, 0, 0, 1)',
+              'rgba(0, 0, 0, 1)',
+              'rgba(0, 0, 0, 0.2)',
 
-        <LinearGradient
-          colors={[
-            'rgba(0, 0, 0, 1)',
-            'rgba(0, 0, 0, 1)',
-            'rgba(0, 0, 0, 0.2)',
-
-            'transparent',
-            'transparent',
-          ]}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 0}}
-          style={styles.homeGradient}
-        />
-
+              'transparent',
+              'transparent',
+            ]}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
+            style={styles.homeGradient}
+          />
+        )}
         {isFocused && (
           <LinearGradient
             colors={[
-              'rgba(0, 0, 0,1)',
-              'rgba(0, 0, 0, 0.9)',
-              'rgba(0, 0, 0, 0.1)',
+              'rgba(0, 0, 0, 1)',
+              'rgba(0, 0, 0, 0.8)',
+              'rgba(0, 0, 0, 0.2)',
+              'transparent',
               'transparent',
             ]}
             start={{x: 0, y: 0}}
@@ -201,6 +230,7 @@ const Home = () => {
               onPlayPress={handlePlayPress}
               showDetails={PosterMovieName}
               PosterMovieName={PosterMovieName}
+              showButtons={false}
             />
           </ImageBackground>
         ) : (
@@ -217,6 +247,7 @@ const Home = () => {
                 onPlayPress={handlePlayPress}
                 showDetails={PosterMovieName}
                 PosterMovieName={PosterMovieName}
+                showButtons={false}
               />
             </View>
             <YoutubeComp data={PosterMovieName?.info} />

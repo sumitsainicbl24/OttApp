@@ -1,6 +1,7 @@
 export const CommonColors = {
   //theme colors
   themeMain: '#131619',
+  themeTertiary: 'rgba(49, 47, 47, 0.2)',
   themeSecondary: '#232629',
   white: '#FFFFFF',
   black: '#000000',

@@ -17,6 +17,7 @@ import {addToMyListApi, removeFromMyList} from '../redux/actions/main';
 import {RootState} from '../redux/store';
 import {CommonColors} from '../styles/Colors';
 import {moderateScale, scale, verticalScale} from '../styles/scaling';
+import FastImage from 'react-native-fast-image';
 
 interface ShowDetailsProps {
   onPlayPress?: () => void;
@@ -35,6 +36,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   PosterMovieName,
   showButtons = true,
 }) => {
+  console.log(showDetails, '-------showDetailsshowDetails');
   const [focused, setFocused] = useState<string | null>(null);
   const [isInMyList, setIsInMyList] = useState<boolean>(false);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
@@ -50,6 +52,20 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   const handleBlur = () => {
     setFocused(null);
   };
+
+  const releaseYear = showDetails?.info?.releasedate
+    ? moment(showDetails?.info?.releasedate).format('YYYY')
+    : undefined;
+  const runtime =showDetails?.info?.runtime ?
+    Math.floor(Number(showDetails?.info?.runtime) / 60) +
+    ' h ' +
+    (Number(showDetails?.info?.runtime) % 60).toFixed(0) +
+    ' m':0;
+  const genre = showDetails?.info?.genre;
+  const rating = Number(showDetails?.info?.rating).toFixed(1);
+  const cast = showDetails?.info?.cast;
+  const director = showDetails?.info?.director;
+  const metadataItems = [rating, releaseYear, runtime, genre].filter(Boolean);
 
   const handleMyListPress = () => {
     if (!userToken) {
@@ -75,17 +91,56 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   return (
     <View style={styles.featuredContainer}>
       {/* <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} /> */}
-      <Text style={styles.title} numberOfLines={2}>
-        {showDetails?.info?.name}
-      </Text>
-      <View style={styles.metadataContainer}>
-        <Text style={styles.metadataText}>
-          {moment(showDetails?.info?.releasedate).format('YYYY')}
+      {showDetails?.logos?.length > 0 ? (
+        <FastImage
+          source={{uri: showDetails?.logos?.[0]?.file_path}}
+          style={{
+            height: 60,
+            width: 200,
+          }}
+          resizeMode="contain"
+        />
+      ) : (
+        <Text style={styles.title} numberOfLines={2}>
+          {showDetails?.info?.name}
         </Text>
-        <Text style={styles.metadataText}>{showDetails?.info?.runtime}</Text>
-        <Text style={styles.metadataText}>{showDetails?.info?.genre}</Text>
-        <Text style={styles.metadataText}>{showDetails?.info?.rating}</Text>
+      )}
+
+      <View style={styles.metadataContainer}>
+        {metadataItems.map((item: any, index: number) => (
+          <React.Fragment key={`meta-${index}`}>
+            <Text
+              style={{
+                ...styles.metadataText,
+                backgroundColor:
+                  item === rating ? CommonColors.white : 'transparent',
+                color:
+                  item === rating ? CommonColors.black : CommonColors.white,
+              }}>
+              {item}
+            </Text>
+            {index < metadataItems.length - 1 && (
+              <Text style={styles.metadataSeparator}>•</Text>
+            )}
+          </React.Fragment>
+        ))}
       </View>
+      {cast && (
+        <View style={{flexDirection: 'row'}}>
+          <Text style={styles.titleText}>Cast: </Text>
+          <Text numberOfLines={1} style={styles.description}>
+            {cast}
+          </Text>
+        </View>
+      )}
+      {director && (
+        <View style={{flexDirection: 'row'}}>
+          <Text style={styles.titleText}>Director: </Text>
+          <Text numberOfLines={1} style={styles.description}>
+            {director}
+          </Text>
+        </View>
+      )}
 
       {showButtons && (
         <View style={styles.actionButtonsContainer}>
@@ -126,7 +181,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
       )}
 
       <View style={styles.descriptionContainer}>
-        <Text numberOfLines={3} style={styles.description}>
+        <Text numberOfLines={2} style={styles.description}>
           {showDetails?.info?.plot}
         </Text>
       </View>
@@ -144,7 +199,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     marginLeft: moderateScale(40),
     // justifyContent: 'space-between',
-    gap: verticalScale(35),
+    gap: verticalScale(20),
   },
 
   featuredImagePlaceholder: {
@@ -156,13 +211,21 @@ const styles = StyleSheet.create({
   metadataContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: moderateScale(36),
+    gap: moderateScale(12),
   },
 
   metadataText: {
     fontFamily: FontFamily.PublicSans_Medium,
     fontSize: scale(20),
     color: CommonColors.white,
+    paddingHorizontal: 4,
+    borderRadius: moderateScale(4),
+  },
+  metadataSeparator: {
+    marginHorizontal: moderateScale(4),
+    // fontSize: scale(60),
+    color: CommonColors.white,
+    opacity: 0.7,
   },
   title: {
     fontFamily: FontFamily.PublicSans_ExtraBold,
@@ -260,6 +323,14 @@ const styles = StyleSheet.create({
     fontSize: scale(25),
     lineHeight: scale(30),
     color: CommonColors.white,
+    textAlign: 'left',
+  },
+
+  titleText: {
+    fontFamily: FontFamily.PublicSans_Light,
+    fontSize: scale(25),
+    lineHeight: scale(30),
+    color: CommonColors.whiteOpacity50,
     textAlign: 'left',
   },
 });

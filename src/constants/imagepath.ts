@@ -57,6 +57,8 @@ export default{
     empty_star:require('../assets/images/empty_star.png'),
     tvGuide:require('../assets/images/Channels.png'),
     history:require('../assets/images/History.png'),
+    xstreamCodes:require('../assets/images/login.png'),
+
 
 
     //sample data

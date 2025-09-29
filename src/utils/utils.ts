@@ -123,6 +123,10 @@ export const apiGet = async <T = any>(
       'x-use-usertoken': usertoken ? 'true' : 'false',
     },
   };
+  console.log('headersrsrsr--->>>', {
+    ...config?.headers,
+    'x-use-usertoken': usertoken ? 'true' : 'false',
+  });
   return makeRequest<T>('GET', url, undefined, requestConfig);
 };
 

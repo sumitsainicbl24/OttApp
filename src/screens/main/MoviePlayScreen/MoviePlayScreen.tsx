@@ -249,7 +249,7 @@ const MoviePlayScreen = () => {
       dispatch(
         setCurrentSeriesEpisodes(sereisDetailsResponse?.data?.data?.episodes),
       );
-      setShowTitle(sereisDetailsResponse?.data?.data?.info?.title || sereisDetailsResponse?.data?.data?.info?.name);
+      setShowTitle(sereisDetailsResponse?.data?.data?.info?.name);
       setSeriesEpisodes(sereisDetailsResponse?.data?.data?.episodes);
       if (!streamUrl) {
         setStreamUrl(sereisDetailsResponse?.data?.data?.episodes[0]?.url);

@@ -5,7 +5,7 @@ import React, {useState} from 'react';
 // 2. Global styles and utilities
 import CommonStyles from '../../../styles/CommonStyles';
 import {CommonColors} from '../../../styles/Colors';
-import {moderateScale, verticalScale} from '../../../styles/scaling';
+import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
 
 // 3. Component imports
 import WrapperContainer from '../../../components/WrapperContainer';
@@ -21,6 +21,7 @@ import imagepath from '../../../constants/imagepath';
 
 // 4. Local styles import (ALWAYS LAST)
 import {styles} from './styles';
+import FontFamily from '../../../constants/FontFamily';
 
 // Type definitions for field configuration
 interface InputField {
@@ -253,13 +254,30 @@ const PlaylistSetup = ({
       <View style={styles.LeftContainer}>
         <View style={styles.iconContainer}>
           <Image
-            source={imagepath.PlaylistIcon}
+            source={
+              type === 'xtream'
+                ? imagepath.xstreamCodes
+                : imagepath.PlaylistIcon
+            }
             style={styles.iconPlaceholder}
           />
         </View>
         <View style={styles.headerTextContainer}>
-          <Text style={CommonStyles.Heading}>Playlist Setup</Text>
-          <Text style={CommonStyles.SubHeading}>{type}</Text>
+          <Text style={CommonStyles.Heading}>
+            {type === 'xtream' ? 'Xtream \n Codes Login' : 'Playlist Setup'}
+          </Text>
+          <Text
+            style={{
+              ...CommonStyles.SubHeading,
+              width: 200,
+              color: CommonColors.textSecondary,
+              fontFamily: FontFamily.PublicSans_Medium,
+              fontSize: scale(26),
+            }}>
+            {type === 'xtream'
+              ? 'Enter Xcode Server Address , your username and password'
+              : type}
+          </Text>
         </View>
       </View>
 
@@ -272,41 +290,34 @@ const PlaylistSetup = ({
             {fieldConfig.map(renderField)}
           </View>
         </View>
-
-        <View style={styles.rightContainer}>
-          {/* Separator Line */}
-          <View style={styles.separator} />
-
-          {/* Bottom Buttons */}
-          <View style={styles.bottomButtonsContainer}>
-            <TouchableOpacity
-              onPress={handleNext}
-              activeOpacity={1}
-              onFocus={handleNextFocus}
-              onBlur={handleBlur}
-              hasTVPreferredFocus={true}>
-              <Text
-                style={[
-                  styles.nextButtonText,
-                  focused === 'next' && styles.nextButtonTextFocused,
-                ]}>
-                Next
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleCancel}
-              activeOpacity={1}
-              onFocus={handleCancelFocus}
-              onBlur={handleBlur}>
-              <Text
-                style={[
-                  styles.cancelButtonText,
-                  focused === 'cancel' && styles.cancelButtonTextFocused,
-                ]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.bottomButtonsContainer}>
+          <TouchableOpacity
+            onPress={handleNext}
+            activeOpacity={1}
+            onFocus={handleNextFocus}
+            onBlur={handleBlur}
+            hasTVPreferredFocus={true}>
+            <Text
+              style={[
+                styles.nextButtonText,
+                focused === 'next' && styles.nextButtonTextFocused,
+              ]}>
+              Next
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleCancel}
+            activeOpacity={1}
+            onFocus={handleCancelFocus}
+            onBlur={handleBlur}>
+            <Text
+              style={[
+                styles.cancelButtonText,
+                focused === 'cancel' && styles.cancelButtonTextFocused,
+              ]}>
+              Cancel
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </WrapperContainer>

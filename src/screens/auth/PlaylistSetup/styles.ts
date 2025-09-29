@@ -1,7 +1,7 @@
-import { StyleSheet } from 'react-native'
-import { CommonColors } from '../../../styles/Colors'
-import { moderateScale, verticalScale } from '../../../styles/scaling'
-import FontFamily from '../../../constants/FontFamily'
+import {StyleSheet} from 'react-native';
+import {CommonColors} from '../../../styles/Colors';
+import {height, moderateScale, verticalScale} from '../../../styles/scaling';
+import FontFamily from '../../../constants/FontFamily';
 
 export const styles = StyleSheet.create({
   container: {
@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: moderateScale(20),
-    backgroundColor: CommonColors.themeMain, 
+    backgroundColor: CommonColors.themeSecondary,
   },
   iconContainer: {
     justifyContent: 'center',
@@ -30,16 +30,20 @@ export const styles = StyleSheet.create({
   contentContainer: {
     height: '100%',
     width: '60%',
-    backgroundColor: CommonColors.themeSecondary, 
     borderRadius: moderateScale(12),
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    paddingHorizontal: moderateScale(45)
+    // paddingHorizontal: moderateScale(45),
   },
   formContainer: {
-    width: moderateScale(400),
+    backgroundColor: CommonColors.themeTertiary,
+    // width: moderateScale(400),
     gap: verticalScale(45),
+    flex: 0.8,
+    height: '100%',
+    justifyContent: 'center',
+    paddingHorizontal: moderateScale(45),
   },
   formTitle: {
     fontFamily: FontFamily.PublicSans_SemiBold,
@@ -58,11 +62,13 @@ export const styles = StyleSheet.create({
     gap: verticalScale(40),
     alignItems: 'flex-start',
   },
-  rightContainer:{
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'center',
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: verticalScale(35),
+    flex: 0.2,
+    height: '100%',
   },
   separator: {
     width: moderateScale(1),
@@ -71,6 +77,11 @@ export const styles = StyleSheet.create({
   },
   bottomButtonsContainer: {
     gap: verticalScale(42),
+    // backgroundColor: 'red',
+    height: height,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 0.2,
     // alignItems: 'flex-end',
   },
   nextButtonText: {
@@ -85,10 +96,10 @@ export const styles = StyleSheet.create({
   },
   nextButtonTextFocused: {
     color: CommonColors.white,
-    transform: [{ scale: 1.05 }],
+    transform: [{scale: 1.05}],
   },
   cancelButtonTextFocused: {
     color: CommonColors.white,
-    transform: [{ scale: 1.05 }],
+    transform: [{scale: 1.05}],
   },
-}) 
+});

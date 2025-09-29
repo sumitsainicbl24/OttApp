@@ -1,7 +1,7 @@
-import { StyleSheet } from 'react-native'
-import { CommonColors } from '../../../styles/Colors'
-import { moderateScale, scale, verticalScale } from '../../../styles/scaling'
-import FontFamily from '../../../constants/FontFamily'
+import {StyleSheet} from 'react-native';
+import {CommonColors} from '../../../styles/Colors';
+import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
+import FontFamily from '../../../constants/FontFamily';
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,13 +9,13 @@ export const styles = StyleSheet.create({
   },
   contentContainer: {
     height: '100%',
-    width: '60%',
-    backgroundColor: CommonColors.themeSecondary, 
+    flex: 1,
+    // width: '60%',
     borderRadius: moderateScale(12),
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    paddingHorizontal: moderateScale(45)
+    // paddingHorizontal: moderateScale(45),
   },
   LeftContainer: {
     height: '100%',
@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: moderateScale(20),
-    backgroundColor: CommonColors.themeMain, 
+    backgroundColor: CommonColors.themeSecondary,
   },
   iconContainer: {
     justifyContent: 'center',
@@ -37,6 +37,10 @@ export const styles = StyleSheet.create({
   optionsContainer: {
     alignItems: 'center',
     gap: verticalScale(41),
+    height: '100%',
+    flex: 0.8,
+    justifyContent: 'center',
+    backgroundColor: CommonColors.themeTertiary,
   },
   optionButton: {
     paddingVertical: verticalScale(10),
@@ -56,7 +60,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: moderateScale(25),
-    marginTop: verticalScale(20),
+    // marginTop: verticalScale(20),
+    backgroundColor: CommonColors.themeMain,
+    justifyContent: 'center',
+    height: '100%',
+    flex: 0.2,
   },
   separator: {
     width: moderateScale(1),
@@ -75,7 +83,6 @@ export const styles = StyleSheet.create({
   },
   cancelTextFocused: {
     color: CommonColors.white,
-    transform: [{ scale: 1.05 }],
+    transform: [{scale: 1.05}],
   },
-  
-}) 
+});

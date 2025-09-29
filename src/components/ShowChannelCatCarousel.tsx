@@ -121,15 +121,17 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
           });
         }, 100);
       } else {
-        // For grid scroll, scroll to the row
+        // For grid scroll, scroll to the row and leave a small top inset
 
         const rowIndex = Math.floor(itemIndex);
         const scrollToIndex = rowIndex;
         if (!disableScroll) {
+          // Position focused row as the 2nd visible item by offsetting by ~one row height
           flashListRef.current?.scrollToIndex({
             index: scrollToIndex,
             animated: true,
-            viewPosition: 0, // Scroll to top
+            viewPosition: 0, // anchor to top
+            viewOffset: verticalScale(120), // push down by one row so it appears second
           });
         }
         // setTimeout(() => {
@@ -287,7 +289,8 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   const renderShowItem = React.useCallback(
     ({item, index}: {item: ShowData; index: number}) => (
       <ShowChannelCatCard
-        handleBlockPress={handleBlockPress}
+        handleBlockPress={() => handleBlockPress?.(item)}
+        // showCurrentDetails={false}
         show={item}
         channelIndex={index}
         onPress={() => handleShowPress(item)}
@@ -444,7 +447,7 @@ const styles = StyleSheet.create({
   },
   gridContainer: {
     paddingHorizontal: moderateScale(20),
-    paddingVertical: verticalScale(10),
+    paddingVertical: verticalScale(20),
   },
   gridItem: {
     // flex: 1,

@@ -48,6 +48,7 @@ interface ShowDetailsState {
     backdrop_path?: string[];
     [key: string]: any;
   };
+  logos: any[];
 }
 
 const ShowDetails1: React.FC<ShowDetails1Props> = ({
@@ -66,9 +67,12 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
     try {
       const response = await getSeriesDetailsNew('movies', streamId);
       const movieInfo = response?.data?.data?.info;
+      const logos = response?.data?.data?.logos;
+
+      console.log('responseresponsemoviedetails---->>>>>', response);
 
       if (movieInfo) {
-        setContentDetails({info: movieInfo});
+        setContentDetails({info: movieInfo, logos: logos});
         console.log(
           'Movie details fetched successfully for stream_id:',
           streamId,
@@ -87,9 +91,12 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
     try {
       const response = await getSeriesDetailsNew('series', seriesId);
       const seriesInfo = response?.data?.data?.info;
+      const logos = response?.data?.data?.logos;
+
+      console.log('responseresponseseriesdetails---->>>>>', response);
 
       if (seriesInfo) {
-        setContentDetails({info: seriesInfo});
+        setContentDetails({info: seriesInfo, logos: logos});
         console.log(
           'Series details fetched successfully for series_id:',
           seriesId,
@@ -110,49 +117,23 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
     const isSeries = showName && movie?.series_id;
 
     if (isMovie) {
-      console.log(
-        'Loading movie details:',
-        movieName,
-        'stream_id:',
-        movie.stream_id,
-      );
       fetchMovieDetails(movie.stream_id!);
     } else if (isSeries) {
-      console.log(
-        'Loading series details:',
-        showName,
-        'series_id:',
-        movie.series_id,
-      );
       fetchSeriesDetails(movie.series_id!);
     }
   }, [movieName, showName, movie?.stream_id, movie?.series_id]);
 
   // Debounce effect to prevent excessive API calls
   useEffect(() => {
-    console.log(
-      'ShowDetails1 useEffect triggered - movieName:',
-      movieName,
-      'showName:',
-      showName,
-      'stream_id:',
-      movie?.stream_id,
-      'series_id:',
-      movie?.series_id,
-    );
-
-    // Clear any pending API call
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
       console.log('Cancelled previous API call due to rapid selection changes');
     }
 
-    // Schedule new API call after debounce delay
     debounceTimeoutRef.current = setTimeout(() => {
       loadContentDetails();
     }, DEBOUNCE_DELAY_MS);
 
-    // Cleanup function to prevent memory leaks
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);

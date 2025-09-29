@@ -22,12 +22,17 @@ import {
 import {setCurrentlyPlaying} from '../redux/reducers/main';
 import {useDispatch} from 'react-redux';
 import SimpleMarquee from './MarqueeText';
-import {EPGProgram, processEPGData, decodeEPGDescription} from '../utils/epgUtils';
+import {
+  EPGProgram,
+  processEPGData,
+  decodeEPGDescription,
+} from '../utils/epgUtils';
 import {
   calculateProgramPositions,
   createTimelineConfig,
   createTimelineSlots,
 } from '../utils/timelineUtils';
+import FastImage from 'react-native-fast-image';
 
 interface ShowData {
   group?: string;
@@ -46,6 +51,7 @@ interface ShowChannelCatCardProps {
   onPress?: (programIndex: number) => void;
   channelIndex?: number;
   setChannelUrl?: (url: string) => void;
+  showCurrentDetails?: boolean;
   setProgramDetails?: (details: {
     showTitle: string;
     timeSlot: string;
@@ -74,6 +80,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   timelineConfig: externalTimelineConfig,
   onProgramFocusWithAutoScroll,
   handleBlockPress,
+  showCurrentDetails = false,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
@@ -81,6 +88,13 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     null,
   );
   const [lastTap, setLastTap] = useState<number | null>(null);
+  const [currentDetails, setCurrentDetails] = useState<{
+    showTitle: string;
+    timeSlot: string;
+    progressPercentage: number;
+    duration: string;
+    description: string;
+  } | null>(null);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
 
   const dispatch = useDispatch();
@@ -99,6 +113,12 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       const programDetails = getProgramDetails(programIndex);
       console.log('programDetails', programDetails);
       setProgramDetails(programDetails);
+    }
+
+    // Store locally to render details below the channel row
+    if (showCurrentDetails) {
+      const localDetails = getProgramDetails(programIndex);
+      setCurrentDetails(localDetails);
     }
 
     // Trigger auto-scroll if program is near the edge of visible area
@@ -122,6 +142,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   const handleProgramBlur = (event: any, programIndex: number) => {
     setFocusedProgramIndex(null);
     onBlur?.(event, programIndex);
+    setCurrentDetails(null);
   };
 
   const handleProgramPress = (programIndex: number) => {
@@ -371,116 +392,172 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   }, [show.epg, show.title]);
 
   return (
-    <View style={styles.channelRow}>
-      <View style={styles.channelInfo}>
-        <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
+    <View
+      style={[
+        styles.channelRow,
+        focusedProgramIndex !== null && styles.channelRowFocused,
+      ]}>
+      <View style={styles.rowTop}>
+        <View style={styles.channelInfo}>
+          <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
 
-        <View style={styles.channelLogoContainer}>
-          <Image
-            source={
-              show?.logo
-                ? imageError
-                  ? {uri: getProxyImageUrl(show?.logo)}
-                  : {uri: show?.logo}
-                : imagepath.tv
-            }
-            style={styles.channelLogo}
-            tintColor={!show?.logo ? CommonColors.white : undefined}
-            onError={e => {
-              console.log('Image error:', e.nativeEvent.error);
-              handleImageError(e.nativeEvent);
-            }}
-          />
-        </View>
-
-        <View style={{width: moderateScale(140), overflow: 'hidden'}}>
-          <SimpleMarquee
-            text={show.title || 'Channel Name'}
-            shouldStart={focusedProgramIndex !== null}
-            textStyle={[
-              styles.channelNameText,
-              focusedProgramIndex !== null && {color: CommonColors.blueText},
-            ]}
-            speed={50}
-          />
-        </View>
-      </View>
-
-      <View style={styles.programSchedule}>
-        {programPositions.length > 0 ? (
-          <View style={styles.timelineProgramContainer}>
-            {programPositions.map((position, index) => (
-              <TouchableOpacity
-                key={position.program.id || index}
-                style={[
-                  styles.timelineProgramBlock,
-                  {
-                    left: position.left,
-                    width: position.width,
-                    backgroundColor: 'rgba(27,30,33,0.5)',
-                  },
-                  focusedProgramIndex === index && styles.programBlockFocused,
-                ]}
-                hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
-                activeOpacity={1}
-                onFocus={event => handleProgramFocus(event, index)}
-                onBlur={event => handleProgramBlur(event, index)}
-                onPress={() => handlePress(index)}>
-                <Text
-                  style={[
-                    styles.programText,
-                    focusedProgramIndex === index && {
-                      color: CommonColors.black,
-                    },
-                  ]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail">
-                  {position.width < 60
-                    ? position.title.substring(0, 1) + '...'
-                    : position.title}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.channelLogoContainer}>
+            <Image
+              source={
+                show?.logo
+                  ? imageError
+                    ? {uri: getProxyImageUrl(show?.logo)}
+                    : {uri: show?.logo}
+                  : imagepath.tv
+              }
+              style={styles.channelLogo}
+              tintColor={!show?.logo ? CommonColors.white : undefined}
+              onError={e => {
+                console.log('Image error:', e.nativeEvent.error);
+                handleImageError(e.nativeEvent);
+              }}
+            />
           </View>
-        ) : (
-          <FlatList
-            data={fallbackPrograms}
-            renderItem={({item, index}) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.programBlock,
-                  {backgroundColor: 'rgba(27,30,33,1)'},
-                  focusedProgramIndex === index && styles.programBlockFocused,
-                ]}
-                hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
-                activeOpacity={1}
-                onFocus={event => handleProgramFocus(event, index)}
-                onBlur={event => handleProgramBlur(event, index)}
-                onPress={() => handlePress(index)}>
-                <Text
+
+          <View style={{width: moderateScale(140), overflow: 'hidden'}}>
+            <SimpleMarquee
+              text={show.title || 'Channel Name'}
+              shouldStart={focusedProgramIndex !== null}
+              textStyle={[
+                styles.channelNameText,
+                focusedProgramIndex !== null && {color: CommonColors.blueText},
+              ]}
+              speed={50}
+            />
+          </View>
+        </View>
+
+        <View style={styles.programSchedule}>
+          {programPositions.length > 0 ? (
+            <View style={styles.timelineProgramContainer}>
+              {programPositions.map((position, index) => (
+                <View style={{flexDirection: 'column'}}>
+                  <TouchableOpacity
+                    key={position.program.id || index}
+                    style={[
+                      styles.timelineProgramBlock,
+                      {
+                        left: position.left,
+                        width: position.width,
+                        backgroundColor: 'rgba(27,30,33,0.5)',
+                      },
+                      focusedProgramIndex === index &&
+                        styles.programBlockFocused,
+                    ]}
+                    hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+                    activeOpacity={1}
+                    onFocus={event => handleProgramFocus(event, index)}
+                    onBlur={event => handleProgramBlur(event, index)}
+                    onPress={() => handlePress(index)}>
+                    <Text
+                      style={[
+                        styles.programText,
+                        focusedProgramIndex === index && {
+                          color: CommonColors.black,
+                        },
+                      ]}
+                      numberOfLines={1}
+                      ellipsizeMode="tail">
+                      {position.width < 60
+                        ? position.title.substring(0, 1) + '...'
+                        : position.title}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <FlatList
+              data={fallbackPrograms}
+              renderItem={({item, index}) => (
+                <TouchableOpacity
+                  key={index}
                   style={[
-                    styles.programText,
-                    focusedProgramIndex === index && {
-                      color: CommonColors.black,
-                    },
+                    styles.programBlock,
+
+                    focusedProgramIndex === index && styles.programBlockFocused,
                   ]}
-                  numberOfLines={1}>
-                  {item.title}
-                </Text>
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              gap: moderateScale(8),
-              paddingHorizontal: moderateScale(10),
-              height: moderateScale(40),
-            }}
-          />
-        )}
+                  hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+                  activeOpacity={1}
+                  onFocus={event => handleProgramFocus(event, index)}
+                  onBlur={event => handleProgramBlur(event, index)}
+                  onPress={() => handlePress(index)}>
+                  <Text
+                    style={[
+                      styles.programText,
+                      focusedProgramIndex === index && {
+                        color: CommonColors.black,
+                      },
+                    ]}
+                    numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                gap: moderateScale(8),
+                paddingHorizontal: moderateScale(10),
+                height: moderateScale(56),
+              }}
+            />
+          )}
+        </View>
       </View>
+      {currentDetails && (
+        <View style={{flexDirection: 'row'}}>
+          <View
+            style={{
+              width: moderateScale(315),
+              height: 80,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Image
+              source={
+                show?.logo
+                  ? imageError
+                    ? {uri: getProxyImageUrl(show?.logo)}
+                    : {uri: show?.logo}
+                  : imagepath.tv
+              }
+              style={{width: moderateScale(80), height: moderateScale(80)}}
+              resizeMode="contain"
+              tintColor={!show?.logo ? CommonColors.white : undefined}
+              onError={e => {
+                console.log('Image error:', e.nativeEvent.error);
+                handleImageError(e.nativeEvent);
+              }}
+            />
+          </View>
+          <View style={styles.detailsInline}>
+            <View style={{flex: 1}}>
+              <Text style={styles.detailsTitle} numberOfLines={1}>
+                {currentDetails.showTitle}
+              </Text>
+              <Text style={styles.detailsMeta} numberOfLines={1}>
+                {currentDetails.timeSlot} • {currentDetails.duration}
+              </Text>
+
+              <Text style={styles.detailsDescription} numberOfLines={2}>
+                {currentDetails.description}
+              </Text>
+            </View>
+            <View>
+              <Image source={imagepath.empty_star} style={styles.filled_star} />
+
+              <Text style={styles.detailsMeta}>{show?.title}</Text>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -489,14 +566,24 @@ export default ShowChannelCatCard;
 
 const styles = StyleSheet.create({
   channelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'stretch',
     width: '100%',
-    height: verticalScale(60),
+    minHeight: verticalScale(80),
+    position: 'relative',
     // paddingHorizontal: moderateScale(12),
     marginVertical: verticalScale(4),
     borderRadius: moderateScale(8),
     // backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  filled_star: {
+    height: 14,
+    width: 14,
+    alignSelf: 'flex-end',
+    marginBottom: moderateScale(8),
+  },
+  channelRowFocused: {
+    paddingTop: verticalScale(8),
   },
   channelInfo: {
     flexDirection: 'row',
@@ -541,6 +628,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginLeft: moderateScale(10),
+    overflow: 'visible',
   },
   programBlock: {
     // flex: 1,
@@ -551,8 +639,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
+    backgroundColor: 'rgba(27,30,33,1)',
   },
   programBlockFocused: {
+    marginTop: verticalScale(4),
     borderColor: CommonColors.white,
     backgroundColor: 'rgba(225, 226, 228, 1)',
     shadowColor: CommonColors.white,
@@ -578,14 +668,17 @@ const styles = StyleSheet.create({
   },
   timelineProgramContainer: {
     position: 'relative',
-    height: moderateScale(40), // Single row height
+    height: moderateScale(64),
     width: '100%',
     marginLeft: moderateScale(10),
+    overflow: 'visible',
+    paddingTop: verticalScale(4),
+    paddingBottom: verticalScale(4),
   },
   timelineProgramBlock: {
     position: 'absolute',
-    top: 0,
-    height: moderateScale(40),
+    top: verticalScale(4),
+    height: moderateScale(56),
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(8),
     justifyContent: 'center',
@@ -597,5 +690,49 @@ const styles = StyleSheet.create({
   },
   verySmallProgramText: {
     fontSize: moderateScale(12),
+  },
+  rowTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  detailsInline: {
+    marginTop: verticalScale(8),
+    width: '12.6%',
+    alignSelf: 'flex-start',
+    borderRadius: moderateScale(10),
+    backgroundColor: 'rgba(27,30,33,0.6)',
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: moderateScale(14),
+    flexDirection: 'row',
+  },
+  detailsTitle: {
+    fontFamily: FontFamily.PublicSans_SemiBold,
+    fontSize: moderateScale(20),
+    color: CommonColors.white,
+    marginBottom: verticalScale(6),
+  },
+  detailsMeta: {
+    fontFamily: FontFamily.PublicSans_Regular,
+    fontSize: moderateScale(15),
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: verticalScale(8),
+  },
+  detailsDescription: {
+    fontFamily: FontFamily.PublicSans_Regular,
+    fontSize: moderateScale(15),
+    color: 'rgba(255,255,255,0.92)',
+  },
+  progressBarTrack: {
+    height: verticalScale(4),
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: moderateScale(2),
+    overflow: 'hidden',
+    marginTop: verticalScale(6),
+    marginBottom: verticalScale(6),
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: CommonColors.white,
   },
 });

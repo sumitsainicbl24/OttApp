@@ -9,14 +9,20 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {CommonColors} from '../styles/Colors';
-import {moderateScale, verticalScale, scale, height, width} from '../styles/scaling';
+import {
+  moderateScale,
+  verticalScale,
+  scale,
+  height,
+  width,
+} from '../styles/scaling';
 import FontFamily from '../constants/FontFamily';
 import {
   getMovieDetails,
   getSeriesShowDetails,
   imageResolutionHandlerForUrl,
 } from '../utils/CommonFunctions';
-import {getDiaPosterDetail} from '../redux/actions/main';
+import {getDiaPosterDetail, getSeriesDetailsNew} from '../redux/actions/main';
 import YoutubeComp from '../screens/main/Home/YoutubeComp';
 import ShowDetails from './ShowDetails';
 
@@ -45,30 +51,80 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
 }) => {
   const [showDetails, setShowDetails] = useState<any | null>(null);
 
+  console.log(movie,"movoeovoeooev")
+
   useEffect(() => {
     if (movieName) {
-      fetchMovieDetails();
+      fetchMovieDetails(movie?.stream_id!);
     }
     if (showName) {
-      fetchShowDetails();
+      fetchSeriesDetails(movie?.series_id!);
     }
   }, [movieName, showName]);
 
-  const fetchMovieDetails = async () => {
-    if (!movieName) return;
+  // const fetchMovieDetails = async () => {
+  //   if (!movieName) return;
+  //   try {
+  //     const details = await getDiaPosterDetail(movie?.stream_id!);
+  //     console.log('details=--->>', details);
+  //     setShowDetails({info: details?.data?.info});
+  //   } catch (error) {
+  //     console.error('Error fetching movie details:', error);
+  //   }
+  // };
+
+  // const fetchShowDetails = () => {
+  //   if (!showName) return;
+  //   console.log('showdedededed', movie);
+  //   setShowDetails({info: movie});
+  // };
+
+  const fetchMovieDetails = async (streamId: number): Promise<void> => {
     try {
-      const details = await getDiaPosterDetail(movie?.stream_id!);
-      console.log('details=--->>', details);
-      setShowDetails({info: details?.data?.info});
+      const response = await getSeriesDetailsNew('movies', streamId);
+      const movieInfo = response?.data?.data?.info;
+      const logos = response?.data?.data?.logos;
+
+      console.log('responseresponsemoviedetails---->>>>>', response);
+
+      if (movieInfo) {
+        setShowDetails({info: movieInfo, logos: logos});
+        console.log(
+          'Movie details fetched successfully for stream_id:',
+          streamId,
+        );
+      }
     } catch (error) {
-      console.error('Error fetching movie details:', error);
+      console.error(
+        'Failed to fetch movie details for stream_id:',
+        streamId,
+        error,
+      );
     }
   };
 
-  const fetchShowDetails = () => {
-    if (!showName) return;
-    console.log('showdedededed', movie);
-    setShowDetails({info: movie});
+  const fetchSeriesDetails = async (seriesId: number): Promise<void> => {
+    try {
+      const response = await getSeriesDetailsNew('series', seriesId);
+      const seriesInfo = response?.data?.data?.info;
+      const logos = response?.data?.data?.logos;
+
+      console.log('responseresponseseriesdetails---->>>>>', response);
+
+      if (seriesInfo) {
+        setShowDetails({info: seriesInfo, logos: logos});
+        console.log(
+          'Series details fetched successfully for series_id:',
+          seriesId,
+        );
+      }
+    } catch (error) {
+      console.error(
+        'Failed to fetch series details for series_id:',
+        seriesId,
+        error,
+      );
+    }
   };
 
   return (
@@ -82,7 +138,11 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
           resizeMode="cover"></ImageBackground>
       ) : (
         <View style={styles.backgroundImagePlaceholder}>
-          <YoutubeComp data={showDetails?.info} height={height} VideoWidth={width} />
+          <YoutubeComp
+            data={showDetails?.info}
+            height={height}
+            VideoWidth={width}
+          />
         </View>
       )}
 
