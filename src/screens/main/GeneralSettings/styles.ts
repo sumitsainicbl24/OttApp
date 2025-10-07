@@ -104,7 +104,7 @@ export const styles = StyleSheet.create({
   settingOptionText: {
     color: CommonColors.white,
     fontFamily: FontFamily.PublicSans_Medium,
-    fontSize: scale(20),
+    fontSize: scale(24),
     width: '65%',
   },
 }); 

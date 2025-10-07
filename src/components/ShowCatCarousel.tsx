@@ -66,6 +66,8 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   const flashListRef = useRef<FlashList<ShowData>>(null);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
   const dispatch = useAppDispatch();
+  const currentFocusedRowRef = useRef(0);
+
   // Calculate number of columns based on screen width and card width
   const numColumns = useMemo(() => {
     if (horizontal) return 1;
@@ -94,10 +96,29 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
     }
   };
 
-  const handleItemFocus = (index: number, item: ShowData) => {
+  const handleItemFocus = useCallback((index: number, item: ShowData) => {
     console.log('item-->>>>>>>', item);
     onFocus?.(item);
-  };
+
+    // Calculate which row this item is in (0-indexed)
+    const rowIndex = Math.floor(index / numColumns);
+    
+    // Only scroll if we're not on the first row and not disabled
+    if (!disableScroll && rowIndex !== currentFocusedRowRef.current) {
+      currentFocusedRowRef.current = rowIndex;
+      
+      // Calculate the scroll position to show current row + peek of next row
+      // Card height + vertical margins
+      const itemHeight = verticalScale(400) + verticalScale(40); // card height + margins
+      const scrollToY = rowIndex * itemHeight;
+      
+      // Use scrollToOffset for FlashList
+      flashListRef.current?.scrollToOffset({
+        offset: scrollToY,
+        animated: true,
+      });
+    }
+  }, [numColumns, disableScroll, onFocus]);
 
   const renderShowItem = ({item, index}: {item: ShowData; index: number}) => {
     return (
@@ -138,14 +159,14 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
           estimatedItemSize={horizontal ? scale(250) : verticalScale(400)}
           scrollEnabled={!disableScroll}
         />
-        {/* Overlay to hide partially visible second row - only for grid layout */}
-        {!horizontal && numColumns > 7 && (
+        {/* Overlay to create fade effect at the bottom showing peek of next row */}
+        {!horizontal && (
           <LinearGradient
             colors={[
               'transparent',
               'transparent',
               'transparent',
-              CommonColors.themeMain + '80',
+              CommonColors.themeMain + '90',
               CommonColors.themeMain,
             ]}
             style={styles.bottomOverlay}
@@ -163,7 +184,7 @@ const styles = StyleSheet.create({
   sectionContainer: {
     width: width,
     paddingHorizontal: moderateScale(20),
-    height: verticalScale(595),
+    height: verticalScale(560), // Adjusted to show one row + peek of next row
     // backgroundColor: 'red',
   },
   sectionTitle: {
@@ -178,6 +199,7 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
     marginTop: verticalScale(20),
+    overflow: 'hidden', // Ensure content beyond the wrapper is clipped
   },
   gridContainer: {
     paddingHorizontal: moderateScale(20),
@@ -192,7 +214,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: verticalScale(100),
+    height: verticalScale(150), // Increased height for better fade effect
     zIndex: 10,
   },
   horizontalSectionContainer: {

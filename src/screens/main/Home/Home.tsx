@@ -1,8 +1,8 @@
 // 1. React Native core imports
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
-  ActivityIndicator,
   ImageBackground,
+  Platform,
   ScrollView,
   StatusBar,
   View,
@@ -23,20 +23,25 @@ import ShowDetails from '../../../components/ShowDetails';
 import {MainStackParamList} from '../../../navigation/NavigationsTypes';
 import {
   continueWatchingGetApi,
-  getDiaPosterDetail,
   getHomepageApi,
   getSeriesDetailsNew,
 } from '../../../redux/actions/main';
 import {useAppDispatch} from '../../../redux/hooks';
 import {setCurrentlyPlaying} from '../../../redux/reducers/main';
 import {RootState} from '../../../redux/store';
-import {moderateScale, verticalScale} from '../../../styles/scaling';
-import {
-  extractStreamIdFromUrl,
-  imageResolutionHandlerForUrl,
-} from '../../../utils/CommonFunctions';
+import {verticalScale} from '../../../styles/scaling';
 import {styles} from './styles';
 import YoutubeComp from './YoutubeComp';
+import {
+  getBaseOs,
+  getDevice,
+  getDeviceId,
+  getDeviceName,
+  getDeviceToken,
+  getDeviceType,
+  getManufacturer,
+  getModel,
+} from 'react-native-device-info';
 
 const Home = () => {
   const {userToken, auth_token} = useSelector(
@@ -51,7 +56,7 @@ const Home = () => {
     useState<any>(null);
   const playerRef = useRef<YoutubeIframeRef>(null);
 
-  console.log(auth_token);
+
 
   useEffect(() => {
     if (playerRef.current) {

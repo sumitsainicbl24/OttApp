@@ -88,7 +88,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   const timelineScrollRef = useRef<ScrollView>(null);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
   const dispatch = useAppDispatch();
-  const [timelineScrollOffset, setTimelineScrollOffset] = useState<number>(0);
+  // Removed timeline scroll offset - timeline is now fixed at 30-minute intervals
   const [isAutoScrolling, setIsAutoScrolling] = useState<boolean>(false);
   // Calculate number of columns based on screen width and card width
 
@@ -156,18 +156,14 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
 
   // Create timeline configuration for 24 hours (48 slots of 30 minutes each)
   const timelineConfig = useMemo(
-    () => createTimelineConfig(30, 48, scale(200)),
+    () => createTimelineConfig(30, 48, scale(280)), // Increased slot width for better spacing
     [],
   );
 
-  // Generate timeline slots with scroll offset
+  // Generate fixed timeline slots (no scroll offset - timeline stays fixed at 30-minute intervals)
   const timelineSlots = useMemo(
-    () =>
-      createTimelineSlots({
-        ...timelineConfig,
-        scrollOffset: timelineScrollOffset,
-      }),
-    [timelineConfig, timelineScrollOffset],
+    () => createTimelineSlots(timelineConfig),
+    [timelineConfig],
   );
 
   // Get current time position
@@ -215,22 +211,9 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
     );
   };
 
-  // Handle horizontal scroll to shift timeline
+  // Timeline scroll is now disabled - timeline stays fixed at 30-minute intervals
   const handleTimelineScroll = (event: any) => {
-    const {contentOffset} = event.nativeEvent;
-    const scrollX = contentOffset.x;
-
-    // Calculate how many 30-minute slots we've scrolled
-    const slotsScrolled = Math.round(scrollX / timelineConfig.slotWidth);
-    const minutesOffset = slotsScrolled * 10; // 30 minutes per slot
-
-    // Update the scroll offset
-    setTimelineScrollOffset(minutesOffset);
-  };
-
-  // Reset timeline to current time
-  const resetTimelineToCurrentTime = () => {
-    setTimelineScrollOffset(0);
+    // No longer needed - timeline is fixed
   };
 
   // Auto-scroll timeline when focus reaches the end of visible area
@@ -248,30 +231,28 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
       const leftThreshold = visibleTimelineWidth * 0.2;
       const rightThreshold = visibleTimelineWidth * 0.8;
 
-      let newScrollOffset = timelineScrollOffset;
-
-      // Check if program is near the left edge
+      // Check if program is near the edges and scroll the container accordingly
       if (programLeft < leftThreshold) {
         // Scroll left to center the program
         const targetLeft = visibleTimelineWidth * 0.4; // Center the program
-        const scrollAmount = (targetLeft - programLeft) / timelineConfig.slotWidth;
-        newScrollOffset = Math.max(0, timelineScrollOffset - scrollAmount * 30); // 30 minutes per slot
-      }
-      // Check if program is near the right edge
-      else if (programRight > rightThreshold) {
+        const scrollX = Math.max(0, programLeft - targetLeft);
+        
+        setIsAutoScrolling(true);
+        timelineScrollRef.current?.scrollTo({
+          x: scrollX,
+          animated: true,
+        });
+        
+        // Reset auto-scrolling flag after animation completes
+        setTimeout(() => {
+          setIsAutoScrolling(false);
+        }, 500);
+      } else if (programRight > rightThreshold) {
         // Scroll right to center the program
         const targetRight = visibleTimelineWidth * 0.6; // Center the program
-        const scrollAmount = (programRight - targetRight) / timelineConfig.slotWidth;
-        newScrollOffset = timelineScrollOffset + scrollAmount * 30; // 30 minutes per slot
-      }
-
-      // Only update if there's a significant change
-      if (Math.abs(newScrollOffset - timelineScrollOffset) > 15) { // 15 minutes threshold
-        setIsAutoScrolling(true);
-        setTimelineScrollOffset(newScrollOffset);
+        const scrollX = programRight - targetRight;
         
-        // Also scroll the ScrollView to the new position
-        const scrollX = (newScrollOffset / 30) * timelineConfig.slotWidth; // Convert minutes to pixels
+        setIsAutoScrolling(true);
         timelineScrollRef.current?.scrollTo({
           x: scrollX,
           animated: true,
@@ -283,24 +264,20 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
         }, 500);
       }
     },
-    [timelineScrollOffset, timelineConfig.slotWidth, isAutoScrolling]
+    [timelineConfig.slotWidth, isAutoScrolling]
   );
 
   const renderShowItem = React.useCallback(
     ({item, index}: {item: ShowData; index: number}) => (
       <ShowChannelCatCard
         handleBlockPress={() => handleBlockPress?.(item)}
-        // showCurrentDetails={false}
         show={item}
         channelIndex={index}
         onPress={() => handleShowPress(item)}
         onFocus={() => handleItemFocus(index, item)}
         setChannelUrl={setChannelUrl}
         setProgramDetails={setProgramDetails}
-        timelineConfig={{
-          ...timelineConfig,
-          scrollOffset: timelineScrollOffset,
-        }}
+        timelineConfig={timelineConfig}
         onProgramFocusWithAutoScroll={handleProgramFocusWithAutoScroll}
       />
     ),
@@ -310,7 +287,6 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
       setChannelUrl,
       setProgramDetails,
       timelineConfig,
-      timelineScrollOffset,
       handleProgramFocusWithAutoScroll,
     ],
   );
@@ -485,7 +461,7 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(10),
   },
   timelineItem: {
-    width: scale(287),
+    width: scale(280), // Match the slot width
     height: verticalScale(40),
     flexDirection: 'row',
     justifyContent: 'space-between',

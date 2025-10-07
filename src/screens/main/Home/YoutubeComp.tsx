@@ -1,8 +1,4 @@
-import {
-  Animated,
-  Pressable,
-  StyleSheet,
-} from 'react-native';
+import {Alert, Animated, Pressable, StyleSheet} from 'react-native';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import YoutubePlayer, {YoutubeIframeRef} from 'react-native-youtube-iframe';
 import {moderateScale, width} from '../../../styles/scaling';
@@ -30,23 +26,28 @@ const YoutubeComp = ({
   const [isVideoReady, setIsVideoReady] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Memoized styles to prevent recreation on every render
   const styles = useMemo(() => createStyles(height), [height]);
 
   // Memoized animation configuration
-  const animationConfig = useMemo(() => ({
-    entrance: {
-      toValue: 1,
-      duration: 2000,
-      useNativeDriver: true,
-    },
-    exit: {
-      toValue: 0,
-      duration: 4000,
-      useNativeDriver: true,
-    },
-  }), []);
+  const animationConfig = useMemo(
+    () => ({
+      entrance: {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      },
+      exit: {
+        toValue: 0,
+        duration: 4000,
+        useNativeDriver: true,
+      },
+    }),
+    [],
+  );
+
+
 
   // Optimized useEffect with proper cleanup
   useEffect(() => {
@@ -59,10 +60,10 @@ const YoutubeComp = ({
     setOpacity(0);
     setIsVideoReady(false);
     fadeAnim.setValue(0);
-    
+
     timeoutRef.current = setTimeout(() => {
       setOpacity(1);
-      
+
       // Animate overlay entrance
       Animated.timing(fadeAnim, animationConfig.entrance).start(() => {
         setIsVideoReady(true);
@@ -117,6 +118,7 @@ const YoutubeComp = ({
         initialPlayerParams={{
           controls: false,
           rel: false,
+          start: 10,
         }}
         forceAndroidAutoplay={true}
         webViewStyle={{opacity: opacity, marginTop: moderateScale(50)}}
@@ -147,27 +149,28 @@ const YoutubeComp = ({
 
 export default YoutubeComp;
 
-const createStyles = (height: number) => StyleSheet.create({
-  container: {
-    position: 'relative',
-    alignItems: 'flex-end',
-  },
-  posterImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height,
-    zIndex: 2,
-    opacity: 1,
-  },
-  fadeOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height,
-    backgroundColor: 'rgba(0, 0, 0, 1)', // Semi-transparent black overlay
-    zIndex: 3,
-  },
-});
+const createStyles = (height: number) =>
+  StyleSheet.create({
+    container: {
+      position: 'relative',
+      alignItems: 'flex-end',
+    },
+    posterImage: {
+      position: 'absolute',
+      top: 100,
+      left: 180,
+      right: 0,
+      height,
+      zIndex: 2,
+      opacity: 1,
+    },
+    fadeOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height,
+      backgroundColor: 'rgba(0, 0, 0, 1)', // Semi-transparent black overlay
+      zIndex: 3,
+    },
+  });

@@ -6,11 +6,14 @@ import { useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
 import imagepath from '../../../constants/imagepath';
 import SettingOverlay from '../../../components/SettingOverlay';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 const PlaylistSettings = () => {
   const navigation = useNavigation();
   const [selectedOption, setSelectedOption] = useState('General');
   const [focusedOption, setFocusedOption] = useState('');
+  const userToken = useSelector((state: RootState) => state.rootReducer.auth.userToken);
 
   const handleBackPress = () => {
     navigation.goBack();
@@ -39,11 +42,11 @@ const PlaylistSettings = () => {
           isTVSelectable: true,
         } as any)}
       >
-        <Image source={imagepath.LockIcon} style={styles.lockIcon} />
-        <Text style={styles.settingOptionText}>{title}</Text>
+        <Image source={imagepath.LockIcon} style={styles.lockIcon} tintColor={userToken ? CommonColors.white : CommonColors.textSecondary}/>
+        <Text style={{...styles.settingOptionText , color:userToken ? CommonColors.white : CommonColors.textSecondary}}>{title}</Text>
       </TouchableOpacity>
     );
-  };
+  };    
 
   return (
     <SettingOverlay topTitle='Playlist'>

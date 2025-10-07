@@ -159,10 +159,8 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   };
 
   const getProgramDetails = (programIndex: number) => {
-    // Get program data from either timeline positions or fallback programs
     let programData = null;
     let epgData = null;
-
     if (programPositions.length > 0 && programIndex < programPositions.length) {
       // Use timeline program data
       programData = programPositions[programIndex];
@@ -378,9 +376,8 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
 
   // Calculate program positions within timeline
   const programPositions = React.useMemo(() => {
-    if (!show.epg || show.epg.length === 0) return [];
     return calculateProgramPositions(
-      show.epg,
+      show.epg || [], // Pass empty array if no EPG data - calculateProgramPositions will handle it
       timelineSlots,
       timelineConfig.slotWidth,
     );
@@ -436,15 +433,17 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
           {programPositions.length > 0 ? (
             <View style={styles.timelineProgramContainer}>
               {programPositions.map((position, index) => (
-                <View style={{flexDirection: 'column'}}>
+                <View
+                  key={position.program.id || `program-${index}`}
+                  style={{flexDirection: 'column'}}>
                   <TouchableOpacity
-                    key={position.program.id || index}
                     style={[
                       styles.timelineProgramBlock,
                       {
                         left: position.left,
                         width: position.width,
-                        backgroundColor: 'rgba(27,30,33,0.5)',
+                        backgroundColor: 'rgba(27,30,33,0.8)', // Slightly more opaque for better visibility
+                        zIndex: focusedProgramIndex === index ? 1000 : 1,
                       },
                       focusedProgramIndex === index &&
                         styles.programBlockFocused,
@@ -479,7 +478,6 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
                   key={index}
                   style={[
                     styles.programBlock,
-
                     focusedProgramIndex === index && styles.programBlockFocused,
                   ]}
                   hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
@@ -511,8 +509,8 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
           )}
         </View>
       </View>
-      {currentDetails && (
-        <View style={{flexDirection: 'row'}}>
+      {currentDetails && focusedProgramIndex !== null && (
+        <View style={{flexDirection: 'row', width: '100%'}}>
           <View
             style={{
               width: moderateScale(315),
@@ -537,7 +535,15 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
               }}
             />
           </View>
-          <View style={styles.detailsInline}>
+          <View
+            style={[
+              styles.detailsInline,
+              {
+                left: programPositions[focusedProgramIndex]?.left + 160 || 0,
+                zIndex: 2000,
+                elevation: 10,
+              },
+            ]}>
             <View style={{flex: 1}}>
               <Text style={styles.detailsTitle} numberOfLines={1}>
                 {currentDetails.showTitle}
@@ -642,17 +648,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(27,30,33,1)',
   },
   programBlockFocused: {
-    marginTop: verticalScale(4),
+    // marginTop: verticalScale(4),
     borderColor: CommonColors.white,
     backgroundColor: 'rgba(225, 226, 228, 1)',
-    shadowColor: CommonColors.white,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    // shadowColor: CommonColors.white,
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 0,
+    // },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 8,
     zIndex: 1000,
+    elevation: 5, // Higher elevation for Android
   },
   currentProgram: {
     backgroundColor: '#3E4756',
@@ -668,22 +675,31 @@ const styles = StyleSheet.create({
   },
   timelineProgramContainer: {
     position: 'relative',
-    height: moderateScale(64),
+    height: moderateScale(52),
     width: '100%',
     marginLeft: moderateScale(10),
     overflow: 'visible',
     paddingTop: verticalScale(4),
     paddingBottom: verticalScale(4),
+    zIndex: 10,
   },
   timelineProgramBlock: {
     position: 'absolute',
     top: verticalScale(4),
-    height: moderateScale(56),
+    height: moderateScale(48),
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(8),
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
+    borderWidth: 1, // Reduced border width for cleaner look
+    borderColor: 'rgba(255, 255, 255, 0.1)', // Subtle border for separation
+    // elevation: 2, // Android shadow
+    // shadowColor: '#000', // iOS shadow
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.15,
+    // shadowRadius: 3,
   },
   smallProgramText: {
     fontSize: moderateScale(14),
@@ -705,6 +721,15 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(12),
     paddingHorizontal: moderateScale(14),
     flexDirection: 'row',
+    position: 'absolute',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   detailsTitle: {
     fontFamily: FontFamily.PublicSans_SemiBold,

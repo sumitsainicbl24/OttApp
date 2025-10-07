@@ -95,8 +95,8 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
         <FastImage
           source={{uri: showDetails?.logos?.[0]?.file_path}}
           style={{
-            height: 60,
-            width: 200,
+            height: 100,
+            width: 300,
           }}
           resizeMode="contain"
         />
@@ -192,14 +192,13 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
 const styles = StyleSheet.create({
   // Featured Content Styles
   featuredContainer: {
-    // width: scale(665),
-    paddingTop: verticalScale(50),
+    // paddingTop: verticalScale(50),
     width: '40%',
     height: verticalScale(450),
     zIndex: 10,
     marginLeft: moderateScale(40),
-    // justifyContent: 'space-between',
     gap: verticalScale(20),
+    // backgroundColor: 'red',
   },
 
   featuredImagePlaceholder: {

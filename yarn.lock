@@ -3370,6 +3370,7 @@ __metadata:
     react: 18.3.1
     react-native: "npm:react-native-tvos@0.77.0-0"
     react-native-blob-util: ^0.22.2
+    react-native-device-info: ^14.1.1
     react-native-fast-image: ^8.6.3
     react-native-fs: ^2.20.0
     react-native-linear-gradient: ^2.8.3
@@ -9378,6 +9379,15 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: b07830a301ba89545a58f63d7ee972478ea7748d4d0444cfe9a7f54e229d7cefc6bd0b23af161a03d33aa3daee44cf70c2e2f2d56eb5eb61a4d84e1bd6e0752a
+  languageName: node
+  linkType: hard
+
+"react-native-device-info@npm:^14.1.1":
+  version: 14.1.1
+  resolution: "react-native-device-info@npm:14.1.1"
+  peerDependencies:
+    react-native: "*"
+  checksum: bfd5e63fb9b4e4697caa5be289c619ac2988c0eb4f0d5b9025fcaed82596e861812786c37796647e1d9d8b2ac2afaab383c0e091097540161b9a4e334fd673e1
   languageName: node
   linkType: hard
 

@@ -31,24 +31,22 @@ export interface TimelineConfig {
 }
 
 /**
- * Creates timeline slots starting from current time
+ * Creates timeline slots with fixed 30-minute intervals
+ * Timeline is always anchored to the nearest 30-minute mark and doesn't change with navigation
  */
 export const createTimelineSlots = (config: TimelineConfig): TimelineSlot[] => {
-  const { slotDurationMinutes, totalSlots, slotWidth, currentTime, scrollOffset = 0 } = config;
+  const { slotDurationMinutes, totalSlots, slotWidth, currentTime } = config;
   
   const slots: TimelineSlot[] = [];
   const slotDurationSeconds = slotDurationMinutes * 60;
   
-  // Start from current time, rounded down to nearest slot (convert to seconds)
+  // Always start from the nearest 30-minute mark (e.g., 2:20 becomes 2:00, 2:45 becomes 2:30)
   const currentTimeSeconds = Math.floor(currentTime / 1000);
   const baseStartTime = Math.floor(currentTimeSeconds / slotDurationSeconds) * slotDurationSeconds;
   
-  // Apply scroll offset (in minutes, convert to seconds)
-  const scrollOffsetSeconds = scrollOffset * 60;
-  const startTime = baseStartTime + scrollOffsetSeconds;
-  
+  // Create fixed timeline slots - no scroll offset applied
   for (let i = 0; i < totalSlots; i++) {
-    const slotStartTime = startTime + (i * slotDurationSeconds);
+    const slotStartTime = baseStartTime + (i * slotDurationSeconds);
     const slotEndTime = slotStartTime + slotDurationSeconds;
     
     slots.push({
@@ -109,33 +107,31 @@ export const calculateProgramPositions = (
     
     // Calculate minimum width based on program duration
     const programDurationMinutes = (endTime - startTime) / 60; // Convert seconds to minutes
-    let minWidth = 20; // Base minimum width for very short programs
+    let minWidth = 30; // Base minimum width for very short programs
     
-    // Increase minimum width for longer programs to ensure title visibility
+    // Increase minimum width for longer programs to ensure title visibility and proper spacing
     if (programDurationMinutes >= 60) {
-      minWidth = 120; // 1+ hour programs need more space
+      minWidth = 140; // 1+ hour programs need more space
     } else if (programDurationMinutes >= 30) {
-      minWidth = 80; // 30+ minute programs
+      minWidth = 100; // 30+ minute programs
     } else if (programDurationMinutes >= 20) {
-      minWidth = 60; // 20+ minute programs (will show title)
+      minWidth = 80; // 20+ minute programs (will show title)
     } else if (programDurationMinutes >= 10) {
-      minWidth = 40; // 10+ minute programs (no title)
+      minWidth = 60; // 10+ minute programs (no title)
     } else {
-      minWidth = 20; // Very short programs (no title, minimal width)
+      minWidth = 30; // Very short programs (no title, minimal width)
     }
     
     const finalWidth = Math.max(width, minWidth);
     
-    // Add small margin to prevent exact overlapping
-    const margin = 1;
-    
+    // Don't add margin here as it will be handled by applyProgramSpacing
     positions.push({
       program,
       startTime,
       endTime,
       duration: endTime - startTime,
-      left: Math.max(0, left + margin),
-      width: Math.max(finalWidth - margin * 2, minWidth),
+      left: Math.max(0, left),
+      width: Math.max(finalWidth, minWidth),
       title: decodeEPGTitle(program.title)
     });
   }
@@ -143,51 +139,126 @@ export const calculateProgramPositions = (
   // Sort positions by start time to ensure proper ordering
   const sortedPositions = positions.sort((a, b) => a.startTime - b.startTime);
   
+  // Apply spacing adjustments to prevent overlaps
+  const spacedPositions = applyProgramSpacing(sortedPositions, totalTimelineWidth);
+  
   // Fill gaps with "No Information" blocks
-  return fillTimelineGaps(sortedPositions, timelineSlots, slotWidth);
+  return fillTimelineGaps(spacedPositions, timelineSlots, slotWidth);
+};
+
+/**
+ * Applies consistent spacing between programs to prevent overlaps
+ * Uses different spacing for "No Information" cards vs normal EPG programs
+ */
+const applyProgramSpacing = (
+  positions: ProgramPosition[],
+  totalTimelineWidth: number
+): ProgramPosition[] => {
+  if (positions.length <= 1) return positions;
+  
+  const MIN_SPACING_NORMAL = 6; // Minimum 6px spacing between normal programs
+  const MIN_SPACING_NO_INFO = 2; // Minimum 2px spacing between "No Information" cards
+  const adjustedPositions: ProgramPosition[] = [];
+  
+  for (let i = 0; i < positions.length; i++) {
+    const currentProgram = { ...positions[i] };
+    
+    if (i === 0) {
+      // First program - no adjustment needed
+      adjustedPositions.push(currentProgram);
+    } else {
+      const previousProgram = adjustedPositions[i - 1];
+      const previousEnd = previousProgram.left + previousProgram.width;
+      const currentStart = currentProgram.left;
+      
+      // Calculate the gap between previous program end and current program start
+      const gap = currentStart - previousEnd;
+      
+      // Determine spacing based on program types
+      let minSpacing = MIN_SPACING_NORMAL;
+      const isCurrentNoInfo = currentProgram.title === 'No Information';
+      const isPreviousNoInfo = previousProgram.title === 'No Information';
+      
+      // Use smaller spacing for "No Information" cards
+      if (isCurrentNoInfo || isPreviousNoInfo) {
+        minSpacing = MIN_SPACING_NO_INFO;
+      }
+      
+      if (gap < minSpacing) {
+        // If gap is too small, adjust current program position
+        currentProgram.left = previousEnd + minSpacing;
+        
+        // Ensure the program doesn't exceed timeline width
+        const maxLeft = totalTimelineWidth - currentProgram.width;
+        if (currentProgram.left > maxLeft) {
+          currentProgram.left = maxLeft;
+          // Adjust width if necessary to fit
+          if (currentProgram.left + currentProgram.width > totalTimelineWidth) {
+            currentProgram.width = Math.max(20, totalTimelineWidth - currentProgram.left); // Ensure minimum width
+          }
+        }
+      }
+      
+      // Final check to ensure program is within bounds
+      if (currentProgram.left < 0) {
+        currentProgram.left = 0;
+      }
+      if (currentProgram.left + currentProgram.width > totalTimelineWidth) {
+        currentProgram.width = Math.max(20, totalTimelineWidth - currentProgram.left);
+      }
+      
+      adjustedPositions.push(currentProgram);
+    }
+  }
+  
+  return adjustedPositions;
 };
 
 /**
  * Generates "No Information" blocks for the entire timeline when no EPG data is available
+ * Creates blocks that match the 30-minute timeline slots
  */
 const generateNoInformationBlocks = (
   timelineSlots: TimelineSlot[],
   slotWidth: number
 ): ProgramPosition[] => {
   const positions: ProgramPosition[] = [];
-  const timelineStart = timelineSlots[0]?.startTime || 0;
-  const timelineEnd = timelineSlots[timelineSlots.length - 1]?.endTime || 0;
-  const totalTimelineWidth = slotWidth * timelineSlots.length;
   
-  // Create a single "No Information" block spanning the entire timeline
-  positions.push({
-    program: {
-      id: 'no-info',
-      epg_id: 'no-info',
-      title: 'No Information',
-      lang: 'en',
-      start: new Date(timelineStart * 1000).toISOString(),
-      end: new Date(timelineEnd * 1000).toISOString(),
-      description: 'No program information available',
-      channel_id: 'unknown',
-      start_timestamp: timelineStart.toString(),
-      stop_timestamp: timelineEnd.toString(),
-      now_playing: 0,
-      has_archive: 0
-    },
-    startTime: timelineStart,
-    endTime: timelineEnd,
-    duration: timelineEnd - timelineStart,
-    left: 0,
-    width: totalTimelineWidth,
-    title: 'No Information'
+  // Create individual "No Information" blocks for each 30-minute slot
+  timelineSlots.forEach((slot, index) => {
+    const noInfoSpacing = 1; // Minimal spacing between "No Information" cards
+    const leftPosition = (index * slotWidth) + (index * noInfoSpacing);
+    const adjustedWidth = slotWidth - noInfoSpacing;
+    
+    positions.push({
+      program: {
+        id: `no-info-slot-${index}`,
+        epg_id: `no-info-slot-${index}`,
+        title: 'No Information',
+        lang: 'en',
+        start: new Date(slot.startTime * 1000).toISOString(),
+        end: new Date(slot.endTime * 1000).toISOString(),
+        description: 'No program information available',
+        channel_id: 'unknown',
+        start_timestamp: slot.startTime.toString(),
+        stop_timestamp: slot.endTime.toString(),
+        now_playing: 0,
+        has_archive: 0
+      },
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      duration: slot.endTime - slot.startTime,
+      left: leftPosition,
+      width: adjustedWidth, // Slightly smaller width to account for spacing
+      title: 'No Information'
+    });
   });
   
   return positions;
 };
 
 /**
- * Fills gaps in the timeline with "No Information" blocks
+ * Fills gaps in the timeline with "No Information" blocks of standard 30-minute width
  */
 const fillTimelineGaps = (
   positions: ProgramPosition[],
@@ -203,36 +274,62 @@ const fillTimelineGaps = (
   const totalTimelineWidth = slotWidth * timelineSlots.length;
   const filledPositions: ProgramPosition[] = [];
   
+  // Create "No Information" blocks for gaps, but limit their width to 30-minute slots
+  const createNoInfoBlocks = (gapStart: number, gapEnd: number, baseId: string) => {
+    const blocks: ProgramPosition[] = [];
+    const slotDuration = 30 * 60; // 30 minutes in seconds
+    
+    let currentTime = gapStart;
+    let blockIndex = 0;
+    
+    while (currentTime < gapEnd) {
+      const blockEnd = Math.min(currentTime + slotDuration, gapEnd);
+      const gapStartPercentage = (currentTime - timelineStart) / (timelineEnd - timelineStart);
+      const gapEndPercentage = (blockEnd - timelineStart) / (timelineEnd - timelineStart);
+      const gapLeft = gapStartPercentage * totalTimelineWidth;
+      const gapWidth = (gapEndPercentage - gapStartPercentage) * totalTimelineWidth;
+      
+      // Ensure minimum width for visibility
+      const minWidth = Math.max(slotWidth * 0.5, 40); // At least half a slot or 40px
+      const finalWidth = Math.max(gapWidth, minWidth);
+      
+      // Add small spacing for "No Information" cards
+      const noInfoSpacing = 1; // Minimal spacing between consecutive "No Information" cards
+      
+      blocks.push({
+        program: {
+          id: `${baseId}-${blockIndex}`,
+          epg_id: `${baseId}-${blockIndex}`,
+          title: 'No Information',
+          lang: 'en',
+          start: new Date(currentTime * 1000).toISOString(),
+          end: new Date(blockEnd * 1000).toISOString(),
+          description: 'No program information available',
+          channel_id: 'unknown',
+          start_timestamp: currentTime.toString(),
+          stop_timestamp: blockEnd.toString(),
+          now_playing: 0,
+          has_archive: 0
+        },
+        startTime: currentTime,
+        endTime: blockEnd,
+        duration: blockEnd - currentTime,
+        left: gapLeft + (blockIndex * noInfoSpacing), // Add minimal spacing between consecutive "No Information" cards
+        width: finalWidth - noInfoSpacing, // Adjust width to account for spacing
+        title: 'No Information'
+      });
+      
+      currentTime = blockEnd;
+      blockIndex++;
+    }
+    
+    return blocks;
+  };
+  
   // Add gap before first program if needed
   if (positions[0].startTime > timelineStart) {
-    const gapEnd = positions[0].startTime;
-    const gapStartPercentage = 0;
-    const gapEndPercentage = (gapEnd - timelineStart) / (timelineEnd - timelineStart);
-    const gapLeft = gapStartPercentage * totalTimelineWidth;
-    const gapWidth = (gapEndPercentage - gapStartPercentage) * totalTimelineWidth;
-    
-    filledPositions.push({
-      program: {
-        id: 'no-info-start',
-        epg_id: 'no-info-start',
-        title: 'No Information',
-        lang: 'en',
-        start: new Date(timelineStart * 1000).toISOString(),
-        end: new Date(gapEnd * 1000).toISOString(),
-        description: 'No program information available',
-        channel_id: 'unknown',
-        start_timestamp: timelineStart.toString(),
-        stop_timestamp: gapEnd.toString(),
-        now_playing: 0,
-        has_archive: 0
-      },
-      startTime: timelineStart,
-      endTime: gapEnd,
-      duration: gapEnd - timelineStart,
-      left: gapLeft,
-      width: gapWidth,
-      title: 'No Information'
-    });
+    const gapBlocks = createNoInfoBlocks(timelineStart, positions[0].startTime, 'no-info-start');
+    filledPositions.push(...gapBlocks);
   }
   
   // Add all existing programs
@@ -245,67 +342,16 @@ const fillTimelineGaps = (
     
     if (nextStart > currentEnd) {
       // There's a gap between programs
-      const gapStartPercentage = (currentEnd - timelineStart) / (timelineEnd - timelineStart);
-      const gapEndPercentage = (nextStart - timelineStart) / (timelineEnd - timelineStart);
-      const gapLeft = gapStartPercentage * totalTimelineWidth;
-      const gapWidth = (gapEndPercentage - gapStartPercentage) * totalTimelineWidth;
-      
-      filledPositions.push({
-        program: {
-          id: `no-info-gap-${i}`,
-          epg_id: `no-info-gap-${i}`,
-          title: 'No Information',
-          lang: 'en',
-          start: new Date(currentEnd * 1000).toISOString(),
-          end: new Date(nextStart * 1000).toISOString(),
-          description: 'No program information available',
-          channel_id: 'unknown',
-          start_timestamp: currentEnd.toString(),
-          stop_timestamp: nextStart.toString(),
-          now_playing: 0,
-          has_archive: 0
-        },
-        startTime: currentEnd,
-        endTime: nextStart,
-        duration: nextStart - currentEnd,
-        left: gapLeft,
-        width: gapWidth,
-        title: 'No Information'
-      });
+      const gapBlocks = createNoInfoBlocks(currentEnd, nextStart, `no-info-gap-${i}`);
+      filledPositions.push(...gapBlocks);
     }
   }
   
   // Add gap after last program if needed
   const lastProgram = positions[positions.length - 1];
   if (lastProgram.endTime < timelineEnd) {
-    const gapStart = lastProgram.endTime;
-    const gapStartPercentage = (gapStart - timelineStart) / (timelineEnd - timelineStart);
-    const gapEndPercentage = 1;
-    const gapLeft = gapStartPercentage * totalTimelineWidth;
-    const gapWidth = (gapEndPercentage - gapStartPercentage) * totalTimelineWidth;
-    
-    filledPositions.push({
-      program: {
-        id: 'no-info-end',
-        epg_id: 'no-info-end',
-        title: 'No Information',
-        lang: 'en',
-        start: new Date(gapStart * 1000).toISOString(),
-        end: new Date(timelineEnd * 1000).toISOString(),
-        description: 'No program information available',
-        channel_id: 'unknown',
-        start_timestamp: gapStart.toString(),
-        stop_timestamp: timelineEnd.toString(),
-        now_playing: 0,
-        has_archive: 0
-      },
-      startTime: gapStart,
-      endTime: timelineEnd,
-      duration: timelineEnd - gapStart,
-      left: gapLeft,
-      width: gapWidth,
-      title: 'No Information'
-    });
+    const gapBlocks = createNoInfoBlocks(lastProgram.endTime, timelineEnd, 'no-info-end');
+    filledPositions.push(...gapBlocks);
   }
   
   return filledPositions.sort((a, b) => a.startTime - b.startTime);

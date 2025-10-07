@@ -1,11 +1,12 @@
 // 1. React Native core imports
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   View,
   TouchableOpacity,
   ImageBackground,
   Image,
+  Platform,
 } from 'react-native';
 
 // 2. Navigation imports
@@ -45,6 +46,12 @@ import {
   signinApi,
 } from '../../../redux/actions/main';
 import Toast from 'react-native-toast-message';
+import {
+  getDeviceId,
+  getDeviceType,
+  getManufacturer,
+  getModel,
+} from 'react-native-device-info';
 
 type LoginScreenRouteProp = RouteProp<MainStackParamList, 'LoginScreen'>;
 
@@ -54,7 +61,31 @@ const LoginScreen = () => {
   // State management
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [deviceInfo, setDeviceInfo] = useState<any>(null);
   const [focused, setFocused] = useState<string | null>(null);
+
+  useEffect(() => {
+    getDeviceInfo();
+  }, []);
+
+  function getDeviceInfo() {
+    Promise.all([getManufacturer(), getModel(), getDeviceId(), getDeviceType()])
+      .then(response => {
+        const [manufacturer, model, deviceId, deviceType] = response;
+        let deviceInfo = {
+          manufacturer: manufacturer,
+          model: model,
+          deviceId: deviceId,
+          deviceType: deviceType,
+          Platform: Platform.OS,
+        };
+        setDeviceInfo(deviceInfo);
+        console.log('responseresponseresponse--->>>>', deviceInfo);
+      })
+      .catch(error => {
+        console.log('error', error);
+      });
+  }
 
   // Handler functions
   const handleLogin = async () => {

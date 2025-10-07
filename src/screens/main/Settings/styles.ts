@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { CommonColors } from '../../../styles/Colors';
-import { moderateScale, scale, verticalScale } from '../../../styles/scaling';
+import {StyleSheet} from 'react-native';
+import {CommonColors} from '../../../styles/Colors';
+import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
 import FontFamily from '../../../constants/FontFamily';
 
 export const styles = StyleSheet.create({
@@ -26,8 +26,8 @@ export const styles = StyleSheet.create({
     paddingTop: verticalScale(20),
     paddingBottom: verticalScale(15),
     paddingHorizontal: moderateScale(20),
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    // borderBottomWidth: 1,
+    // borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   backButton: {
     flexDirection: 'row',
@@ -85,19 +85,23 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   settingOption: {
-    paddingVertical: verticalScale(25),
+    paddingVertical: verticalScale(28),
     paddingHorizontal: moderateScale(20),
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    marginHorizontal: moderateScale(8),
+    borderRadius: moderateScale(10),
+
+    // borderBottomWidth: 1,
+    // borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   selectedOption: {
-    borderColor: CommonColors.white,
-    borderWidth: 1,
-    transform: [{ scale: 1.05 }]
+    backgroundColor: CommonColors.white,
+    // borderColor: CommonColors.white,
+    // borderWidth: 1,
+    // transform: [{ scale: 1.05 }]
   },
   settingOptionText: {
     color: CommonColors.white,
-    fontFamily: FontFamily.PublicSans_Medium,
-    fontSize: scale(20),
+    // fontFamily: FontFamily.PublicSans_Medium,
+    fontSize: scale(26),
   },
-}); 
+});
