@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { MainStackParamList } from './NavigationsTypes';
+import React, {useEffect} from 'react';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {MainStackParamList} from './NavigationsTypes';
 import Home from '../screens/main/Home/Home';
 import Movies from '../screens/main/Movies/Movies';
 import Shows from '../screens/main/Shows/Shows';
@@ -20,125 +20,82 @@ import LoginScreen from '../screens/appAuth/LoginScreen';
 import SignupScreen from '../screens/appAuth/SignupScreen';
 import VerifyOtp from '../screens/appAuth/VerifyOtp/VerifyOtp';
 import BuySubscription from '../screens/main/BuySubscription/BuySubscription';
-import { getChannelsDataFromMMKV, getMoviesDataFromMMKV, getSeriesDataFromMMKV } from '../localStorage/mmkv';
-import { setChannelsData, setMoviesData, setSeriesData } from '../redux/reducers/auth';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '../redux/hooks';
-import { RootState } from '../redux/store';
-
+import {
+  getChannelsDataFromMMKV,
+  getMoviesDataFromMMKV,
+  getSeriesDataFromMMKV,
+} from '../localStorage/mmkv';
+import {
+  setChannelsData,
+  setMoviesData,
+  setSeriesData,
+} from '../redux/reducers/auth';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from '../redux/hooks';
+import {RootState} from '../redux/store';
+import DevicesList from '../screens/appAuth/DevicesList/DevicesList';
 
 const Mainstack = () => {
   const dispatch = useDispatch();
   const Stack = createNativeStackNavigator<MainStackParamList>();
 
-useEffect(()=>{
-   const loadAllData = async () => {
-    const {channelsData, moviesData, seriesData} = useAppSelector((state: RootState) => state.rootReducer.auth);
-    if(!channelsData){
-      const channelsData = await getChannelsDataFromMMKV();
-      if(channelsData){
-        dispatch(setChannelsData(channelsData))
+  useEffect(() => {
+    const loadAllData = async () => {
+      const {channelsData, moviesData, seriesData} = useAppSelector(
+        (state: RootState) => state.rootReducer.auth,
+      );
+      if (!channelsData) {
+        const channelsData = await getChannelsDataFromMMKV();
+        if (channelsData) {
+          dispatch(setChannelsData(channelsData));
+        }
       }
-    }
-    if(!moviesData){
-      const moviesData = await getMoviesDataFromMMKV();
-      if(moviesData){
-        dispatch(setMoviesData(moviesData))
+      if (!moviesData) {
+        const moviesData = await getMoviesDataFromMMKV();
+        if (moviesData) {
+          dispatch(setMoviesData(moviesData));
+        }
       }
-    }
-    if(!seriesData){
-      const seriesData = await getSeriesDataFromMMKV();
-      if(seriesData){
-        dispatch(setSeriesData(seriesData))
+      if (!seriesData) {
+        const seriesData = await getSeriesDataFromMMKV();
+        if (seriesData) {
+          dispatch(setSeriesData(seriesData));
+        }
       }
-    }
-  }
-  loadAllData();
-},[])
-
+    };
+    loadAllData();
+  }, []);
 
   return (
-    <Stack.Navigator 
-    screenOptions={{ headerShown: false, animation: 'fade' }}
-    >
-      <Stack.Screen 
-        name="Home" 
-        component={Home}
-      />
-      <Stack.Screen 
-        name="Movies" 
-        component={Movies}
-      />
-      <Stack.Screen 
-        name="Shows" 
-        component={Shows}
-      />  
-      <Stack.Screen 
-        name="Favorites" 
-        component={Favorites}
-      />
-      <Stack.Screen 
-        name="Search" 
-        component={Search}
-      />
-      <Stack.Screen 
-        name="Settings" 
-        component={Settings}
-      />
-      <Stack.Screen 
-        name="GeneralSettings" 
-        component={GeneralSettings}
-      />
-      <Stack.Screen 
-        name="PlaylistSettings" 
-        component={PlaylistSettings}
-      />
-      <Stack.Screen 
-        name="AppearanceSettings" 
-        component={AppearanceSettings}
-      />
-      <Stack.Screen 
-        name="PlaybackSettings" 
-        component={PlaybackSettings}
-      />
-      <Stack.Screen 
-        name="RemoteControlSettings" 
+    <Stack.Navigator screenOptions={{headerShown: false, animation: 'fade'}}>
+      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="Movies" component={Movies} />
+      <Stack.Screen name="Shows" component={Shows} />
+      <Stack.Screen name="Favorites" component={Favorites} />
+      <Stack.Screen name="Search" component={Search} />
+      <Stack.Screen name="Settings" component={Settings} />
+      <Stack.Screen name="GeneralSettings" component={GeneralSettings} />
+      <Stack.Screen name="PlaylistSettings" component={PlaylistSettings} />
+      <Stack.Screen name="AppearanceSettings" component={AppearanceSettings} />
+      <Stack.Screen name="PlaybackSettings" component={PlaybackSettings} />
+      <Stack.Screen
+        name="RemoteControlSettings"
         component={RemoteControlSettings}
       />
-      <Stack.Screen 
-        name="OtherSettings" 
-        component={OtherSettings}
-      />
-      <Stack.Screen 
-        name="Tv" 
-        component={Tv}
-      />
-      <Stack.Screen 
-        name="MoviePlayScreen" 
-        component={MoviePlayScreen}
-      />
-      <Stack.Screen 
-        name="LiveChannelPlayScreen" 
+      <Stack.Screen name="OtherSettings" component={OtherSettings} />
+      <Stack.Screen name="Tv" component={Tv} />
+      <Stack.Screen name="MoviePlayScreen" component={MoviePlayScreen} />
+      <Stack.Screen
+        name="LiveChannelPlayScreen"
         component={LiveChannelPlayScreen}
       />
-      <Stack.Screen 
-        name="LoginScreen" 
-        component={LoginScreen}
-      />
-      <Stack.Screen 
-        name="SignupScreen" 
-        component={SignupScreen}
-      />
-      <Stack.Screen 
-        name="VerifyOtp" 
-        component={VerifyOtp}
-      />
-      <Stack.Screen 
-        name="BuySubscription" 
-        component={BuySubscription}
-      />
+      <Stack.Screen name="DevicesList" component={DevicesList} />
+      <Stack.Screen name="LoginScreen" component={LoginScreen} />
+      <Stack.Screen name="SignupScreen" component={SignupScreen} />
+      <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
+      <Stack.Screen name="BuySubscription" component={BuySubscription} />
     </Stack.Navigator>
-  )
-}
+  );
+};
 
-export default Mainstack
+export default Mainstack;

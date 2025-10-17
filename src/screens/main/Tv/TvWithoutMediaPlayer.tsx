@@ -26,7 +26,7 @@ import {clearEPGCaches} from '../../../utils/epgUtils';
 import {styles} from './TvwithoutPlayerStyles';
 import {height} from '../../../styles/scaling';
 import {setCurrentlyPlaying} from '../../../redux/reducers/main';
-import ShowChannelCatCarouselTvGuide from '../../../components/ShowChannelCatCarouselTvGuide';
+import TvGuideCarousel from '../../../components/TvGuideCarousel';
 
 export interface channelData {
   num: number;
@@ -182,14 +182,12 @@ const TvWithoutMediaPlayer = ({
         <View>
           <View style={styles.scrollContainer}>
             <View style={styles.showChannelCatCarouselContainer}>
-              <ShowChannelCatCarouselTvGuide
+              <TvGuideCarousel
                 title={`${selectedCategory}`}
-                data={selectedCategoryData}
+                channels={selectedCategoryData}
                 onFocus={handleScrollViewFocus}
-                type="channels"
                 loading={loading}
-                mainStyle={{height: height}}
-                handleBlockPress={handleBlockPress}
+                onChannelPress={handleBlockPress}
               />
             </View>
           </View>

@@ -33,4 +33,5 @@ export type MainStackParamList = {
     LoginScreen: {from?: string} | undefined;
     SignupScreen: undefined;
     VerifyOtp: {data: any};
+    DevicesList: {data: any, devicesList: any};
 };

@@ -68,383 +68,448 @@ interface ShowChannelCatCardProps {
   handleBlockPress?: () => void;
 }
 
-const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
-  show,
-  hasTVPreferredFocus,
-  onFocus,
-  onBlur,
-  onPress,
-  channelIndex = 0,
-  setChannelUrl,
-  setProgramDetails,
-  timelineConfig: externalTimelineConfig,
-  onProgramFocusWithAutoScroll,
-  handleBlockPress,
-  showCurrentDetails = false,
-}) => {
-  const [imageError, setImageError] = useState(false);
-  const [streamUrl, setStreamUrl] = useState<string | null>(null);
-  const [focusedProgramIndex, setFocusedProgramIndex] = useState<number | null>(
-    null,
-  );
-  const [lastTap, setLastTap] = useState<number | null>(null);
-  const [currentDetails, setCurrentDetails] = useState<{
-    showTitle: string;
-    timeSlot: string;
-    progressPercentage: number;
-    duration: string;
-    description: string;
-  } | null>(null);
-  const navigation = useNavigation<NavigationProp<MainStackParamList>>();
+const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
+  ({
+    show,
+    hasTVPreferredFocus,
+    onFocus,
+    onBlur,
+    onPress,
+    channelIndex = 0,
+    setChannelUrl,
+    setProgramDetails,
+    timelineConfig: externalTimelineConfig,
+    onProgramFocusWithAutoScroll,
+    handleBlockPress,
+    showCurrentDetails = false,
+  }) => {
+    const [imageError, setImageError] = useState(false);
+    const [streamUrl, setStreamUrl] = useState<string | null>(null);
+    const [focusedProgramIndex, setFocusedProgramIndex] = useState<
+      number | null
+    >(null);
+    const [lastTap, setLastTap] = useState<number | null>(null);
+    const [currentDetails, setCurrentDetails] = useState<{
+      showTitle: string;
+      timeSlot: string;
+      progressPercentage: number;
+      duration: string;
+      description: string;
+    } | null>(null);
+    const navigation = useNavigation<NavigationProp<MainStackParamList>>();
 
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  // Reset image error state when show changes
-  useEffect(() => {
-    setImageError(false);
-  }, [show.title, show.logo]);
+    // Reset image error state when show changes
+    useEffect(() => {
+      setImageError(false);
+    }, [show.title, show.logo]);
 
-  const handleProgramFocus = (event: any, programIndex: number) => {
-    setFocusedProgramIndex(programIndex);
-    onFocus?.(event, programIndex);
-
-    // Set program details without changing the stream URL
-    if (setProgramDetails) {
-      const programDetails = getProgramDetails(programIndex);
-      console.log('programDetails', programDetails);
-      setProgramDetails(programDetails);
-    }
-
-    // Store locally to render details below the channel row
-    if (showCurrentDetails) {
-      const localDetails = getProgramDetails(programIndex);
-      setCurrentDetails(localDetails);
-    }
-
-    // Trigger auto-scroll if program is near the edge of visible area
-    if (onProgramFocusWithAutoScroll) {
-      // Get the program position for timeline-based programs
-      if (
-        programPositions.length > 0 &&
-        programIndex < programPositions.length
-      ) {
-        const programPosition = programPositions[programIndex];
-        onProgramFocusWithAutoScroll(
-          channelIndex,
-          programIndex,
-          programPosition,
-        );
-      }
-      // For fallback programs, we don't have precise positioning, so skip auto-scroll
-    }
-  };
-
-  const handleProgramBlur = (event: any, programIndex: number) => {
-    setFocusedProgramIndex(null);
-    onBlur?.(event, programIndex);
-    setCurrentDetails(null);
-  };
-
-  const handleProgramPress = (programIndex: number) => {
-    onPress?.(programIndex);
-  };
-
-  const handleImageError = (e: any) => {
-    console.log(
-      'Image failed to load, showing placeholder for:',
-      show.title,
-      e,
+    // Use external timeline configuration or create default one for 24 hours
+    const timelineConfig = React.useMemo(
+      () =>
+        externalTimelineConfig ||
+        createTimelineConfig(30, 48, moderateScale(200)),
+      [externalTimelineConfig],
     );
-    setImageError(true);
-  };
 
-  const getProgramDetails = (programIndex: number) => {
-    let programData = null;
-    let epgData = null;
-    if (programPositions.length > 0 && programIndex < programPositions.length) {
-      // Use timeline program data
-      programData = programPositions[programIndex];
-      epgData = programData.program; // Timeline positions have EPG data in .program
-    } else if (
-      fallbackPrograms.length > 0 &&
-      programIndex < fallbackPrograms.length
-    ) {
-      // Use fallback program data
-      programData = fallbackPrograms[programIndex];
-      epgData = programData.epgData; // Fallback programs have EPG data in .epgData
-    }
-
-    if (programData) {
-      console.log('programData', programData);
-      // Extract time information from EPG data if available
-      let timeSlot = '02:00 - 03:00PM'; // Default
-      let progressPercentage = 0; // Default to 0 for non-current programs
-      let duration = '26 min'; // Default
-
-      if (epgData && epgData.start_timestamp && epgData.stop_timestamp) {
-        try {
-          const startTime = new Date(parseInt(epgData.start_timestamp) * 1000);
-          const endTime = new Date(parseInt(epgData.stop_timestamp) * 1000);
-          const now = new Date();
-
-          // Format time slot
-          const formatTime = (date: Date) => {
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-            const hour12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            return `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-          };
-
-          timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
-
-          // Only calculate progress percentage for current programs
-          if (programData.duration === 'current') {
-            const totalDuration = endTime.getTime() - startTime.getTime();
-            const elapsed = now.getTime() - startTime.getTime();
-            progressPercentage = Math.max(
-              0,
-              Math.min(100, (elapsed / totalDuration) * 100),
-            );
-          } else {
-            // For future programs, set progress to 0
-            progressPercentage = 0;
-          }
-
-          // Calculate duration
-          const durationMs = endTime.getTime() - startTime.getTime();
-          const durationMinutes = Math.round(durationMs / (1000 * 60));
-          duration = `${durationMinutes} min`;
-        } catch (error) {
-          console.warn('Error parsing EPG timestamps:', error);
-          // Fall back to default values if timestamp parsing fails
-        }
-      } else {
-        // For programs without EPG data, generate reasonable time slots
-        const now = new Date();
-        const currentHour = now.getHours();
-        const currentMinute = now.getMinutes();
-
-        // Generate time slots based on program index and current time
-        let startHour = currentHour;
-        let startMinute = Math.floor(currentMinute / 30) * 30; // Round to nearest 30 minutes
-
-        if (programData.duration === 'current') {
-          // Current program starts at current time
-          startHour = currentHour;
-          startMinute = Math.floor(currentMinute / 30) * 30;
-        } else if (programData.duration === 'next') {
-          // Next program starts 30 minutes from current time
-          startMinute += 30;
-          if (startMinute >= 60) {
-            startMinute = 0;
-            startHour = (startHour + 1) % 24;
-          }
-        } else {
-          // Future programs - add more time based on index
-          const additionalMinutes = (programIndex - 1) * 30;
-          startMinute += additionalMinutes;
-          while (startMinute >= 60) {
-            startMinute -= 60;
-            startHour = (startHour + 1) % 24;
-          }
-        }
-
-        const endMinute = startMinute + 30;
-        let endHour = startHour;
-        let finalEndMinute = endMinute;
-
-        if (endMinute >= 60) {
-          finalEndMinute = endMinute - 60;
-          endHour = (startHour + 1) % 24;
-        }
-
-        // Format time slot
-        const formatTime = (hour: number, minute: number) => {
-          const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-          const ampm = hour >= 12 ? 'PM' : 'AM';
-          return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
-        };
-
-        timeSlot = `${formatTime(startHour, startMinute)} - ${formatTime(
-          endHour,
-          finalEndMinute,
-        )}`;
-        duration = '30 min';
-
-        // Only show progress for current programs
-        if (programData.duration === 'current') {
-          progressPercentage = 65; // Default progress for current programs without EPG
-        } else {
-          progressPercentage = 0; // No progress for future programs
-        }
-      }
-
-      // Extract and decode description from EPG data
-      let description = 'No description available';
-      if (epgData && epgData.description) {
-        try {
-          description = decodeEPGDescription(epgData.description);
-        } catch (error) {
-          console.warn('Failed to decode EPG description:', error);
-          description = 'No description available';
-        }
-      }
-
-      return {
-        showTitle: programData.title || 'No Information',
-        timeSlot,
-        progressPercentage,
-        duration,
-        description,
-      };
-    }
-
-    // Return default values if no program data found
-    return {
-      showTitle: 'No Information',
-      timeSlot: '02:00 - 03:00PM',
-      progressPercentage: 0, // Default to 0 for unknown programs
-      duration: '26 min',
-      description: 'No description available',
-    };
-  };
-
-  const handleDoubleClick = () => {
-    dispatch(
-      setCurrentlyPlaying({
-        ...show,
-        type: 'live', // Mark this as a live TV channel
-        url: show.url,
-      }),
+    // Generate timeline slots
+    const timelineSlots = React.useMemo(
+      () => createTimelineSlots(timelineConfig),
+      [timelineConfig],
     );
-    navigation.navigate('LiveChannelPlayScreen', {
-      channel: {
-        ...show,
-        url: show.url,
-        type: 'live',
-        epg: show?.epg?.[0]!,
-      },
-    });
-  };
 
-  const handlePress = (index: number) => {
-    dispatch(
-      setCurrentlyPlaying({
-        ...show,
-        type: 'live', // Mark this as a live TV channel
-        url: show.url,
-      }),
-    );
-    handleBlockPress?.();
-    if (streamUrl === show.url) {
-      handleDoubleClick();
-      setLastTap(null);
-      return;
-    }
-    const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 300;
+    // Calculate program positions within timeline
+    const programPositions = React.useMemo(() => {
+      return calculateProgramPositions(
+        show.epg || [], // Pass empty array if no EPG data - calculateProgramPositions will handle it
+        timelineSlots,
+        timelineConfig.slotWidth,
+      );
+    }, [show.epg, timelineSlots, timelineConfig.slotWidth]);
 
-    if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
-      // Double click detected
-      handleDoubleClick();
-      setLastTap(null);
-    } else {
-      // Single click - change the stream URL (OK button press)
-      setStreamUrl(show.url || '');
-      setChannelUrl?.('');
-      setTimeout(() => {
-        setChannelUrl?.(show.url || '');
-      }, 250);
-      setLastTap(now);
-    }
-  };
+    // Fallback to old method if no EPG data
+    const fallbackPrograms = React.useMemo(() => {
+      return processEPGData(show.epg || []);
+    }, [show.epg, show.title]);
 
-  // Use external timeline configuration or create default one for 24 hours
-  const timelineConfig = React.useMemo(
-    () =>
-      externalTimelineConfig ||
-      createTimelineConfig(30, 48, moderateScale(200)),
-    [externalTimelineConfig],
-  );
+    const getProgramDetails = React.useCallback(
+      (programIndex: number) => {
+        let programData = null;
+        let epgData = null;
+        if (
+          programPositions.length > 0 &&
+          programIndex < programPositions.length
+        ) {
+          // Use timeline program data
+          programData = programPositions[programIndex];
+          epgData = programData.program; // Timeline positions have EPG data in .program
+        } else if (
+          fallbackPrograms.length > 0 &&
+          programIndex < fallbackPrograms.length
+        ) {
+          // Use fallback program data
+          programData = fallbackPrograms[programIndex];
+          epgData = programData.epgData; // Fallback programs have EPG data in .epgData
+        }
 
-  // Generate timeline slots
-  const timelineSlots = React.useMemo(
-    () => createTimelineSlots(timelineConfig),
-    [timelineConfig],
-  );
+        if (programData) {
+          console.log('programData', programData);
+          // Extract time information from EPG data if available
+          let timeSlot = '02:00 - 03:00PM'; // Default
+          let progressPercentage = 0; // Default to 0 for non-current programs
+          let duration = '26 min'; // Default
 
-  // Calculate program positions within timeline
-  const programPositions = React.useMemo(() => {
-    return calculateProgramPositions(
-      show.epg || [], // Pass empty array if no EPG data - calculateProgramPositions will handle it
-      timelineSlots,
-      timelineConfig.slotWidth,
-    );
-  }, [show.epg, timelineSlots, timelineConfig.slotWidth]);
+          if (epgData && epgData.start_timestamp && epgData.stop_timestamp) {
+            try {
+              const startTime = new Date(
+                parseInt(epgData.start_timestamp) * 1000,
+              );
+              const endTime = new Date(parseInt(epgData.stop_timestamp) * 1000);
+              const now = new Date();
 
-  // Fallback to old method if no EPG data
-  const fallbackPrograms = React.useMemo(() => {
-    return processEPGData(show.epg || []);
-  }, [show.epg, show.title]);
+              // Format time slot
+              const formatTime = (date: Date) => {
+                const hours = date.getHours();
+                const minutes = date.getMinutes();
+                const hour12 =
+                  hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                return `${hour12}:${minutes
+                  .toString()
+                  .padStart(2, '0')} ${ampm}`;
+              };
 
-  return (
-    <View
-      style={[
-        styles.channelRow,
-        focusedProgramIndex !== null && styles.channelRowFocused,
-      ]}>
-      <View style={styles.rowTop}>
-        <View style={styles.channelInfo}>
-          <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
+              timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
 
-          <View style={styles.channelLogoContainer}>
-            <Image
-              source={
-                show?.logo
-                  ? imageError
-                    ? {uri: getProxyImageUrl(show?.logo)}
-                    : {uri: show?.logo}
-                  : imagepath.tv
+              // Only calculate progress percentage for current programs
+              if (programData.duration === 'current') {
+                const totalDuration = endTime.getTime() - startTime.getTime();
+                const elapsed = now.getTime() - startTime.getTime();
+                progressPercentage = Math.max(
+                  0,
+                  Math.min(100, (elapsed / totalDuration) * 100),
+                );
+              } else {
+                // For future programs, set progress to 0
+                progressPercentage = 0;
               }
-              style={styles.channelLogo}
-              tintColor={!show?.logo ? CommonColors.white : undefined}
-              onError={e => {
-                console.log('Image error:', e.nativeEvent.error);
-                handleImageError(e.nativeEvent);
-              }}
-            />
+
+              // Calculate duration
+              const durationMs = endTime.getTime() - startTime.getTime();
+              const durationMinutes = Math.round(durationMs / (1000 * 60));
+              duration = `${durationMinutes} min`;
+            } catch (error) {
+              console.warn('Error parsing EPG timestamps:', error);
+              // Fall back to default values if timestamp parsing fails
+            }
+          } else {
+            // For programs without EPG data, generate reasonable time slots
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+
+            // Generate time slots based on program index and current time
+            let startHour = currentHour;
+            let startMinute = Math.floor(currentMinute / 30) * 30; // Round to nearest 30 minutes
+
+            if (programData.duration === 'current') {
+              // Current program starts at current time
+              startHour = currentHour;
+              startMinute = Math.floor(currentMinute / 30) * 30;
+            } else if (programData.duration === 'next') {
+              // Next program starts 30 minutes from current time
+              startMinute += 30;
+              if (startMinute >= 60) {
+                startMinute = 0;
+                startHour = (startHour + 1) % 24;
+              }
+            } else {
+              // Future programs - add more time based on index
+              const additionalMinutes = (programIndex - 1) * 30;
+              startMinute += additionalMinutes;
+              while (startMinute >= 60) {
+                startMinute -= 60;
+                startHour = (startHour + 1) % 24;
+              }
+            }
+
+            const endMinute = startMinute + 30;
+            let endHour = startHour;
+            let finalEndMinute = endMinute;
+
+            if (endMinute >= 60) {
+              finalEndMinute = endMinute - 60;
+              endHour = (startHour + 1) % 24;
+            }
+
+            // Format time slot
+            const formatTime = (hour: number, minute: number) => {
+              const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+              const ampm = hour >= 12 ? 'PM' : 'AM';
+              return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
+            };
+
+            timeSlot = `${formatTime(startHour, startMinute)} - ${formatTime(
+              endHour,
+              finalEndMinute,
+            )}`;
+            duration = '30 min';
+
+            // Only show progress for current programs
+            if (programData.duration === 'current') {
+              progressPercentage = 65; // Default progress for current programs without EPG
+            } else {
+              progressPercentage = 0; // No progress for future programs
+            }
+          }
+
+          // Extract and decode description from EPG data
+          let description = 'No description available';
+          if (epgData && epgData.description) {
+            try {
+              description = decodeEPGDescription(epgData.description);
+            } catch (error) {
+              console.warn('Failed to decode EPG description:', error);
+              description = 'No description available';
+            }
+          }
+
+          return {
+            showTitle: programData.title || 'No Information',
+            timeSlot,
+            progressPercentage,
+            duration,
+            description,
+          };
+        }
+
+        // Return default values if no program data found
+        return {
+          showTitle: 'No Information',
+          timeSlot: '02:00 - 03:00PM',
+          progressPercentage: 0, // Default to 0 for unknown programs
+          duration: '26 min',
+          description: 'No description available',
+        };
+      },
+      [programPositions, fallbackPrograms],
+    );
+
+    const handleProgramFocus = React.useCallback(
+      (event: any, programIndex: number) => {
+        setFocusedProgramIndex(programIndex);
+        onFocus?.(event, programIndex);
+
+        // Set program details without changing the stream URL
+        if (setProgramDetails) {
+          const programDetails = getProgramDetails(programIndex);
+          setProgramDetails(programDetails);
+        }
+
+        // Store locally to render details below the channel row
+        if (showCurrentDetails) {
+          // const localDetails = getProgramDetails(programIndex);
+          // setCurrentDetails(localDetails);
+        }
+
+        // Trigger auto-scroll if program is near the edge of visible area
+        if (onProgramFocusWithAutoScroll) {
+          // Get the program position for timeline-based programs
+          if (
+            programPositions.length > 0 &&
+            programIndex < programPositions.length
+          ) {
+            const programPosition = programPositions[programIndex];
+            onProgramFocusWithAutoScroll(
+              channelIndex,
+              programIndex,
+              programPosition,
+            );
+          }
+          // For fallback programs, we don't have precise positioning, so skip auto-scroll
+        }
+      },
+      [
+        onFocus,
+        setProgramDetails,
+        showCurrentDetails,
+        onProgramFocusWithAutoScroll,
+        programPositions,
+        channelIndex,
+        getProgramDetails,
+      ],
+    );
+
+    const handleProgramBlur = React.useCallback(
+      (event: any, programIndex: number) => {
+        setFocusedProgramIndex(null);
+        onBlur?.(event, programIndex);
+        // setCurrentDetails(null);
+      },
+      [onBlur],
+    );
+
+    const handleProgramPress = React.useCallback(
+      (programIndex: number) => {
+        onPress?.(programIndex);
+      },
+      [onPress],
+    );
+
+    const handleImageError = (e: any) => {
+      console.log(
+        'Image failed to load, showing placeholder for:',
+        show.title,
+        e,
+      );
+      setImageError(true);
+    };
+
+    const handleDoubleClick = () => {
+      dispatch(
+        setCurrentlyPlaying({
+          ...show,
+          type: 'live', // Mark this as a live TV channel
+          url: show.url,
+        }),
+      );
+      console.log('showshowshow---->>>>>>', show);
+      navigation.navigate('LiveChannelPlayScreen', {
+        channel: {
+          ...show,
+          url: show.url,
+          type: 'live',
+          epg: show?.epg?.[0]!,
+        },
+      });
+    };
+
+    const handlePress = (index: number) => {
+      dispatch(
+        setCurrentlyPlaying({
+          ...show,
+          type: 'live', // Mark this as a live TV channel
+          url: show.url,
+        }),
+      );
+      handleBlockPress?.();
+      if (streamUrl === show.url) {
+        handleDoubleClick();
+        setLastTap(null);
+        return;
+      }
+      const now = Date.now();
+      const DOUBLE_PRESS_DELAY = 300;
+
+      if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
+        // Double click detected
+        handleDoubleClick();
+        setLastTap(null);
+      } else {
+        // Single click - change the stream URL (OK button press)
+        setStreamUrl(show.url || '');
+        setChannelUrl?.('');
+        setTimeout(() => {
+          setChannelUrl?.(show.url || '');
+        }, 250);
+        setLastTap(now);
+      }
+    };
+
+    return (
+      <View
+        style={[
+          styles.channelRow,
+          focusedProgramIndex !== null && styles.channelRowFocused,
+        ]}>
+        <View style={styles.rowTop}>
+          <View style={styles.channelInfo}>
+            <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
+
+            <View style={styles.channelLogoContainer}>
+              <Image
+                source={
+                  show?.logo
+                    ? imageError
+                      ? {uri: getProxyImageUrl(show?.logo)}
+                      : {uri: show?.logo}
+                    : imagepath.tv
+                }
+                style={styles.channelLogo}
+                resizeMode="cover"
+                tintColor={!show?.logo ? CommonColors.white : undefined}
+                onError={e => {
+                  console.log('Image error:', e.nativeEvent.error);
+                  handleImageError(e.nativeEvent);
+                }}
+              />
+            </View>
+
+            <View style={{overflow: 'hidden', width: '70%'}}>
+              <SimpleMarquee
+                text={show.title || 'Channel Name'}
+                shouldStart={focusedProgramIndex !== null}
+                textStyle={[
+                  styles.channelNameText,
+                  focusedProgramIndex !== null && {
+                    color: CommonColors.blueText,
+                  },
+                ]}
+                speed={50}
+              />
+            </View>
           </View>
 
-          <View style={{width: moderateScale(140), overflow: 'hidden'}}>
-            <SimpleMarquee
-              text={show.title || 'Channel Name'}
-              shouldStart={focusedProgramIndex !== null}
-              textStyle={[
-                styles.channelNameText,
-                focusedProgramIndex !== null && {color: CommonColors.blueText},
-              ]}
-              speed={50}
-            />
-          </View>
-        </View>
-
-        <View style={styles.programSchedule}>
-          {programPositions.length > 0 ? (
-            <View style={styles.timelineProgramContainer}>
-              {programPositions.map((position, index) => (
-                <View
-                  key={position.program.id || `program-${index}`}
-                  style={{flexDirection: 'column'}}>
+          <View style={styles.programSchedule}>
+            {programPositions.length > 0 ? (
+              <View style={styles.timelineProgramContainer}>
+                {programPositions.map((position, index) => (
+                  <View
+                    key={position.program.id || `program-${index}`}
+                    style={{flexDirection: 'column'}}>
+                    <TouchableOpacity
+                      style={[
+                        styles.timelineProgramBlock,
+                        {
+                          left: position.left,
+                          width: position.width,
+                          backgroundColor: 'rgba(27,30,33,0.8)', // Slightly more opaque for better visibility
+                          zIndex: focusedProgramIndex === index ? 1000 : 1,
+                        },
+                        focusedProgramIndex === index &&
+                          styles.programBlockFocused,
+                      ]}
+                      hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+                      activeOpacity={1}
+                      onFocus={event => handleProgramFocus(event, index)}
+                      onBlur={event => handleProgramBlur(event, index)}
+                      onPress={() => handlePress(index)}>
+                      <Text
+                        style={[
+                          styles.programText,
+                          focusedProgramIndex === index && {
+                            color: CommonColors.black,
+                          },
+                        ]}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {position.width < 60
+                          ? position.title.substring(0, 1) + '...'
+                          : position.title}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <FlatList
+                data={fallbackPrograms}
+                renderItem={({item, index}) => (
                   <TouchableOpacity
+                    key={index}
                     style={[
-                      styles.timelineProgramBlock,
-                      {
-                        left: position.left,
-                        width: position.width,
-                        backgroundColor: 'rgba(27,30,33,0.8)', // Slightly more opaque for better visibility
-                        zIndex: focusedProgramIndex === index ? 1000 : 1,
-                      },
+                      styles.programBlock,
                       focusedProgramIndex === index &&
                         styles.programBlockFocused,
                     ]}
@@ -460,113 +525,42 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
                           color: CommonColors.black,
                         },
                       ]}
-                      numberOfLines={1}
-                      ellipsizeMode="tail">
-                      {position.width < 60
-                        ? position.title.substring(0, 1) + '...'
-                        : position.title}
+                      numberOfLines={1}>
+                      {item.title}
                     </Text>
                   </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <FlatList
-              data={fallbackPrograms}
-              renderItem={({item, index}) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.programBlock,
-                    focusedProgramIndex === index && styles.programBlockFocused,
-                  ]}
-                  hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
-                  activeOpacity={1}
-                  onFocus={event => handleProgramFocus(event, index)}
-                  onBlur={event => handleProgramBlur(event, index)}
-                  onPress={() => handlePress(index)}>
-                  <Text
-                    style={[
-                      styles.programText,
-                      focusedProgramIndex === index && {
-                        color: CommonColors.black,
-                      },
-                    ]}
-                    numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item, index) => index.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                gap: moderateScale(8),
-                paddingHorizontal: moderateScale(10),
-                height: moderateScale(56),
-              }}
-            />
-          )}
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  gap: moderateScale(2),
+                  paddingHorizontal: moderateScale(5),
+                  height: moderateScale(56),
+                }}
+                removeClippedSubviews={true}
+                maxToRenderPerBatch={5}
+                windowSize={3}
+              />
+            )}
+          </View>
         </View>
       </View>
-      {currentDetails && focusedProgramIndex !== null && (
-        <View style={{flexDirection: 'row', width: '100%'}}>
-          <View
-            style={{
-              width: moderateScale(315),
-              height: 80,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Image
-              source={
-                show?.logo
-                  ? imageError
-                    ? {uri: getProxyImageUrl(show?.logo)}
-                    : {uri: show?.logo}
-                  : imagepath.tv
-              }
-              style={{width: moderateScale(80), height: moderateScale(80)}}
-              resizeMode="contain"
-              tintColor={!show?.logo ? CommonColors.white : undefined}
-              onError={e => {
-                console.log('Image error:', e.nativeEvent.error);
-                handleImageError(e.nativeEvent);
-              }}
-            />
-          </View>
-          <View
-            style={[
-              styles.detailsInline,
-              {
-                left: programPositions[focusedProgramIndex]?.left + 160 || 0,
-                zIndex: 2000,
-                elevation: 10,
-              },
-            ]}>
-            <View style={{flex: 1}}>
-              <Text style={styles.detailsTitle} numberOfLines={1}>
-                {currentDetails.showTitle}
-              </Text>
-              <Text style={styles.detailsMeta} numberOfLines={1}>
-                {currentDetails.timeSlot} • {currentDetails.duration}
-              </Text>
-
-              <Text style={styles.detailsDescription} numberOfLines={2}>
-                {currentDetails.description}
-              </Text>
-            </View>
-            <View>
-              <Image source={imagepath.empty_star} style={styles.filled_star} />
-
-              <Text style={styles.detailsMeta}>{show?.title}</Text>
-            </View>
-          </View>
-        </View>
-      )}
-    </View>
-  );
-};
+    );
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison function for better memoization
+    // Return true if props are equal (skip re-render), false if different (re-render)
+    return (
+      prevProps.show.url === nextProps.show.url &&
+      prevProps.show.title === nextProps.show.title &&
+      prevProps.show.logo === nextProps.show.logo &&
+      prevProps.channelIndex === nextProps.channelIndex &&
+      prevProps.hasTVPreferredFocus === nextProps.hasTVPreferredFocus &&
+      prevProps.timelineConfig === nextProps.timelineConfig
+    );
+  },
+);
 
 export default ShowChannelCatCard;
 
@@ -575,12 +569,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'stretch',
     width: '100%',
-    minHeight: verticalScale(80),
+    // minHeight: verticalScale(7),
     position: 'relative',
-    // paddingHorizontal: moderateScale(12),
-    marginVertical: verticalScale(4),
+    // paddingHorizontal: moderateScale(8),
     borderRadius: moderateScale(8),
-    // backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
   },
   filled_star: {
     height: 14,
@@ -589,43 +582,44 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(8),
   },
   channelRowFocused: {
-    paddingTop: verticalScale(8),
+    paddingTop: verticalScale(0),
   },
   channelInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: moderateScale(280),
-    marginRight: moderateScale(20),
+    width: moderateScale(250),
+    marginRight: moderateScale(10),
   },
   channelNumber: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(18),
-    lineHeight: moderateScale(26),
+    fontSize: moderateScale(14),
+    lineHeight: moderateScale(20),
     letterSpacing: moderateScale(0.44),
     color: CommonColors.white,
-    width: moderateScale(35),
+    width: moderateScale(25),
     textAlign: 'center',
-    marginRight: moderateScale(15),
+    marginRight: moderateScale(10),
   },
   channelLogoContainer: {
-    marginRight: moderateScale(15),
-    height: moderateScale(40),
-    width: moderateScale(75),
-    paddingVertical: verticalScale(10),
-    borderRadius: moderateScale(6),
+    marginRight: moderateScale(10),
+    height: moderateScale(45),
+    width: moderateScale(40),
+    paddingVertical: verticalScale(5),
+    borderRadius: moderateScale(4),
     justifyContent: 'center',
     alignItems: 'center',
+    // backgroundColor: 'red',
     // backgroundColor: CommonColors.backgroundBlue,
   },
   channelLogo: {
-    width: moderateScale(40),
     height: moderateScale(40),
-    borderRadius: moderateScale(6),
+    width: moderateScale(40),
+    borderRadius: moderateScale(4),
     resizeMode: 'contain',
   },
   channelNameText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(18),
+    fontSize: moderateScale(14),
     letterSpacing: moderateScale(0.24),
     color: CommonColors.white,
     flex: 1,
@@ -633,12 +627,12 @@ const styles = StyleSheet.create({
   programSchedule: {
     flex: 1,
     flexDirection: 'row',
-    marginLeft: moderateScale(10),
+    marginLeft: moderateScale(2),
     overflow: 'visible',
   },
   programBlock: {
     // flex: 1,
-    // height: moderateScale(44),
+    // height: moderateScale(80),
     width: '100%',
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(12),
@@ -670,36 +664,26 @@ const styles = StyleSheet.create({
   programText: {
     fontFamily: FontFamily.PublicSans_Regular,
     fontSize: scale(20),
-    color: CommonColors.white,
+    color: CommonColors.whiteOpacity50,
     textAlign: 'left',
   },
   timelineProgramContainer: {
-    position: 'relative',
-    height: moderateScale(52),
+    // position: 'relative',
+    height: moderateScale(45),
     width: '100%',
-    marginLeft: moderateScale(10),
+    marginLeft: moderateScale(2),
     overflow: 'visible',
-    paddingTop: verticalScale(4),
-    paddingBottom: verticalScale(4),
     zIndex: 10,
   },
   timelineProgramBlock: {
     position: 'absolute',
-    top: verticalScale(4),
-    height: moderateScale(48),
+    top: verticalScale(2),
+    height: moderateScale(44),
     borderRadius: moderateScale(6),
-    paddingHorizontal: moderateScale(8),
+    paddingHorizontal: moderateScale(4),
     justifyContent: 'center',
-    borderWidth: 1, // Reduced border width for cleaner look
-    borderColor: 'rgba(255, 255, 255, 0.1)', // Subtle border for separation
-    // elevation: 2, // Android shadow
-    // shadowColor: '#000', // iOS shadow
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 2,
-    // },
-    // shadowOpacity: 0.15,
-    // shadowRadius: 3,
+    borderWidth: 0.5, // Reduced border width for cleaner look
+    borderColor: 'rgba(255, 255, 255, 0.05)', // Very subtle border for separation
   },
   smallProgramText: {
     fontSize: moderateScale(14),
@@ -711,6 +695,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    // backgroundColor: 'red',
   },
   detailsInline: {
     marginTop: verticalScale(8),

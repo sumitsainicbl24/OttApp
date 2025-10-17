@@ -83,7 +83,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
 
   const listItems = useMemo(() => {
     const items: ListItem[] = [];
-    historyData.forEach((dateGroup, dateGroupIndex) => {
+    historyData?.forEach((dateGroup, dateGroupIndex) => {
       // Add date header
       items.push({
         type: 'dateHeader',
@@ -107,7 +107,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
 
   // Flatten all history items for easy access
   const allHistoryItems = useMemo(() => {
-    return historyData.flatMap(dateGroup => dateGroup.channels);
+    return historyData?.flatMap(dateGroup => dateGroup.channels);
   }, [historyData]);
 
   // Handle back button press

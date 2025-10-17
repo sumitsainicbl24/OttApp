@@ -54,7 +54,7 @@ const TvGuideModal: React.FC<TvGuideModalProps> = ({
       />
 
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+        <View style={styles.modalContentTVGuide}>
           <TvWithoutMediaPlayer
             channelData={channelData as any}
             handleBlockPress={onClose}

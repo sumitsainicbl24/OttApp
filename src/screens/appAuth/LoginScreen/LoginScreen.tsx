@@ -77,7 +77,7 @@ const LoginScreen = () => {
           model: model,
           deviceId: deviceId,
           deviceType: deviceType,
-          Platform: Platform.OS,
+          platform: Platform.OS,
         };
         setDeviceInfo(deviceInfo);
         console.log('responseresponseresponse--->>>>', deviceInfo);
@@ -96,7 +96,10 @@ const LoginScreen = () => {
         password,
         m3uUrl:
           'http://line.diatunnel.link/get.php?username=mrKQdWmJ&password=jSxeKrs&type=m3u_plus&output=ts',
+        ...deviceInfo,
       };
+      console.log('data--->>>>', data);
+      // return;
       const response = await signinApi(data);
       if (response.status === 200) {
         Toast.show({
@@ -114,14 +117,28 @@ const LoginScreen = () => {
       }
       console.log(response);
     } catch (error: any) {
-      {
-        error?.response?.data?.error &&
-          Toast.show({
-            text1: error?.response?.data?.error,
-            type: 'error',
-          });
-      }
+      const data: any = {
+        email: username,
+        password,
+        m3uUrl:
+          'http://line.diatunnel.link/get.php?username=mrKQdWmJ&password=jSxeKrs&type=m3u_plus&output=ts',
+        ...deviceInfo,
+      };
+      // {
+      //   error?.response?.data?.error &&
+      //     Toast.show({
+      //       text1: error?.response?.data?.error,
+      //       type: 'error',
+      //     });
+      // }
       console.log(error);
+      if (error?.status === 429) {
+        console.log('error?.data?.details?.currentDevices--->>>>',  error?.response?.data?.details?.currentDevices);
+        navigation.navigate('DevicesList', {
+          data: data,
+          devicesList: error?.response?.data?.details?.currentDevices,
+        });
+      }
     }
   };
 

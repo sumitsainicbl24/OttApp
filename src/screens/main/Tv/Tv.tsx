@@ -1,25 +1,23 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   StatusBar,
-  useTVEventHandler,
-  View,
+  TVFocusGuideView,
+  View
 } from 'react-native';
-import {RouteProp, useRoute} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import LinearGradient from 'react-native-linear-gradient';
+import { useSelector } from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
 import ChannelMediaPlayer from '../../../components/ChannelMediaPlayer';
 import MainLayout from '../../../components/MainLayout';
 import ShowChannelCatCarousel from '../../../components/ShowChannelCatCarousel';
 import imagepath from '../../../constants/imagepath';
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
-import {getCategoryData} from '../../../redux/actions/auth';
-import {RootState} from '../../../redux/store';
-import {CommonColors} from '../../../styles/Colors';
-import {debounce} from '../../../utils/CommonFunctions';
-import {clearEPGCaches} from '../../../utils/epgUtils';
-import {styles} from './styles';
-import LinearGradient from 'react-native-linear-gradient';
+import { MainStackParamList } from '../../../navigation/NavigationsTypes';
+import { getCategoryData } from '../../../redux/actions/auth';
+import { RootState } from '../../../redux/store';
+import { debounce } from '../../../utils/CommonFunctions';
+import { clearEPGCaches } from '../../../utils/epgUtils';
+import { styles } from './styles';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
@@ -180,8 +178,6 @@ const Tv = () => {
         barStyle="light-content"
       />
 
-     
-
       {isFocused && (
         <LinearGradient
           colors={[
@@ -198,16 +194,18 @@ const Tv = () => {
       )}
 
       <View style={styles.container}>
-        
-        <View style={categoryListContainerStyle} nativeID="categoryList">
+        <TVFocusGuideView
+          style={categoryListContainerStyle}
+          nativeID="categoryList"
+          autoFocus>
           <CategoryList
             categories={memorizeChannelsData}
             selectedCategory={memorizeSelectedCategory}
             onFocus={handleCategoryListFocus}
           />
-        </View>
+        </TVFocusGuideView>
 
-        <View>
+        <TVFocusGuideView>
           <ChannelMediaPlayer
             imageSource={imagepath.TvDemoImage}
             showTitle={currentProgramDetails.showTitle}
@@ -232,7 +230,7 @@ const Tv = () => {
               />
             </View>
           </View>
-        </View>
+        </TVFocusGuideView>
       </View>
     </MainLayout>
   );

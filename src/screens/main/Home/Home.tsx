@@ -56,8 +56,6 @@ const Home = () => {
     useState<any>(null);
   const playerRef = useRef<YoutubeIframeRef>(null);
 
-
-
   useEffect(() => {
     if (playerRef.current) {
       playerRef.current.seekTo(10, true);

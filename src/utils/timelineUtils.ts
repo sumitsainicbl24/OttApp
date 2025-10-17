@@ -32,10 +32,10 @@ export interface TimelineConfig {
 
 /**
  * Creates timeline slots with fixed 30-minute intervals
- * Timeline is always anchored to the nearest 30-minute mark and doesn't change with navigation
+ * Timeline is anchored to the nearest 30-minute mark and adjusts based on scroll offset
  */
 export const createTimelineSlots = (config: TimelineConfig): TimelineSlot[] => {
-  const { slotDurationMinutes, totalSlots, slotWidth, currentTime } = config;
+  const { slotDurationMinutes, totalSlots, slotWidth, currentTime, scrollOffset = 0 } = config;
   
   const slots: TimelineSlot[] = [];
   const slotDurationSeconds = slotDurationMinutes * 60;
@@ -44,9 +44,12 @@ export const createTimelineSlots = (config: TimelineConfig): TimelineSlot[] => {
   const currentTimeSeconds = Math.floor(currentTime / 1000);
   const baseStartTime = Math.floor(currentTimeSeconds / slotDurationSeconds) * slotDurationSeconds;
   
-  // Create fixed timeline slots - no scroll offset applied
+  // Apply scroll offset (in minutes) to adjust the timeline
+  const scrollOffsetSeconds = scrollOffset * 60;
+  
+  // Create timeline slots with scroll offset applied
   for (let i = 0; i < totalSlots; i++) {
-    const slotStartTime = baseStartTime + (i * slotDurationSeconds);
+    const slotStartTime = baseStartTime + (i * slotDurationSeconds) + scrollOffsetSeconds;
     const slotEndTime = slotStartTime + slotDurationSeconds;
     
     slots.push({
@@ -105,24 +108,8 @@ export const calculateProgramPositions = (
     const right = endPercentage * totalTimelineWidth;
     const width = right - left;
     
-    // Calculate minimum width based on program duration
-    const programDurationMinutes = (endTime - startTime) / 60; // Convert seconds to minutes
-    let minWidth = 30; // Base minimum width for very short programs
-    
-    // Increase minimum width for longer programs to ensure title visibility and proper spacing
-    if (programDurationMinutes >= 60) {
-      minWidth = 140; // 1+ hour programs need more space
-    } else if (programDurationMinutes >= 30) {
-      minWidth = 100; // 30+ minute programs
-    } else if (programDurationMinutes >= 20) {
-      minWidth = 80; // 20+ minute programs (will show title)
-    } else if (programDurationMinutes >= 10) {
-      minWidth = 60; // 10+ minute programs (no title)
-    } else {
-      minWidth = 30; // Very short programs (no title, minimal width)
-    }
-    
-    const finalWidth = Math.max(width, minWidth);
+    // Use actual calculated width based on program duration for accurate timeline sync
+    const finalWidth = width;
     
     // Don't add margin here as it will be handled by applyProgramSpacing
     positions.push({
@@ -131,7 +118,7 @@ export const calculateProgramPositions = (
       endTime,
       duration: endTime - startTime,
       left: Math.max(0, left),
-      width: Math.max(finalWidth, minWidth),
+      width: Math.max(finalWidth, 1), // Only ensure minimum 1px width for visibility
       title: decodeEPGTitle(program.title)
     });
   }
@@ -156,8 +143,8 @@ const applyProgramSpacing = (
 ): ProgramPosition[] => {
   if (positions.length <= 1) return positions;
   
-  const MIN_SPACING_NORMAL = 6; // Minimum 6px spacing between normal programs
-  const MIN_SPACING_NO_INFO = 2; // Minimum 2px spacing between "No Information" cards
+  const MIN_SPACING_NORMAL = 1; // Minimum 1px spacing between normal programs
+  const MIN_SPACING_NO_INFO = 0; // No spacing between "No Information" cards
   const adjustedPositions: ProgramPosition[] = [];
   
   for (let i = 0; i < positions.length; i++) {
@@ -226,7 +213,7 @@ const generateNoInformationBlocks = (
   
   // Create individual "No Information" blocks for each 30-minute slot
   timelineSlots.forEach((slot, index) => {
-    const noInfoSpacing = 1; // Minimal spacing between "No Information" cards
+    const noInfoSpacing = 0; // No spacing between "No Information" cards
     const leftPosition = (index * slotWidth) + (index * noInfoSpacing);
     const adjustedWidth = slotWidth - noInfoSpacing;
     
@@ -289,12 +276,11 @@ const fillTimelineGaps = (
       const gapLeft = gapStartPercentage * totalTimelineWidth;
       const gapWidth = (gapEndPercentage - gapStartPercentage) * totalTimelineWidth;
       
-      // Ensure minimum width for visibility
-      const minWidth = Math.max(slotWidth * 0.5, 40); // At least half a slot or 40px
-      const finalWidth = Math.max(gapWidth, minWidth);
+      // Use actual gap width for accurate timeline sync
+      const finalWidth = Math.max(gapWidth, 1); // Only ensure minimum 1px width for visibility
       
       // Add small spacing for "No Information" cards
-      const noInfoSpacing = 1; // Minimal spacing between consecutive "No Information" cards
+      const noInfoSpacing = 0; // No spacing between consecutive "No Information" cards
       
       blocks.push({
         program: {

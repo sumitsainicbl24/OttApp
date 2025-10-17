@@ -47,7 +47,6 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
   const [isRetrying, setIsRetrying] = useState(false);
   const [videoKey, setVideoKey] = useState(0); // Force video re-render on retry
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  console.log('streamUrlstreamUrlstreamUrl---', streamUrl);
 
   // Reset states when streamUrl changes
   useEffect(() => {

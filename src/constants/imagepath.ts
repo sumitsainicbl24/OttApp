@@ -72,7 +72,7 @@ export default{
     TvDemoImage:require('../assets/images/TvDemoImage.jpg'),
     clear:require('../assets/images/delete.png'),
     blur:require('../assets/images/BG.png'),
-
+unlockIcon:require('../assets/images/unlock.png'),
     
 
 }

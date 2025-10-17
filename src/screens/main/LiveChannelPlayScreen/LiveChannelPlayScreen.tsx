@@ -91,12 +91,12 @@ const LiveChannelPlayScreen = () => {
   const navigationItems: NavigationItem[] = [
     {id: 'tvGuide', type: 'button', label: 'TV Guide', icon: 'tvGuide'},
     {id: 'history', type: 'button', label: 'History', icon: 'history'},
-    ...historyData?.map((item, index) => ({
+    ...(historyData?.map((item, index) => ({
       id: `historyItem_${index}`,
       type: 'historyItem' as const,
       label: item.name,
       data: item,
-    })),
+    })) || []),
     {id: 'clear', type: 'button', label: 'Clear', icon: 'clear'},
   ];
 

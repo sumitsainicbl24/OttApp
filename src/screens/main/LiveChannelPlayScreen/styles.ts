@@ -414,7 +414,13 @@ export const styles = StyleSheet.create({
     width: screenWidth,
     height: screenHeight,
     // backgroundColor: 'transparent',
-    backgroundColor: 'rgba(25, 24, 24, 0.76)',
+    // backgroundColor: 'rgba(25, 24, 24, 0.76)',
+    // backgroundColor: 'rgba(40, 28, 28, 0.7)',
+  },
+  modalContentTVGuide: {
+    width: screenWidth,
+    height: screenHeight,
+    backgroundColor: 'rgba(25, 24, 24, 0.7)',
   },
   closeButton: {
     position: 'absolute',

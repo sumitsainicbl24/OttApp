@@ -1,8 +1,8 @@
-import {Alert, Animated, Pressable, StyleSheet} from 'react-native';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Alert, Animated, Pressable, StyleSheet} from 'react-native';
 import YoutubePlayer, {YoutubeIframeRef} from 'react-native-youtube-iframe';
-import {moderateScale, width} from '../../../styles/scaling';
 import imagepath from '../../../constants/imagepath';
+import {moderateScale, width} from '../../../styles/scaling';
 import {imageResolutionHandlerForUrl} from '../../../utils/CommonFunctions';
 
 interface YoutubeCompProps {
@@ -26,11 +26,27 @@ const YoutubeComp = ({
   const [isVideoReady, setIsVideoReady] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [videoDuration, setVideoDuration] = useState<number>(0);
 
-  // Memoized styles to prevent recreation on every render
+  useEffect(() => {
+    const getVideoDuration = async () => {
+      try {
+        // Add a small delay to ensure the player is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const duration: number = await playerRef?.current?.getDuration()!;
+        setVideoDuration(duration);
+      } catch (error) {
+        console.log('error getting video duration:', error);
+      }
+    };
+
+    if (data?.youtube_trailer) {
+      getVideoDuration();
+    }
+  }, [data?.youtube_trailer]);
+
   const styles = useMemo(() => createStyles(height), [height]);
 
-  // Memoized animation configuration
   const animationConfig = useMemo(
     () => ({
       entrance: {
@@ -47,27 +63,17 @@ const YoutubeComp = ({
     [],
   );
 
-
-
-  // Optimized useEffect with proper cleanup
   useEffect(() => {
-    // Clear any existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-
-    // Reset states
     setOpacity(0);
     setIsVideoReady(false);
     fadeAnim.setValue(0);
-
     timeoutRef.current = setTimeout(() => {
       setOpacity(1);
-
-      // Animate overlay entrance
       Animated.timing(fadeAnim, animationConfig.entrance).start(() => {
         setIsVideoReady(true);
-        // Animate overlay exit
         Animated.timing(fadeAnim, animationConfig.exit).start();
       });
     }, 2000);
@@ -80,7 +86,6 @@ const YoutubeComp = ({
     };
   }, [data, fadeAnim, animationConfig]);
 
-  // Memoized image source calculation
   const imageSource = useMemo(() => {
     if (data?.backdrop_path && data.backdrop_path.length > 0) {
       return {
@@ -98,7 +103,6 @@ const YoutubeComp = ({
     return imagepath.VideoPlaceHolder;
   }, [data?.backdrop_path, data?.cover_big, data?.cover]);
 
-  // Memoized event handlers
   const handleStateChange = useCallback((state: string) => {
     if (state === 'ended') {
       playerRef.current?.seekTo(0, true);
@@ -113,12 +117,14 @@ const YoutubeComp = ({
         width={VideoWidth}
         play={true}
         mute={false}
-        videoId={data?.youtube_trailer || 'dVIcn0XA0Sg'}
+        videoId={data?.youtube_trailer}
+        // videoId={'fIT3ITQtR1s'}
         onChangeState={handleStateChange}
         initialPlayerParams={{
           controls: false,
           rel: false,
           start: 10,
+          end: videoDuration - 8,
         }}
         forceAndroidAutoplay={true}
         webViewStyle={{opacity: opacity, marginTop: moderateScale(50)}}
