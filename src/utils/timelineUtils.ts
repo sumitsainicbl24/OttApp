@@ -109,7 +109,7 @@ export const calculateProgramPositions = (
     const width = right - left;
     
     // Use actual calculated width based on program duration for accurate timeline sync
-    const finalWidth = width;
+    const finalWidth = width+2;
     
     // Don't add margin here as it will be handled by applyProgramSpacing
     positions.push({

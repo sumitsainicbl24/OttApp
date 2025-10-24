@@ -8,6 +8,8 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: CommonColors.black,
+    // backgroundColor:'rgb(19,22,27)'
+
   },
   showChannelCatCarouselContainer: {
     zIndex: 1000,
@@ -89,6 +91,7 @@ export const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
     backgroundColor: CommonColors.black,
+    // backgroundColor:'rgb(19,22,27)'
   },
   
   // Top Navigation Styles

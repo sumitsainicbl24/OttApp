@@ -58,6 +58,8 @@ export default{
     tvGuide:require('../assets/images/Channels.png'),
     history:require('../assets/images/History.png'),
     xstreamCodes:require('../assets/images/login.png'),
+    playicon:require('../assets/images/playbtn.png'),
+
 
 
 

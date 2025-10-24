@@ -135,11 +135,11 @@ const LeftChannelItem = memo<LeftChannelItemProps>(
               priority: 'high',
             }}
             style={{
-              width: 30,
-              height: 30,
+              width: 50,
+              height: 40,
               borderRadius: moderateScale(6),
             }}
-            resizeMode="cover"
+            resizeMode="contain"
           />
 
           <View style={styles.channelInfoContainer}>

@@ -33,7 +33,7 @@ const formatTime = (timestamp: string): string => {
   return date.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true,
+    hour12: false,
   });
 };
 
@@ -87,7 +87,7 @@ const EPGList = memo<EPGListProps>(
               <Text style={[styles.epgProgramTime,
                  isFocused && styles.epgProgramItemFocused,
               ]}>
-                {startTime} {decodeEPGTitle(item.title)}
+                {startTime}{'   '}{decodeEPGTitle(item.title)}
               </Text>
 
               {isPlaying && (

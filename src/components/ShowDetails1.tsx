@@ -173,6 +173,8 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
           'rgba(0, 0, 0, 0.2)',
           'transparent',
           'transparent',
+          'transparent',
+
         ]}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 0}}
@@ -188,6 +190,8 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
           'rgba(0, 0, 0, 0.1)',
           'transparent',
           'transparent',
+          'transparent',
+
         ]}
         start={{x: 0, y: 1}}
         end={{x: 0, y: 0}}

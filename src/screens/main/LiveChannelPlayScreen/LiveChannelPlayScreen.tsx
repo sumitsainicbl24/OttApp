@@ -640,6 +640,7 @@ const LiveChannelPlayScreen = () => {
       <View style={styles.container}>
         {/* Video Player */}
         {!error && (
+        
           <Video
             ref={videoRef}
             source={{uri: currentlyPlaying?.url}}

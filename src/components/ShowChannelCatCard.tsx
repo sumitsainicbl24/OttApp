@@ -437,7 +437,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
                     : imagepath.tv
                 }
                 style={styles.channelLogo}
-                resizeMode="cover"
+                resizeMode="contain"
                 tintColor={!show?.logo ? CommonColors.white : undefined}
                 onError={e => {
                   console.log('Image error:', e.nativeEvent.error);
@@ -446,7 +446,8 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
               />
             </View>
 
-            <View style={{overflow: 'hidden', width: '70%'}}>
+            <View
+              style={{overflow: 'hidden', width: '70%', flexDirection: 'row'}}>
               <SimpleMarquee
                 text={show.title || 'Channel Name'}
                 shouldStart={focusedProgramIndex !== null}
@@ -458,6 +459,20 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
                 ]}
                 speed={50}
               />
+              {streamUrl === show?.url && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    justifyContent: 'center',
+                    backgroundColor: 'black',
+                  }}>
+                  <FastImage
+                    source={imagepath.playicon}
+                    style={{height: 16, width: 16}}
+                  />
+                </View>
+              )}
             </View>
           </View>
 
@@ -473,8 +488,11 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
                         styles.timelineProgramBlock,
                         {
                           left: position.left,
-                          width: position.width,
-                          backgroundColor: 'rgba(27,30,33,0.8)', // Slightly more opaque for better visibility
+                          width: position.width - 2,
+                          backgroundColor:
+                            focusedProgramIndex !== null
+                              ? 'rgb(66,69,71)'
+                              : 'rgba(29,32,37,0.9)', // Slightly more opaque for better visibility
                           zIndex: focusedProgramIndex === index ? 1000 : 1,
                         },
                         focusedProgramIndex === index &&
@@ -488,14 +506,17 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
                       <Text
                         style={[
                           styles.programText,
+                          focusedProgramIndex !== null&&{
+                            color:CommonColors.white
+                          },
                           focusedProgramIndex === index && {
-                            color: CommonColors.black,
+                             color: CommonColors.black,
                           },
                         ]}
                         numberOfLines={1}
                         ellipsizeMode="tail">
                         {position.width < 60
-                          ? position.title.substring(0, 1) + '...'
+                          ? position.title.substring(0, 2) + '...'
                           : position.title}
                       </Text>
                     </TouchableOpacity>
@@ -569,9 +590,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'stretch',
     width: '100%',
-    // minHeight: verticalScale(7),
     position: 'relative',
-    // paddingHorizontal: moderateScale(8),
     borderRadius: moderateScale(8),
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
   },
@@ -588,7 +607,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: moderateScale(250),
-    marginRight: moderateScale(10),
+    marginRight: moderateScale(16),
+    paddingRight: moderateScale(10),
   },
   channelNumber: {
     fontFamily: FontFamily.PublicSans_SemiBold,
@@ -601,7 +621,7 @@ const styles = StyleSheet.create({
     marginRight: moderateScale(10),
   },
   channelLogoContainer: {
-    marginRight: moderateScale(10),
+    marginRight: moderateScale(16),
     height: moderateScale(45),
     width: moderateScale(40),
     paddingVertical: verticalScale(5),
@@ -613,13 +633,13 @@ const styles = StyleSheet.create({
   },
   channelLogo: {
     height: moderateScale(40),
-    width: moderateScale(40),
+    width: moderateScale(50),
     borderRadius: moderateScale(4),
     resizeMode: 'contain',
   },
   channelNameText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(14),
+    fontSize: scale(25),
     letterSpacing: moderateScale(0.24),
     color: CommonColors.white,
     flex: 1,
@@ -631,8 +651,6 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   programBlock: {
-    // flex: 1,
-    // height: moderateScale(80),
     width: '100%',
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(12),
@@ -642,16 +660,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(27,30,33,1)',
   },
   programBlockFocused: {
-    // marginTop: verticalScale(4),
     borderColor: CommonColors.white,
     backgroundColor: 'rgba(225, 226, 228, 1)',
-    // shadowColor: CommonColors.white,
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 0,
-    // },
-    // shadowOpacity: 0.3,
-    // shadowRadius: 8,
     zIndex: 1000,
     elevation: 5, // Higher elevation for Android
   },
@@ -662,9 +672,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#232629',
   },
   programText: {
-    fontFamily: FontFamily.PublicSans_Regular,
-    fontSize: scale(20),
-    color: CommonColors.whiteOpacity50,
+    fontFamily: FontFamily.PublicSans_SemiBold,
+    fontSize: scale(25),
+    // color: CommonColors.whiteOpacity50,
+    color: 'rgb(179,180,181)',
+    // color:''
     textAlign: 'left',
   },
   timelineProgramContainer: {
@@ -674,16 +686,18 @@ const styles = StyleSheet.create({
     marginLeft: moderateScale(2),
     overflow: 'visible',
     zIndex: 10,
+    // backgroundColor:'red'
   },
   timelineProgramBlock: {
     position: 'absolute',
     top: verticalScale(2),
-    height: moderateScale(44),
+    height: moderateScale(42),
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(4),
     justifyContent: 'center',
-    borderWidth: 0.5, // Reduced border width for cleaner look
-    borderColor: 'rgba(255, 255, 255, 0.05)', // Very subtle border for separation
+    // backgroundColor:'yellow'
+    // borderWidth: 0.5, // Reduced border width for cleaner look
+    // borderColor: 'rgba(255, 255, 255, 0.05)', // Very subtle border for separation
   },
   smallProgramText: {
     fontSize: moderateScale(14),

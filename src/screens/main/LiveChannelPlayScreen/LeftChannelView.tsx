@@ -290,7 +290,7 @@ const LeftChannelView = ({
 
         {/* Layer 2: Channel + EPG */}
         {layerIndex === 2 && (
-          <View style={styles.sideBySideContainer}>
+          <View style={{...styles.sideBySideContainer,backgroundColor:'transparent'}}>
             {/* EPG List */}
             <TVFocusGuideView
               // autoFocus={focusIndex === 1}

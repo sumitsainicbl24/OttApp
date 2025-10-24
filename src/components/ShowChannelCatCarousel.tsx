@@ -295,21 +295,21 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
                 {currentDateTime}
               </Text>
             </View>
-            <View style={styles.timelineContainer}>
-              <FlashList
-                data={timelineSlots}
-                renderItem={renderTimelineItem}
-                keyExtractor={(item, index) => index.toString()}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-                estimatedItemSize={timelineConfig.slotWidth}
-                contentContainerStyle={styles.timelineContentContainer}
-                focusable={false}
-                scrollEnabled={false} // Disable individual scrolling since parent handles it
-                removeClippedSubviews={true}
-                getItemType={() => 'timeline'}
-              />
-            </View>
+            {/* <View style={styles.timelineContainer}> */}
+            <FlashList
+              data={timelineSlots}
+              renderItem={renderTimelineItem}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              estimatedItemSize={timelineConfig.slotWidth}
+              contentContainerStyle={styles.timelineContentContainer}
+              focusable={false}
+              scrollEnabled={false} // Disable individual scrolling since parent handles it
+              removeClippedSubviews={true}
+              getItemType={() => 'timeline'}
+            />
+            {/* </View> */}
           </View>
 
           <View style={styles.carouselWrapper}>
@@ -338,7 +338,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
                   scrollEnabled={!disableScroll}
                   removeClippedSubviews={true}
                   getItemType={() => 'channel'}
-                  drawDistance={verticalScale(300)} 
+                  drawDistance={verticalScale(300)}
                   estimatedListSize={styles.mainFlashListSize}
                   overrideItemLayout={(layout, item, index) => {
                     layout.size = verticalScale(65);
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   circle: {
     width: 8,
     height: 8,
-    backgroundColor: CommonColors.blueOpacity30,
+    backgroundColor: CommonColors.blueOpacity50,
     borderRadius: moderateScale(5),
     alignSelf: 'center',
     bottom: 8,
@@ -430,13 +430,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: verticalScale(50),
     marginBottom: verticalScale(5),
-    // borderBottomWidth: 1,
+    borderBottomWidth: 1.5,
     borderBottomColor: CommonColors.textGrey + '30',
     position: 'relative',
+    // backgroundColor:'red',
+    // borderBottomWidth:1,
   },
   timelineContentContainer: {
     paddingHorizontal: moderateScale(20),
     paddingVertical: verticalScale(5),
+    borderBottomWidth: 1,
+    borderBottomColor: CommonColors.textGrey + '30',
   },
   timelineItem: {
     width: scale(280), // Match the slot width
@@ -449,7 +453,7 @@ const styles = StyleSheet.create({
   timelineText: {
     fontFamily: FontFamily.PublicSans_Medium,
     fontSize: scale(18),
-    color: CommonColors.textGrey,
+    color: 'rgb(179,180,181)',
     textAlign: 'center',
   },
   currentTimeIndicator: {
@@ -465,7 +469,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 1.5,
-    backgroundColor: CommonColors.blueOpacity30,
+    backgroundColor: CommonColors.blueOpacity50,
     zIndex: 15, // Higher z-index to appear above channel content
     // For Android shadow
   },

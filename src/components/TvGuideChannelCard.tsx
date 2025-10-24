@@ -27,7 +27,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {MainStackParamList} from '../navigation/NavigationsTypes';
 import {getProxyImageUrl} from '../utils/CommonFunctions';
 import {setCurrentlyPlaying} from '../redux/reducers/main';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import SimpleMarquee from './MarqueeText';
 import {
   EPGProgram,
@@ -39,6 +39,8 @@ import {
   createTimelineSlots,
   ProgramPosition,
 } from '../utils/timelineUtils';
+import {RootState} from '../redux/store';
+import FastImage from 'react-native-fast-image';
 
 // ==================== TYPES ====================
 
@@ -206,6 +208,7 @@ const ChannelInfo = memo<{
   isFocused: boolean;
   showImage?: boolean;
   onImageError: () => void;
+  showPlayIcon:boolean;
 }>(
   ({
     channelIndex,
@@ -214,6 +217,7 @@ const ChannelInfo = memo<{
     isFocused,
     showImage = true,
     onImageError,
+    showPlayIcon,
   }) => (
     <View style={styles.channelInfo}>
       <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
@@ -242,6 +246,21 @@ const ChannelInfo = memo<{
           ]}
           speed={50}
         />
+        {showPlayIcon && (
+          <View
+            style={{
+              position: 'absolute',
+              right: 0,
+              justifyContent: 'center',
+              // backgroundColor: 'black',
+              zIndex: 1000,
+            }}>
+            <FastImage
+              source={imagepath.playicon}
+              style={{height: 16, width: 16}}
+            />
+          </View>
+        )}
       </View>
     </View>
   ),
@@ -260,6 +279,7 @@ const ProgramBlock = memo<{
   onFocus: (event: any, index: number) => void;
   onBlur: (event: any, index: number) => void;
   onPress: (index: number) => void;
+  focusedProgramIndex: any;
 }>(
   ({
     position,
@@ -269,10 +289,11 @@ const ProgramBlock = memo<{
     onFocus,
     onBlur,
     onPress,
+    focusedProgramIndex,
   }) => {
     const displayTitle =
       position.width < 60
-        ? position.title.substring(0, 1) + '...'
+        ? position.title.substring(0, 2) + '...'
         : position.title;
 
     return (
@@ -281,7 +302,7 @@ const ProgramBlock = memo<{
           styles.programBlock,
           {
             left: position.left,
-            width: position.width,
+            width: position.width - 2,
             zIndex: isFocused ? 1000 : 1,
           },
           isFocused && styles.programBlockFocused,
@@ -373,14 +394,14 @@ const ProgramDetailsOverlay = memo<{
         <Text style={styles.detailsMeta} numberOfLines={1}>
           {details.timeSlot} • {details.duration}
         </Text>
-        <Text style={styles.detailsDescription} numberOfLines={1}>
+        <Text style={styles.detailsDescription} numberOfLines={2}>
           {details.description}
         </Text>
       </View>
 
       <View style={styles.detailsSide}>
         <Image source={imagepath.empty_star} style={styles.starIcon} />
-        <Text style={styles.detailsMeta}>{channelName}</Text>
+        <Text style={styles.channeltext}>{channelName}</Text>
       </View>
     </View>
   </View>
@@ -598,6 +619,14 @@ const TvGuideChannelCard: React.FC<TvGuideChannelCardProps> = ({
   // ==================== RENDER ====================
 
   const isFocused = focusedProgramIndex !== null;
+  const currentlyPlaying = useSelector(
+    (state: RootState) => state.rootReducer.main.currentlyPlaying,
+  );
+
+  console.log(
+    'currentlyPlayingcurrentlyPlayingcurrentlyPlaying',
+    currentlyPlaying,
+  );
 
   return (
     <View style={[styles.container, isFocused && styles.containerFocused]}>
@@ -610,6 +639,7 @@ const TvGuideChannelCard: React.FC<TvGuideChannelCardProps> = ({
           logoSource={logoSource}
           isFocused={isFocused}
           onImageError={handleImageError}
+          showPlayIcon={currentlyPlaying?.title === channel?.title}
         />
 
         {/* Program Schedule */}
@@ -626,6 +656,7 @@ const TvGuideChannelCard: React.FC<TvGuideChannelCardProps> = ({
                     key={position.program.id || `program-${index}`}
                     position={position}
                     index={index}
+                    focusedProgramIndex={focusedProgramIndex}
                     isFocused={focusedProgramIndex === index}
                     hasTVPreferredFocus={hasTVPreferredFocus}
                     onFocus={handleProgramFocus}
@@ -721,10 +752,11 @@ const styles = StyleSheet.create({
   nameContainer: {
     width: '70%',
     overflow: 'hidden',
+    // flexDirection:'row'
   },
   channelName: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(18),
     letterSpacing: moderateScale(0.24),
     color: CommonColors.white,
     flex: 1,
@@ -749,11 +781,12 @@ const styles = StyleSheet.create({
   programBlock: {
     position: 'absolute',
     top: verticalScale(2),
-    height: moderateScale(54),
+    height: moderateScale(52),
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(4),
     justifyContent: 'center',
-    backgroundColor: 'rgba(19, 23, 27, 0.46)',
+    // backgroundColor: 'rgba(19, 23, 27, 0.46)',
+    backgroundColor: 'rgba(33,31,36,0.7)',
     // borderWidth: 0.5,
     // borderColor: 'rgba(255, 255, 255, 0.05)',
   },
@@ -763,8 +796,8 @@ const styles = StyleSheet.create({
     // elevation: 5,
   },
   programText: {
-    fontFamily: FontFamily.PublicSans_Regular,
-    fontSize: scale(20),
+    fontFamily: FontFamily.PublicSans_SemiBold,
+    fontSize: scale(25),
     color: CommonColors.whiteOpacity50,
     textAlign: 'left',
   },
@@ -775,7 +808,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: moderateScale(2),
     paddingHorizontal: moderateScale(5),
-    height: moderateScale(56),
+    height: moderateScale(55),
   },
   fallbackBlock: {
     width: '100%',
@@ -785,15 +818,16 @@ const styles = StyleSheet.create({
     // borderWidth: 2,
     borderColor: 'transparent',
     // backgroundColor: 'rgba(182, 187, 193, 0.1)',
+
     marginRight: moderateScale(2),
 
     // position: 'absolute',
     // top: verticalScale(2),
-    height: moderateScale(54),
+    height: moderateScale(52),
     borderRadius: moderateScale(6),
     paddingHorizontal: moderateScale(4),
     // justifyContent: 'center',
-    backgroundColor: 'rgba(182, 187, 193, 0.1)',
+    backgroundColor: 'rgba(33,31,36,0.7)',
   },
   detailsRow: {
     flexDirection: 'row',
@@ -819,38 +853,37 @@ const styles = StyleSheet.create({
     // backgroundColor: 'rgba(229, 233, 237, 0.12)',
     backgroundColor: 'rgba(19, 23, 27, 0.46)',
 
-
     paddingVertical: verticalScale(12),
     paddingHorizontal: moderateScale(14),
     flexDirection: 'row',
     position: 'absolute',
     zIndex: 2000,
-    // elevation: 10,
-    // shadowColor: '#000',
-    // shadowOffset: {width: 0, height: 2},
-    // shadowOpacity: 0.25,
-    // shadowRadius: 3.84,
   },
   detailsContent: {
     flex: 1,
   },
   detailsTitle: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: scale(18),
-
+    fontSize: scale(28),
     color: CommonColors.white,
     marginBottom: verticalScale(6),
   },
   detailsMeta: {
     fontFamily: FontFamily.PublicSans_Regular,
-    fontSize: scale(18),
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: scale(24),
+    color: CommonColors.whiteOpacity50,
+    marginBottom: verticalScale(8),
+  },
+  channeltext: {
+    fontFamily: FontFamily.PublicSans_Regular,
+    fontSize: scale(24),
+    color: CommonColors.white,
     marginBottom: verticalScale(8),
   },
   detailsDescription: {
     fontFamily: FontFamily.PublicSans_Regular,
-    fontSize: scale(18),
-    color: 'rgba(255,255,255,0.92)',
+    fontSize: scale(24),
+    color: CommonColors.whiteOpacity50,
   },
   detailsSide: {
     alignItems: 'flex-end',

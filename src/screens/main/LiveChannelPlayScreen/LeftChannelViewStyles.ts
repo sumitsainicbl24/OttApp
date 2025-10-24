@@ -18,7 +18,9 @@ export const styles = StyleSheet.create({
   sideBySideContainer: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'rgba(19, 23, 27, 0.6)',
+    // backgroundColor: 'rgba(19, 23, 27, 0.6)',
+    backgroundColor: 'rgba(28, 30, 34,0.7)',
+    
     // gap: moderateScale(20),
   },
   channelItem: {
@@ -59,13 +61,13 @@ export const styles = StyleSheet.create({
   },
   channelName: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(16),
+    fontSize: scale(26),
     color: CommonColors.white,
     flex: 1,
   },
   currentProgram: {
     fontFamily: FontFamily.PublicSans_Regular,
-    fontSize: moderateScale(14),
+    fontSize: scale(26),
     color: CommonColors.blueText,
     flex: 2,
     textAlign: 'left',
@@ -78,7 +80,7 @@ export const styles = StyleSheet.create({
   arrowText: {
     fontFamily: FontFamily.PublicSans_Bold,
     fontSize: moderateScale(14),
-    color: '#007AFF',
+    color: 'black',
   },
   showChannelCatCarouselContainer: {
     zIndex: 1000,
@@ -456,7 +458,7 @@ export const styles = StyleSheet.create({
 
   channelListContainer: {
     flex: 1,
-    backgroundColor: 'rgba(19, 23, 27, 0.6)',
+    backgroundColor: 'rgba(28, 30, 34,0.7)',
     borderLeftWidth: 0.3,
     borderLeftColor: CommonColors.whiteOpacity30,
     paddingHorizontal: moderateScale(20),
@@ -509,7 +511,7 @@ export const styles = StyleSheet.create({
   },
 
   progressBarContainer: {
-    width: scale(250),
+    width: scale(350),
     height: moderateScale(3),
     backgroundColor: CommonColors.blackOpacity40,
     borderRadius: moderateScale(20),
@@ -626,8 +628,8 @@ export const styles = StyleSheet.create({
     // paddingVertical: verticalScale(20),
     // paddingHorizontal: moderateScale(20),
     // backgroundColor:'rgba(19, 23, 27, 0.6)',
-    backgroundColor: 'rgba(19, 23, 27, 0.2)',
-
+    backgroundColor: 'rgba(19, 23, 27, 0.3)',
+  // backgroundColor:'transparent',
     borderLeftWidth: 0.2,
     borderLeftColor: CommonColors.blackOpacity70,
     width: width,
@@ -635,7 +637,7 @@ export const styles = StyleSheet.create({
 
   epgListTitle: {
     fontFamily: FontFamily.PublicSans_Bold,
-    fontSize: scale(24),
+    fontSize: scale(28),
     color: CommonColors.white,
     marginVertical: moderateScale(16),
     marginLeft: moderateScale(16),
@@ -689,9 +691,9 @@ export const styles = StyleSheet.create({
   },
 
   epgProgramTime: {
-    fontFamily: FontFamily.PublicSans_Medium,
-    fontSize: moderateScale(14),
-    color: 'rgba(255, 255, 255, 0.8)',
+    fontFamily: FontFamily.PublicSans_SemiBold,
+    fontSize: scale(24),
+    color: CommonColors.white,
     marginBottom: verticalScale(4),
   },
 

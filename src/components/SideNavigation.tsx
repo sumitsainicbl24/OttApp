@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     fontSize: scale(24),
     fontFamily: FontFamily.PublicSans_Bold,
     color: CommonColors.white,
-    opacity: 0.5,
+    opacity: 1,
     zIndex: -1000,
   },
   focusedTextGlow: {
