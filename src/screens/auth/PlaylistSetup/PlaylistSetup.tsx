@@ -163,6 +163,7 @@ const PlaylistSetup = ({
   const [formData, setFormData] = useState({
     playlistUrl:
       'http://line.diatunnel.link/get.php?username=mrKQdWmJ&password=jSxeKrs&type=m3u_plus&output=ts',
+      // 'http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts',
     username: '',
     password: '',
     serverAddress: '',
