@@ -417,6 +417,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
       }
     };
 
+
     return (
       <View
         style={[

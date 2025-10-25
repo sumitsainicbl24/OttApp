@@ -101,6 +101,10 @@ const LiveChannelPlayScreen = () => {
   ];
 
   useEffect(() => {
+    console.log(
+      'currentlyPlayingcurrentlyPlayingcurrentlyPlaying',
+      currentlyPlaying,
+    );
     if (currentlyPlaying) {
       // videoRef.current?.setSource({uri: currentlyPlaying?.url});
       setChannelName(
@@ -625,8 +629,18 @@ const LiveChannelPlayScreen = () => {
 
   const handleChannelSelect = (channel: channelData) => {
     console.log('channelselected:---->>>>>>', channel);
+    // videoRef?.current?.;
+    videoRef?.current?.setSource({uri: channel?.url});
+
     // setChannel(channel);
     // setChannelName(channel?.name || channel?.title || 'Live Channel');
+    dispatch(
+      setCurrentlyPlaying({
+        ...channel,
+        type: 'live',
+      }),
+    );
+    handleLeftChannelModalClose();
   };
 
   return (
@@ -640,8 +654,8 @@ const LiveChannelPlayScreen = () => {
       <View style={styles.container}>
         {/* Video Player */}
         {!error && (
-        
           <Video
+            key={currentlyPlaying?.stream_id}
             ref={videoRef}
             source={{uri: currentlyPlaying?.url}}
             style={styles.videoPlayer}

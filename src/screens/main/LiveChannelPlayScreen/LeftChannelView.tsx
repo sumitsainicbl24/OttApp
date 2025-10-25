@@ -20,6 +20,7 @@ import LeftChannelItem from './LeftChannelItem';
 import {styles} from './LeftChannelViewStyles';
 import ProgramDescriptionBox from './ProgramDescriptionBox';
 import {CommonColors} from '../../../styles/Colors';
+import LinearGradient from 'react-native-linear-gradient';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
@@ -243,20 +244,19 @@ const LeftChannelView = ({
         barStyle="light-content"
       />
 
-      <View style={[styles.container, {width: screenWidth - 400}]}>
+      <View style={[styles.container, {width: screenWidth - 300}]}>
         {/* Layer 1: Category + Channel */}
         {layerIndex === 1 && (
           <View style={styles.sideBySideContainer}>
             {/* Category List */}
             <View
-         
               style={styles.categoryListContainer}
               onFocus={() => setFocusIndex(0)}>
               <CategoryList
                 categories={memorizeChannelsData}
                 selectedCategory={memorizeSelectedCategory}
                 onFocus={handleCategoryListFocus}
-                style={{backgroundColor:'transparent'}}
+                style={{backgroundColor: 'transparent'}}
               />
             </View>
           </View>
@@ -290,21 +290,36 @@ const LeftChannelView = ({
 
         {/* Layer 2: Channel + EPG */}
         {layerIndex === 2 && (
-          <View style={{...styles.sideBySideContainer,backgroundColor:'transparent'}}>
+          <View
+            style={{
+              ...styles.sideBySideContainer,
+              backgroundColor: 'transparent',
+            }}>
             {/* EPG List */}
             <TVFocusGuideView
-              // autoFocus={focusIndex === 1}
-              enabled={layerIndex===2}
+              enabled={layerIndex === 2}
               style={styles.epgListContainer}
               onFocus={() => setFocusIndex(1)}
               onBlur={() => {}}>
-              <EPGList
-                epgData={selectedChannel?.epg || []}
-                selectedProgram={selectedProgram}
-                onProgramFocus={handleProgramFocus}
-                onProgramBlur={handleProgramBlur}
-                channelName={selectedChannel?.name || 'No Channel Selected'}
-              />
+              <LinearGradient
+                colors={[
+                  'rgba(19, 23, 27, 0.8)',
+                  'rgba(19, 23, 27, 0.8)',
+                  'rgba(19, 23, 27, 0.6)',
+                  'rgba(19, 23, 27, 0.3)',
+                  'transparent',
+                ]}
+                start={{x: 0, y: 1}}
+                end={{x: 1, y: 1}}
+                style={{flex: 1}}>
+                <EPGList
+                  epgData={selectedChannel?.epg || []}
+                  selectedProgram={selectedProgram}
+                  onProgramFocus={handleProgramFocus}
+                  onProgramBlur={handleProgramBlur}
+                  channelName={selectedChannel?.name || 'No Channel Selected'}
+                />
+              </LinearGradient>
             </TVFocusGuideView>
           </View>
         )}

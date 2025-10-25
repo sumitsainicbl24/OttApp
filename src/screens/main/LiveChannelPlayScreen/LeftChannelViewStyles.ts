@@ -628,7 +628,7 @@ export const styles = StyleSheet.create({
     // paddingVertical: verticalScale(20),
     // paddingHorizontal: moderateScale(20),
     // backgroundColor:'rgba(19, 23, 27, 0.6)',
-    backgroundColor: 'rgba(19, 23, 27, 0.3)',
+    // backgroundColor: 'rgba(19, 23, 27, 0.3)',
   // backgroundColor:'transparent',
     borderLeftWidth: 0.2,
     borderLeftColor: CommonColors.blackOpacity70,

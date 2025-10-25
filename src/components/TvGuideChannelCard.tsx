@@ -12,6 +12,7 @@
 
 import React, {useState, useEffect, useMemo, useCallback, memo} from 'react';
 import {
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -58,6 +59,7 @@ interface ProgramDetails {
   progressPercentage: number;
   duration: string;
   description: string;
+  channel_id: string;
 }
 
 interface TvGuideChannelCardProps {
@@ -193,6 +195,7 @@ const calculateProgramDetails = (
     progressPercentage,
     duration,
     description,
+    channel_id: programData?.program?.channel_id,
   };
 };
 
@@ -208,7 +211,7 @@ const ChannelInfo = memo<{
   isFocused: boolean;
   showImage?: boolean;
   onImageError: () => void;
-  showPlayIcon:boolean;
+  showPlayIcon: boolean;
 }>(
   ({
     channelIndex,
@@ -253,6 +256,8 @@ const ChannelInfo = memo<{
               right: 0,
               justifyContent: 'center',
               // backgroundColor: 'black',
+    backgroundColor: 'rgba(25, 24, 24, 0.2)',
+
               zIndex: 1000,
             }}>
             <FastImage
@@ -280,6 +285,7 @@ const ProgramBlock = memo<{
   onBlur: (event: any, index: number) => void;
   onPress: (index: number) => void;
   focusedProgramIndex: any;
+  currentDetails: ProgramDetails | null;
 }>(
   ({
     position,
@@ -290,12 +296,18 @@ const ProgramBlock = memo<{
     onBlur,
     onPress,
     focusedProgramIndex,
+    currentDetails,
   }) => {
+    const currentlyPlaying = useSelector(
+      (state: RootState) => state.rootReducer.main.currentlyPlaying,
+    );
     const displayTitle =
       position.width < 60
         ? position.title.substring(0, 2) + '...'
         : position.title;
 
+    const sameRow =
+      currentDetails?.channel_id === position?.program?.channel_id;
     return (
       <TouchableOpacity
         style={[
@@ -304,6 +316,7 @@ const ProgramBlock = memo<{
             left: position.left,
             width: position.width - 2,
             zIndex: isFocused ? 1000 : 1,
+            backgroundColor:sameRow ? 'rgb(66,69,71)' : 'rgba(33,31,36,0.7)'
           },
           isFocused && styles.programBlockFocused,
         ]}
@@ -313,7 +326,7 @@ const ProgramBlock = memo<{
         onBlur={e => onBlur(e, index)}
         onPress={() => onPress(index)}>
         <Text
-          style={[styles.programText, isFocused && styles.programTextFocused]}
+          style={[styles.programText,{color:sameRow ? CommonColors.white : CommonColors.whiteOpacity50}, isFocused && styles.programTextFocused]}
           numberOfLines={1}
           ellipsizeMode="tail">
           {displayTitle}
@@ -327,7 +340,8 @@ const ProgramBlock = memo<{
       prev.position.left === next.position.left &&
       prev.position.width === next.position.width &&
       prev.position.title === next.position.title &&
-      prev.isFocused === next.isFocused
+      prev.isFocused === next.isFocused &&
+      prev.currentDetails?.channel_id === next.currentDetails?.channel_id
     );
   },
 );
@@ -510,6 +524,7 @@ const TvGuideChannelCard: React.FC<TvGuideChannelCardProps> = ({
           progressPercentage: 0,
           duration: '26 min',
           description: 'No description available',
+          channel_id: '',
         };
       }
 
@@ -519,34 +534,57 @@ const TvGuideChannelCard: React.FC<TvGuideChannelCardProps> = ({
   );
 
   // Handle program focus
-  const handleProgramFocus = useCallback(
-    (event: any, programIndex: number) => {
-      setFocusedProgramIndex(programIndex);
-      onChannelFocus();
-      const details = getProgramDetails(programIndex);
-      onProgramDetailsChange?.(details);
-      if (showProgramDetails) {
-        setCurrentDetails(details);
-      }
-      if (
-        onProgramFocusAutoScroll &&
-        programPositions.length > 0 &&
-        programIndex < programPositions.length
-      ) {
-        const programPosition = programPositions[programIndex];
-        onProgramFocusAutoScroll(channelIndex, programIndex, programPosition);
-      }
-    },
-    [
-      onChannelFocus,
-      getProgramDetails,
-      onProgramDetailsChange,
-      showProgramDetails,
-      onProgramFocusAutoScroll,
-      programPositions,
-      channelIndex,
-    ],
-  );
+  // const handleProgramFocus = useCallback(
+  //   (event: any, programIndex: number) => {
+  //     Alert.alert("hi")
+  //     // console.log(event,'eventeventevent');
+  //     setFocusedProgramIndex(programIndex);
+  //     onChannelFocus();
+  //     const details = getProgramDetails(programIndex);
+  //     onProgramDetailsChange?.(details);
+  //     if (showProgramDetails) {
+  //       setCurrentDetails(details);
+  //     }
+  //     if (
+  //       onProgramFocusAutoScroll &&
+  //       programPositions.length > 0 &&
+  //       programIndex < programPositions.length
+  //     ) {
+  //       const programPosition = programPositions[programIndex];
+  //       onProgramFocusAutoScroll(channelIndex, programIndex, programPosition);
+  //     }
+  //   },
+  //   [
+  //     onChannelFocus,
+  //     getProgramDetails,
+  //     onProgramDetailsChange,
+  //     showProgramDetails,
+  //     onProgramFocusAutoScroll,
+  //     programPositions,
+  //     channelIndex,
+  //   ],
+  // );
+
+  const handleProgramFocus = (event: any, programIndex: number) => {
+    // Alert.alert('hi');
+    // console.log(event,'eventeventevent');
+    setFocusedProgramIndex(programIndex);
+    onChannelFocus();
+    const details = getProgramDetails(programIndex);
+    // console.log(details,'detailsdetailsdetails');
+    onProgramDetailsChange?.(details);
+    if (showProgramDetails) {
+      setCurrentDetails(details);
+    }
+    if (
+      onProgramFocusAutoScroll &&
+      programPositions.length > 0 &&
+      programIndex < programPositions.length
+    ) {
+      const programPosition = programPositions[programIndex];
+      onProgramFocusAutoScroll(channelIndex, programIndex, programPosition);
+    }
+  };
 
   // Handle program blur
   const handleProgramBlur = useCallback(() => {
@@ -623,11 +661,6 @@ const TvGuideChannelCard: React.FC<TvGuideChannelCardProps> = ({
     (state: RootState) => state.rootReducer.main.currentlyPlaying,
   );
 
-  console.log(
-    'currentlyPlayingcurrentlyPlayingcurrentlyPlaying',
-    currentlyPlaying,
-  );
-
   return (
     <View style={[styles.container, isFocused && styles.containerFocused]}>
       {/* Main Row */}
@@ -662,6 +695,7 @@ const TvGuideChannelCard: React.FC<TvGuideChannelCardProps> = ({
                     onFocus={handleProgramFocus}
                     onBlur={handleProgramBlur}
                     onPress={handleProgramPress}
+                    currentDetails={currentDetails}
                   />
                 );
               })}
