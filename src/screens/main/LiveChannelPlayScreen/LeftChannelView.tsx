@@ -305,9 +305,13 @@ const LeftChannelView = ({
                 colors={[
                   'rgba(19, 23, 27, 0.8)',
                   'rgba(19, 23, 27, 0.8)',
+                  'rgba(19, 23, 27, 0.7)',
                   'rgba(19, 23, 27, 0.6)',
-                  'rgba(19, 23, 27, 0.3)',
-                  'transparent',
+                 'rgba(19, 23, 27, 0.5)',
+                 'transparent',
+                 'transparent',
+
+
                 ]}
                 start={{x: 0, y: 1}}
                 end={{x: 1, y: 1}}

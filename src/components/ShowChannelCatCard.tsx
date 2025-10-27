@@ -417,7 +417,6 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
       }
     };
 
-
     return (
       <View
         style={[
@@ -507,11 +506,11 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
                       <Text
                         style={[
                           styles.programText,
-                          focusedProgramIndex !== null&&{
-                            color:CommonColors.white
+                          focusedProgramIndex !== null && {
+                            color: CommonColors.white,
                           },
                           focusedProgramIndex === index && {
-                             color: CommonColors.black,
+                            color: CommonColors.black,
                           },
                         ]}
                         numberOfLines={1}
