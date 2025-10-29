@@ -485,11 +485,12 @@ const LiveChannelPlayScreen = () => {
                 }}
                 style={{
                   ...styles.navButtonImage,
-                  width: 30,
-                  height: 30,
+                  width: 100,
+                  height: moderateScale(58),
+                  marginBottom: verticalScale(10),
                   borderRadius: moderateScale(6),
                 }}
-                resizeMode="cover"
+                resizeMode="contain"
               />
             )}
             {!item?.data && (
@@ -591,9 +592,6 @@ const LiveChannelPlayScreen = () => {
                     </View>
                     <View style={styles.qualityBadge}>
                       <Text style={styles.qualityText}>25 FPS</Text>
-                    </View>
-                    <View style={styles.qualityBadge}>
-                      <Text style={styles.qualityText}>STEREO</Text>
                     </View>
                   </View>
                 </View>

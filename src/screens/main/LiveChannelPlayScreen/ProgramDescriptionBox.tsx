@@ -40,7 +40,7 @@ const calculateDuration = (start: string, end: string): string => {
   const endTime = new Date(end);
   const durationMs = endTime.getTime() - startTime.getTime();
   const durationMinutes = Math.round(durationMs / (1000 * 60));
-  
+
   if (durationMinutes < 60) {
     return `${durationMinutes} min`;
   } else {
@@ -81,18 +81,15 @@ const ProgramDescriptionBox = memo<ProgramDescriptionBoxProps>(
           <Text style={styles.programDescriptionTitle} numberOfLines={2}>
             {decodedTitle}
           </Text>
-
         </View>
-        
+
         <View style={styles.programDescriptionTimeContainer}>
           <Text style={styles.programDescriptionTime}>
             {startTime} - {endTime}
           </Text>
-          <Text style={styles.programDescriptionDuration}>
-            {duration}
-          </Text>
+          <Text style={styles.programDescriptionDuration}>{duration}</Text>
         </View>
-        
+
         <Text style={styles.programDescriptionText} numberOfLines={4}>
           {decodedDescription || 'No description available'}
         </Text>

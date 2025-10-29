@@ -16,11 +16,12 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   sideBySideContainer: {
-    flex: 1,
+    // flex: 300,
     flexDirection: 'row',
     // backgroundColor: 'rgba(19, 23, 27, 0.6)',
     backgroundColor: 'rgba(28, 30, 34,0.7)',
-    
+    width: 300,
+
     // gap: moderateScale(20),
   },
   channelItem: {
@@ -457,7 +458,8 @@ export const styles = StyleSheet.create({
   },
 
   channelListContainer: {
-    flex: 1,
+    // flex: 1,
+    width: 300,
     backgroundColor: 'rgba(28, 30, 34,0.7)',
     borderLeftWidth: 0.3,
     borderLeftColor: CommonColors.whiteOpacity30,
@@ -625,14 +627,9 @@ export const styles = StyleSheet.create({
   // EPG List Styles
   epgListContainer: {
     flex: 1,
-    // paddingVertical: verticalScale(20),
-    // paddingHorizontal: moderateScale(20),
-    // backgroundColor:'rgba(19, 23, 27, 0.6)',
-    // backgroundColor: 'rgba(19, 23, 27, 0.3)',
-  // backgroundColor:'transparent',
     borderLeftWidth: 0.2,
     borderLeftColor: CommonColors.blackOpacity70,
-    width: width,
+    // backgroundColor: 'red',
   },
 
   epgListTitle: {
@@ -672,6 +669,7 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderRadius: moderateScale(8),
     minHeight: moderateScale(50),
+    maxWidth:270,
   },
 
   epgProgramItemFocused: {
@@ -692,7 +690,7 @@ export const styles = StyleSheet.create({
 
   epgProgramTime: {
     fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: scale(24),
+    fontSize: scale(28),
     color: CommonColors.white,
     marginBottom: verticalScale(4),
   },
@@ -733,7 +731,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: verticalScale(40),
     right: moderateScale(40),
-    width: scale(600),
+    width: width/2.8,
     backgroundColor: 'rgba(19, 23, 27, 0.6)',
     borderRadius: moderateScale(12),
     padding: moderateScale(20),
@@ -796,5 +794,10 @@ export const styles = StyleSheet.create({
     fontSize: moderateScale(14),
     color: 'rgba(255, 255, 255, 0.9)',
     lineHeight: moderateScale(20),
+  },
+  sideBySideContainerRight: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
   },
 });

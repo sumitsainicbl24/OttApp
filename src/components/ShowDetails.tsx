@@ -110,50 +110,32 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
       <View style={styles.metadataContainer}>
         {metadataItems.map((item: any, index: number) => (
           <React.Fragment key={`meta-${index}`}>
-            {item === rating ? (
+            {item === rating && Number(rating) > 0 ? (
               <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    height: 16,
-                    alignSelf: 'flex-end',
-                    backgroundColor: CommonColors.springGreen,
-                    borderRadius: 2,
-                    justifyContent:'center'
-
-                  }}>
+                <View style={styles.tmdbContainer}>
                   <Text
                     style={{
                       ...styles.metadataText,
                       fontSize: scale(16),
                       color: CommonColors.pine,
-                      fontFamily:FontFamily.PublicSans_ExtraBold
+                      fontFamily: FontFamily.PublicSans_ExtraBold,
                     }}>
-                    {item === rating ? 'TMDB' : ''}
+                    {Number(rating) > 0 ? 'TMDB' : ''}
                   </Text>
                 </View>
                 <Text style={styles.metadataText}> {item}</Text>
               </View>
-            ) : (
+            ) : item !== rating ? (
               <Text
                 style={{
                   ...styles.metadataText,
-                  backgroundColor:
-                    item === rating ? CommonColors.springGreen : 'transparent',
-                  color:
-                    item === rating ? CommonColors.pine : CommonColors.white,
+                  backgroundColor: 'transparent',
+                  color: CommonColors.white,
                 }}>
-                {item === rating ? 'TMDB' : ''} {item}
+                {item}
               </Text>
-            )}
-            {/* <Text
-              style={{
-                ...styles.metadataText,
-                backgroundColor:
-                  item === rating ? CommonColors.springGreen : 'transparent',
-                color: item === rating ? CommonColors.pine : CommonColors.white,
-              }}>
-              {item === rating ? 'TMDB' : ''} {item}
-            </Text> */}
+            ) : null}
+
             {index < metadataItems.length - 1 && (
               <Text style={styles.metadataSeparator}>•</Text>
             )}
@@ -266,6 +248,13 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.PublicSans_ExtraBold,
     fontSize: scale(55),
     color: CommonColors.white,
+  },
+  tmdbContainer: {
+    height: 16,
+    alignSelf: 'flex-end',
+    backgroundColor: CommonColors.springGreen,
+    borderRadius: 2,
+    justifyContent: 'center',
   },
 
   actionButtonsContainer: {

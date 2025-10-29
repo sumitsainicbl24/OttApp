@@ -1,11 +1,6 @@
 // 1. React Native core imports
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  ImageBackground,
-  ScrollView,
-  StatusBar,
-  View
-} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {ImageBackground, ScrollView, StatusBar, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 import {
@@ -13,23 +8,23 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import { YoutubeIframeRef } from 'react-native-youtube-iframe';
-import { useSelector } from 'react-redux';
+import {YoutubeIframeRef} from 'react-native-youtube-iframe';
+import {useSelector} from 'react-redux';
 import ContinueWatchingCarousel from '../../../components/ContinueWatchingCarousel';
 import MainLayout from '../../../components/MainLayout';
 import ShowCatCarousel from '../../../components/ShowCatCarousel';
 import ShowDetails from '../../../components/ShowDetails';
-import { MainStackParamList } from '../../../navigation/NavigationsTypes';
+import {MainStackParamList} from '../../../navigation/NavigationsTypes';
 import {
   continueWatchingGetApi,
   getHomepageApi,
   getSeriesDetailsNew,
 } from '../../../redux/actions/main';
-import { useAppDispatch } from '../../../redux/hooks';
-import { setCurrentlyPlaying } from '../../../redux/reducers/main';
-import { RootState } from '../../../redux/store';
-import { verticalScale } from '../../../styles/scaling';
-import { styles } from './styles';
+import {useAppDispatch} from '../../../redux/hooks';
+import {setCurrentlyPlaying} from '../../../redux/reducers/main';
+import {RootState} from '../../../redux/store';
+import {verticalScale} from '../../../styles/scaling';
+import {styles} from './styles';
 import YoutubeComp from './YoutubeComp';
 
 const Home = () => {
@@ -149,7 +144,6 @@ const Home = () => {
       const response = await getSeriesDetailsNew('series', seriesId);
       const seriesInfo = response?.data?.data?.info;
       const logos = response?.data?.data?.logos;
-      console.log('responseresponseseriesdetails---->>>>>', response);
 
       if (seriesInfo) {
         setPosterMovieName({info: seriesInfo, logos: logos});
@@ -187,7 +181,6 @@ const Home = () => {
               'rgba(0, 0, 0, 1)',
               'rgba(0, 0, 0, 1)',
               'rgba(0, 0, 0, 0.2)',
-
               'transparent',
               'transparent',
             ]}

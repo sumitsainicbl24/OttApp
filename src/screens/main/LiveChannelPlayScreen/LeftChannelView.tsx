@@ -244,7 +244,7 @@ const LeftChannelView = ({
         barStyle="light-content"
       />
 
-      <View style={[styles.container, {width: screenWidth - 300}]}>
+      <View style={[styles.container, {width: screenWidth - 100}]}>
         {/* Layer 1: Category + Channel */}
         {layerIndex === 1 && (
           <View style={styles.sideBySideContainer}>
@@ -290,28 +290,20 @@ const LeftChannelView = ({
 
         {/* Layer 2: Channel + EPG */}
         {layerIndex === 2 && (
-          <View
-            style={{
-              ...styles.sideBySideContainer,
-              backgroundColor: 'transparent',
-            }}>
-            {/* EPG List */}
+          <View style={styles.sideBySideContainerRight}>
             <TVFocusGuideView
               enabled={layerIndex === 2}
               style={styles.epgListContainer}
-              onFocus={() => setFocusIndex(1)}
-              onBlur={() => {}}>
+              onFocus={() => setFocusIndex(1)}>
               <LinearGradient
                 colors={[
-                  'rgba(19, 23, 27, 0.8)',
+                  'rgba(19, 23, 27, 0.9)',
                   'rgba(19, 23, 27, 0.8)',
                   'rgba(19, 23, 27, 0.7)',
                   'rgba(19, 23, 27, 0.6)',
-                 'rgba(19, 23, 27, 0.5)',
-                 'transparent',
-                 'transparent',
-
-
+                  'rgba(19, 23, 27, 0.5)',
+                  'rgba(19, 23, 27, 0.3)',
+                  'transparent',
                 ]}
                 start={{x: 0, y: 1}}
                 end={{x: 1, y: 1}}

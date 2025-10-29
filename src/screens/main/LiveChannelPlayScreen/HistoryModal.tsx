@@ -317,6 +317,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
           <FastImage
             source={{uri: getProxyImageUrl(item.item.stream_icon)!}}
             style={styles.tvIcon}
+            resizeMode="contain"
           />
           <View style={styles.historyItemChannel}>
             <Text style={styles.historyItemChannelText}>{item.item.name}</Text>
@@ -447,7 +448,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
 
 const styles = {
   tvIcon: {
-    width: 40,
+    width: 80,
     height: 40,
     tintColor: CommonColors.white,
     borderRadius: moderateScale(10),
@@ -526,7 +527,6 @@ const styles = {
     backgroundColor: 'rgba(1, 1, 1, 0.4)',
     borderRadius: moderateScale(12),
     padding: scale(25),
- 
     height: 160,
   },
   historyList: {
@@ -538,7 +538,7 @@ const styles = {
     borderRadius: moderateScale(8),
     borderWidth: 2,
     borderColor: 'transparent',
-    width: '85%',
+    width: '90%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: scale(15),
@@ -601,6 +601,9 @@ const styles = {
     color: CommonColors.white,
     fontSize: moderateScale(12),
     fontFamily: FontFamily.PublicSans_Regular,
+    // backgroundColor: 'red',
+    maxWidth: 90,
+    textAlign: 'center',
   },
   deleteIcon: {
     width: 12,

@@ -2,6 +2,7 @@ import React, {memo, useCallback, useMemo} from 'react';
 import {FlatList, Pressable, Text, View, TVFocusGuideView} from 'react-native';
 import {decodeEPGTitle} from '../../../utils/epgUtils';
 import {styles} from './LeftChannelViewStyles';
+import { Animated } from 'react-native-tvos';
 
 export interface Epg {
   id: string;
@@ -80,18 +81,21 @@ const EPGList = memo<EPGListProps>(
             accessibilityRole="button"
             onFocus={() => onProgramFocus(item)}
             onPress={() => onProgramSelect?.(item)}
-            style={[
-              styles.epgProgramItem,
-            ]}>
+            style={[styles.epgProgramItem]}>
             <View style={styles.epgProgramContent}>
-              <Text style={[styles.epgProgramTime,
-                 isFocused && styles.epgProgramItemFocused,
-              ]}>
-                {startTime}{'   '}{decodeEPGTitle(item.title)}
+              <Text
+                style={[
+                  styles.epgProgramTime,
+                  isFocused && styles.epgProgramItemFocused,
+                ]}
+                numberOfLines={1}>
+                {startTime}
+                {'   '}
+                {decodeEPGTitle(item.title)}
               </Text>
 
               {isPlaying && (
-                <View >
+                <View>
                   <Text style={styles.epgLiveText}> </Text>
                 </View>
               )}
@@ -127,13 +131,11 @@ const EPGList = memo<EPGListProps>(
     }
 
     return (
-      <View style={styles.epgListContainer}>
+      <View style={styles.epgListContainer }>
         <Text style={styles.epgListTitle}>
           {decodeChannelName(channelName)}
         </Text>
-        <TVFocusGuideView 
-          style={styles.epgListContent}
-          onBlur={onProgramBlur}>
+        <TVFocusGuideView style={styles.epgListContent} onBlur={onProgramBlur}>
           <FlatList
             data={epgListData}
             renderItem={renderProgramItem}
