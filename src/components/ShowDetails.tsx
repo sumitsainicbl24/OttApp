@@ -97,7 +97,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
           source={{uri: showDetails?.logos?.[0]?.file_path}}
           style={{
             height: 70,
-            width: 300,
+            width: '100%',
           }}
           resizeMode="contain"
         />
@@ -198,7 +198,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
       )}
 
       <View style={styles.descriptionContainer}>
-        <Text numberOfLines={2} style={styles.description}>
+        <Text numberOfLines={5} style={styles.description}>
           {showDetails?.info?.plot}
         </Text>
       </View>
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     height: verticalScale(450),
     zIndex: 10,
     marginLeft: moderateScale(40),
-    gap: verticalScale(20),
+    gap: verticalScale(12),
     // backgroundColor: 'red',
   },
 
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
 
   metadataText: {
     fontFamily: FontFamily.PublicSans_Medium,
-    fontSize: scale(28),
+    fontSize: scale(22),
     color: CommonColors.white,
     paddingHorizontal: 4,
     borderRadius: moderateScale(4),
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
 
   description: {
     fontFamily: FontFamily.PublicSans_Regular,
-    fontSize: scale(25),
+    fontSize: scale(20),
     lineHeight: scale(30),
     color: CommonColors.white,
     textAlign: 'left',

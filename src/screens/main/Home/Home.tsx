@@ -56,7 +56,7 @@ const Home = () => {
     const {debounce} = require('../../../utils/CommonFunctions');
     return debounce(async (data: any) => {
       try {
-        if (data?.category_id) {
+        if (data?.series_id) {
           await fetchSeriesDetails(data?.series_id);
         } else {
           await fetchMovieDetails(data?.stream_id);
