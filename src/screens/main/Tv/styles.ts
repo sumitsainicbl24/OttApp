@@ -1,7 +1,13 @@
-import { StyleSheet } from 'react-native'
-import { CommonColors } from '../../../styles/Colors'
-import { moderateScale, verticalScale, width, height, scale } from '../../../styles/scaling'
-import FontFamily from '../../../constants/FontFamily'
+import {StyleSheet} from 'react-native';
+import {CommonColors} from '../../../styles/Colors';
+import {
+  moderateScale,
+  verticalScale,
+  width,
+  height,
+  scale,
+} from '../../../styles/scaling';
+import FontFamily from '../../../constants/FontFamily';
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,16 +15,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: CommonColors.black,
     // backgroundColor:'rgb(19,22,27)'
-
   },
   showChannelCatCarouselContainer: {
     zIndex: 1000,
   },
   ShowDetailsContainer: {
-    height: height/2,
+    height: height / 2,
     width: '100%',
     flexDirection: 'row',
-    alignItems:'flex-start',
+    alignItems: 'flex-start',
     paddingHorizontal: moderateScale(40),
     paddingVertical: verticalScale(45),
   },
@@ -50,13 +55,13 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
-  },  
+  },
   backgroundImagePlaceholder: {
     flex: 1,
     backgroundColor: '#2A2D32',
     resizeMode: 'contain',
     width: '100%',
-    height: height/1.3,
+    height: height / 1.3,
     // justifyContent: 'center',
     marginBottom: verticalScale(-250),
     paddingTop: verticalScale(150),
@@ -77,7 +82,7 @@ export const styles = StyleSheet.create({
     height: height * 0.4,
     backgroundColor: 'rgba(23, 25, 28, 0.8)',
   },
-  
+
   // New horizontal gradient overlay for left-to-right fade effect
   horizontalGradientOverlay: {
     position: 'absolute',
@@ -87,13 +92,13 @@ export const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 1,
   },
-  
+
   scrollContainer: {
     flex: 1,
     backgroundColor: CommonColors.black,
     // backgroundColor:'rgb(19,22,27)'
   },
-  
+
   // Top Navigation Styles
   topNavContainer: {
     flexDirection: 'row',
@@ -103,38 +108,38 @@ export const styles = StyleSheet.create({
     paddingVertical: verticalScale(20),
     zIndex: 10,
   },
-  
+
   navMenuContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: moderateScale(24),
   },
-  
+
   activeMenuItem: {
     backgroundColor: CommonColors.white,
     paddingHorizontal: moderateScale(20),
     paddingVertical: verticalScale(6),
     borderRadius: moderateScale(36),
   },
-  
+
   activeMenuText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: moderateScale(26),
     color: CommonColors.themeMain,
   },
-  
+
   menuText: {
     fontFamily: FontFamily.PublicSans_Regular,
     fontSize: moderateScale(26),
     color: CommonColors.white,
   },
-  
+
   userActionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: moderateScale(32),
   },
-  
+
   iconButton: {
     width: moderateScale(50),
     height: moderateScale(50),
@@ -143,21 +148,21 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   bellIconPlaceholder: {
     width: moderateScale(26.45),
     height: moderateScale(26.45),
     borderRadius: moderateScale(4),
     resizeMode: 'contain',
   },
-  
+
   settingsIconPlaceholder: {
     width: moderateScale(26.45),
     height: moderateScale(26.45),
     resizeMode: 'contain',
     borderRadius: moderateScale(4),
   },
-  
+
   profileIcon: {
     width: moderateScale(50),
     height: moderateScale(50),
@@ -166,14 +171,14 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   profileImagePlaceholder: {
     width: '60%',
     height: '30%',
     borderRadius: moderateScale(20),
     backgroundColor: '#C4C4C4',
   },
-  
+
   // Featured Content Styles
   featuredContainer: {
     width: '35%',
@@ -182,37 +187,37 @@ export const styles = StyleSheet.create({
     marginLeft: moderateScale(40),
     justifyContent: 'space-between',
   },
-  
+
   featuredImagePlaceholder: {
     height: '33%',
     width: '40%',
     resizeMode: 'contain',
     // alignSelf:'flex-start'
   },
-  
+
   featuredContent: {
     // gap: verticalScale(40),
   },
-  
+
   metadataContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: moderateScale(36),
   },
-  
+
   metadataText: {
     fontFamily: FontFamily.PublicSans_Medium,
     fontSize: scale(20),
     color: CommonColors.white,
   },
-  
+
   actionButtonsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: '5%',
     width: '100%',
   },
-  
+
   playButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -224,19 +229,19 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: scale(10),
   },
-  
+
   playIconPlaceholder: {
     width: moderateScale(24),
     height: moderateScale(24),
     resizeMode: 'contain',
   },
-  
+
   playButtonText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: scale(20),
     color: CommonColors.white,
   },
-  
+
   myListButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -248,23 +253,23 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: moderateScale(12),
   },
-  
+
   plusSymbol: {
     fontFamily: FontFamily.PublicSans_Bold,
     fontSize: scale(26),
     color: CommonColors.white,
   },
-  
+
   myListButtonText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: scale(20),
     color: CommonColors.white,
   },
-  
+
   descriptionContainer: {
     width: '100%',
   },
-  
+
   description: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: scale(20),
@@ -272,7 +277,7 @@ export const styles = StyleSheet.create({
     color: CommonColors.white,
     textAlign: 'left',
   },
-  
+
   // Section Styles
   sectionContainer: {
     marginTop: verticalScale(40),
@@ -284,7 +289,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(40),
     zIndex: 10,
   },
-  
+
   sectionTitle: {
     fontFamily: FontFamily.PublicSans_Bold,
     fontSize: scale(30),
@@ -298,14 +303,14 @@ export const styles = StyleSheet.create({
     color: CommonColors.white,
     marginBottom: verticalScale(24),
   },
-  
+
   // Live TV Channels Styles
   channelsContainer: {
     flexDirection: 'row',
     gap: moderateScale(40),
     flexWrap: 'wrap',
   },
-  
+
   channelLogoContainer: {
     // width: moderateScale(300),
     // height: verticalScale(250),
@@ -318,7 +323,7 @@ export const styles = StyleSheet.create({
     padding: moderateScale(16),
     marginRight: moderateScale(20),
   },
-  
+
   channelLogoPlaceholder: {
     width: moderateScale(60),
     height: moderateScale(60),
@@ -364,20 +369,20 @@ export const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
   },
-  
+
   // Movie Carousel Styles
   carouselContainer: {
     paddingVertical: verticalScale(25),
     paddingHorizontal: moderateScale(20),
   },
-  
+
   // Continue Watching Styles
   continueWatchingContainer: {
     flexDirection: 'row',
     gap: moderateScale(24),
     alignItems: 'stretch',
   },
-  
+
   continueWatchingOverlay: {
     position: 'absolute',
     bottom: 0,
@@ -388,7 +393,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   continueWatchingTitle: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: moderateScale(20),
@@ -402,7 +407,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: verticalScale(16),
   },
-  
+
   categoryListTitle: {
     fontFamily: FontFamily.PublicSans_Bold,
     fontSize: scale(30),
@@ -410,7 +415,7 @@ export const styles = StyleSheet.create({
     marginBottom: verticalScale(16),
     textAlign: 'center',
   },
-  
+
   // TV Show Details Content Styles - based on Figma design
   ShowDetailsContent: {
     paddingLeft: moderateScale(50),
@@ -418,7 +423,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: verticalScale(30),
   },
-  
+
   showTitle: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: scale(36),
@@ -426,7 +431,7 @@ export const styles = StyleSheet.create({
     letterSpacing: scale(0.72), // 2% of font size
     color: CommonColors.white,
   },
-  
+
   showTimeSlot: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: scale(28),
@@ -434,14 +439,14 @@ export const styles = StyleSheet.create({
     letterSpacing: scale(0.56), // 2% of font size
     color: CommonColors.white,
   },
-  
+
   progressContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: moderateScale(25),
   },
-  
+
   progressBarContainer: {
     width: scale(250),
     height: moderateScale(5),
@@ -450,7 +455,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
   },
-  
+
   progressBar: {
     position: 'absolute',
     top: 0,
@@ -459,7 +464,7 @@ export const styles = StyleSheet.create({
     backgroundColor: CommonColors.white,
     borderRadius: moderateScale(20),
   },
-  
+
   durationText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: scale(24),
@@ -467,14 +472,14 @@ export const styles = StyleSheet.create({
     letterSpacing: scale(0.48), // 2% of font size
     color: CommonColors.white,
   },
-  
+
   // TV Guide Styles
   tvGuideHeader: {
     paddingHorizontal: moderateScale(40),
     paddingVertical: verticalScale(20),
     alignItems: 'flex-start',
   },
-  
+
   dateTimeText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: moderateScale(28),
@@ -483,35 +488,35 @@ export const styles = StyleSheet.create({
     color: CommonColors.white,
     marginBottom: verticalScale(15),
   },
-  
+
   dividerLine: {
     width: '100%',
     height: 1,
     backgroundColor: CommonColors.white,
   },
-  
+
   tvGuideContainer: {
     paddingHorizontal: moderateScale(40),
     paddingBottom: verticalScale(40),
   },
-  
+
   channelRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: verticalScale(15),
   },
-  
+
   channelInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     width: moderateScale(250),
     marginRight: moderateScale(21),
   },
-  
+
   channelLogo: {
     marginHorizontal: moderateScale(15),
   },
-  
+
   channelNameText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: moderateScale(28),
@@ -519,15 +524,15 @@ export const styles = StyleSheet.create({
     color: CommonColors.white,
     flex: 1,
   },
-  
+
   programList: {
     flex: 1,
   },
-  
+
   programListContent: {
     paddingRight: moderateScale(20),
   },
-  
+
   programSlot: {
     width: moderateScale(250),
     height: moderateScale(50),
@@ -539,7 +544,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: moderateScale(10),
   },
-  
+
   programText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: moderateScale(28),
@@ -547,5 +552,4 @@ export const styles = StyleSheet.create({
     letterSpacing: moderateScale(0.56), // 2% of font size
     textAlign: 'center',
   },
-  
-}) 
+});

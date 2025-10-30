@@ -8,6 +8,7 @@ import {
   useTVEventHandler,
   View,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import {useSelector} from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
 import {getCategoryData} from '../../../redux/actions/auth';
@@ -19,8 +20,6 @@ import EPGList from './EPGList';
 import LeftChannelItem from './LeftChannelItem';
 import {styles} from './LeftChannelViewStyles';
 import ProgramDescriptionBox from './ProgramDescriptionBox';
-import {CommonColors} from '../../../styles/Colors';
-import LinearGradient from 'react-native-linear-gradient';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
@@ -264,28 +263,29 @@ const LeftChannelView = ({
 
         <TVFocusGuideView
           autoFocus={true}
-          // enabled={layerIndex === 1 ? focusIndex === 1 : focusIndex === 0}
-          style={styles.channelListContainer}
+          style={{
+            ...styles.channelListContainer,
+            backgroundColor:
+              layerIndex === 1
+                ? 'rgba(28, 30, 34,0.9)'
+                : 'rgba(28, 30, 34,0.9)',
+          }}
           onFocus={() => setFocusIndex(layerIndex === 1 ? 1 : 0)}>
-          <>
-            <View style={{paddingVertical: moderateScale(16)}}>
-              <Text style={styles.categoryListTitleChannel}>
-                {categoryName}
-              </Text>
-            </View>
-            <View style={styles.dividerLineTitle} />
-            <FlatList
-              ref={channelListRef}
-              data={selectedCategoryData}
-              renderItem={renderChannelItem}
-              showsVerticalScrollIndicator={false}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={10}
-              windowSize={10}
-              initialNumToRender={10}
-              updateCellsBatchingPeriod={50}
-            />
-          </>
+          <View style={{paddingVertical: moderateScale(16)}}>
+            <Text style={styles.categoryListTitleChannel}>{categoryName}</Text>
+          </View>
+          <View style={styles.dividerLineTitle} />
+          <FlatList
+            ref={channelListRef}
+            data={selectedCategoryData}
+            renderItem={renderChannelItem}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            windowSize={10}
+            initialNumToRender={10}
+            updateCellsBatchingPeriod={50}
+          />
         </TVFocusGuideView>
 
         {/* Layer 2: Channel + EPG */}

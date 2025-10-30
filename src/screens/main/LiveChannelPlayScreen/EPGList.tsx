@@ -2,7 +2,7 @@ import React, {memo, useCallback, useMemo} from 'react';
 import {FlatList, Pressable, Text, View, TVFocusGuideView} from 'react-native';
 import {decodeEPGTitle} from '../../../utils/epgUtils';
 import {styles} from './LeftChannelViewStyles';
-import { Animated } from 'react-native-tvos';
+import {Animated} from 'react-native-tvos';
 
 export interface Epg {
   id: string;
@@ -74,6 +74,7 @@ const EPGList = memo<EPGListProps>(
         const isPlaying = isCurrentlyPlaying(item);
         const startTime = formatTime(item.start);
         const endTime = formatTime(item.end);
+        const title = decodeEPGTitle(item.title);
 
         return (
           <Pressable
@@ -91,7 +92,7 @@ const EPGList = memo<EPGListProps>(
                 numberOfLines={1}>
                 {startTime}
                 {'   '}
-                {decodeEPGTitle(item.title)}
+                {title}
               </Text>
 
               {isPlaying && (
@@ -131,7 +132,7 @@ const EPGList = memo<EPGListProps>(
     }
 
     return (
-      <View style={styles.epgListContainer }>
+      <View style={styles.epgListContainer}>
         <Text style={styles.epgListTitle}>
           {decodeChannelName(channelName)}
         </Text>

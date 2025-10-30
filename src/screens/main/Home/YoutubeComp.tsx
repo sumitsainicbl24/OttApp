@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Alert, Animated, Pressable, StyleSheet} from 'react-native';
+import {Alert, Animated, Pressable, StyleSheet, TVFocusGuideView} from 'react-native';
 import YoutubePlayer, {YoutubeIframeRef} from 'react-native-youtube-iframe';
 import imagepath from '../../../constants/imagepath';
 import {moderateScale, width} from '../../../styles/scaling';
@@ -110,7 +110,7 @@ const YoutubeComp = ({
   }, []);
 
   return (
-    <Pressable focusable={false} pointerEvents="none" style={styles.container}>
+    <TVFocusGuideView focusable={false} style={styles.container}>
       <YoutubePlayer
         ref={playerRef}
         height={height}
@@ -118,7 +118,6 @@ const YoutubeComp = ({
         play={true}
         mute={false}
         videoId={data?.youtube_trailer}
-        // videoId={'fIT3ITQtR1s'}
         onChangeState={handleStateChange}
         initialPlayerParams={{
           controls: false,
@@ -149,7 +148,7 @@ const YoutubeComp = ({
         ]}
         pointerEvents="none"
       />
-    </Pressable>
+    </TVFocusGuideView>
   );
 };
 
@@ -160,6 +159,8 @@ const createStyles = (height: number) =>
     container: {
       position: 'relative',
       alignItems: 'flex-end',
+      // backgroundColor:'red',
+      // height: height 
     },
     posterImage: {
       position: 'absolute',

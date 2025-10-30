@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
     // flex: 300,
     flexDirection: 'row',
     // backgroundColor: 'rgba(19, 23, 27, 0.6)',
-    backgroundColor: 'rgba(28, 30, 34,0.7)',
+    backgroundColor: 'rgba(28, 30, 34,0.9)',
     width: 300,
 
     // gap: moderateScale(20),
@@ -461,6 +461,7 @@ export const styles = StyleSheet.create({
     // flex: 1,
     width: 300,
     backgroundColor: 'rgba(28, 30, 34,0.7)',
+    // backgroundColor: 'rgba(81,88,101,0.8)',
     borderLeftWidth: 0.3,
     borderLeftColor: CommonColors.whiteOpacity30,
     paddingHorizontal: moderateScale(20),

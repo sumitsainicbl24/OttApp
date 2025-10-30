@@ -96,29 +96,32 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
     }
   };
 
-  const handleItemFocus = useCallback((index: number, item: ShowData) => {
-    console.log('item-->>>>>>>', item);
-    onFocus?.(item);
+  const handleItemFocus = useCallback(
+    (index: number, item: ShowData) => {
+      console.log('item-->>>>>>>', item);
+      onFocus?.(item);
 
-    // Calculate which row this item is in (0-indexed)
-    const rowIndex = Math.floor(index / numColumns);
-    
-    // Only scroll if we're not on the first row and not disabled
-    if (!disableScroll && rowIndex !== currentFocusedRowRef.current) {
-      currentFocusedRowRef.current = rowIndex;
-      
-      // Calculate the scroll position to show current row + peek of next row
-      // Card height + vertical margins
-      const itemHeight = verticalScale(400) + verticalScale(40); // card height + margins
-      const scrollToY = rowIndex * itemHeight;
-      
-      // Use scrollToOffset for FlashList
-      flashListRef.current?.scrollToOffset({
-        offset: scrollToY,
-        animated: true,
-      });
-    }
-  }, [numColumns, disableScroll, onFocus]);
+      // Calculate which row this item is in (0-indexed)
+      const rowIndex = Math.floor(index / numColumns);
+
+      // Only scroll if we're not on the first row and not disabled
+      if (!disableScroll && rowIndex !== currentFocusedRowRef.current) {
+        currentFocusedRowRef.current = rowIndex;
+
+        // Calculate the scroll position to show current row + peek of next row
+        // Card height + vertical margins
+        const itemHeight = verticalScale(400) + verticalScale(40); // card height + margins
+        const scrollToY = rowIndex * itemHeight;
+
+        // Use scrollToOffset for FlashList
+        flashListRef.current?.scrollToOffset({
+          offset: scrollToY,
+          animated: true,
+        });
+      }
+    },
+    [numColumns, disableScroll, onFocus],
+  );
 
   const renderShowItem = ({item, index}: {item: ShowData; index: number}) => {
     return (
@@ -139,7 +142,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
         mainStyle,
       ]}>
       <Text style={[styles.sectionTitle, titleStyle]}>{title}</Text>
-      <TVFocusGuideView  style={styles.carouselWrapper}>
+      <TVFocusGuideView style={styles.carouselWrapper}>
         <FlashList
           ref={flashListRef}
           data={data}

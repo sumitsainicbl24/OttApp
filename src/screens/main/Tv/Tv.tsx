@@ -1,23 +1,20 @@
-import { RouteProp, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  StatusBar,
-  TVFocusGuideView,
-  View
-} from 'react-native';
+import {RouteProp, useRoute} from '@react-navigation/native';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {StatusBar, TVFocusGuideView, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
 import ChannelMediaPlayer from '../../../components/ChannelMediaPlayer';
 import MainLayout from '../../../components/MainLayout';
 import ShowChannelCatCarousel from '../../../components/ShowChannelCatCarousel';
 import imagepath from '../../../constants/imagepath';
-import { MainStackParamList } from '../../../navigation/NavigationsTypes';
-import { getCategoryData } from '../../../redux/actions/auth';
-import { RootState } from '../../../redux/store';
-import { debounce } from '../../../utils/CommonFunctions';
-import { clearEPGCaches } from '../../../utils/epgUtils';
-import { styles } from './styles';
+import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import {getCategoryData} from '../../../redux/actions/auth';
+import {RootState} from '../../../redux/store';
+import {debounce} from '../../../utils/CommonFunctions';
+import {clearEPGCaches} from '../../../utils/epgUtils';
+import {styles} from './styles';
+import {CommonColors} from '../../../styles/Colors';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
@@ -182,7 +179,12 @@ const Tv = () => {
         <LinearGradient
           colors={[
             'rgba(0, 0, 0, 1)',
-            'rgba(0, 0, 0, 0.8)',
+            'rgba(0, 0, 0, 1)',
+            'rgba(0, 0, 0, 1)',
+            'rgba(0, 0, 0, 0.9)',
+            'rgba(0, 0, 0, 0.7)',
+            'rgba(0, 0, 0, 0.5)',
+            'rgba(0, 0, 0, 0.3)',
             'rgba(0, 0, 0, 0.1)',
             'transparent',
             'transparent',
@@ -202,6 +204,10 @@ const Tv = () => {
             categories={memorizeChannelsData}
             selectedCategory={memorizeSelectedCategory}
             onFocus={handleCategoryListFocus}
+            style={{
+              borderRightWidth: 1.5,
+              borderRightColor: CommonColors.whiteOpacity20,
+            }}
           />
         </TVFocusGuideView>
 

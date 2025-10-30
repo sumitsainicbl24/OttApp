@@ -34,10 +34,10 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 
   // Animate width when focusedItem changes
   useEffect(() => {
-    const targetWidth = focusedItem ? scale(250) : 50;
+    const targetWidth = focusedItem ? scale(400) : 50;
     Animated.timing(animatedWidth, {
       toValue: targetWidth,
-      duration: 300,
+      duration: 50,
       useNativeDriver: false, // width animation requires layout animation
     }).start();
   }, [drawerOpen]);
@@ -70,6 +70,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
   const handleFocus = (screen: string) => {
     setIsFocused(true);
     setDrawerOpen(true);
+
     setFocusedItem(screen);
   };
 
@@ -110,55 +111,53 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     ),
     [],
   );
+  const navMenu = [
+    {
+      id: 'Home',
+      icon:
+        activeScreen === 'Home' || focusedItem === 'Home'
+          ? imagepath.homeIconActive
+          : imagepath.homeIcon,
+    },
+    {
+      id: 'Search',
+      icon:
+        activeScreen === 'Search' || focusedItem === 'Search'
+          ? imagepath.searchIconActive
+          : imagepath.searchIcon,
+    },
+    {
+      id: 'Tv',
+      icon:
+        activeScreen === 'Tv' || focusedItem === 'Tv'
+          ? imagepath.TvIconActive
+          : imagepath.TvIcon,
+    },
+    {
+      id: 'Movies',
+      icon:
+        activeScreen === 'Movies' || focusedItem === 'Movies'
+          ? imagepath.movieIconActive
+          : imagepath.movieIcon,
+    },
+    {
+      id: 'Shows',
+      icon:
+        activeScreen === 'Shows' || focusedItem === 'Shows'
+          ? imagepath.showIconActive2
+          : imagepath.showsIcon,
+    },
+    {
+      id: 'Favorites',
+      icon:
+        activeScreen === 'Favorites' || focusedItem === 'Favorites'
+          ? imagepath.favlistIconActive
+          : imagepath.favlistIcon,
+    },
+  ];
 
   // Navigation items configuration to reduce repetitive code
-  const navItems = useMemo(
-    () => [
-      {
-        id: 'Home',
-        icon:
-          activeScreen === 'Home' || focusedItem === 'Home'
-            ? imagepath.homeIconActive
-            : imagepath.homeIcon,
-      },
-      {
-        id: 'Search',
-        icon:
-          activeScreen === 'Search' || focusedItem === 'Search'
-            ? imagepath.searchIconActive
-            : imagepath.searchIcon,
-      },
-      {
-        id: 'Tv',
-        icon:
-          activeScreen === 'Tv' || focusedItem === 'Tv'
-            ? imagepath.TvIconActive
-            : imagepath.TvIcon,
-      },
-      {
-        id: 'Movies',
-        icon:
-          activeScreen === 'Movies' || focusedItem === 'Movies'
-            ? imagepath.movieIconActive
-            : imagepath.movieIcon,
-      },
-      {
-        id: 'Shows',
-        icon:
-          activeScreen === 'Shows' || focusedItem === 'Shows'
-            ? imagepath.showIconActive2
-            : imagepath.showsIcon,
-      },
-      {
-        id: 'Favorites',
-        icon:
-          activeScreen === 'Favorites' || focusedItem === 'Favorites'
-            ? imagepath.favlistIconActive
-            : imagepath.favlistIcon,
-      },
-    ],
-    [activeScreen, focusedItem],
-  );
+  const navItems = useMemo(() => navMenu, [activeScreen, focusedItem]);
 
   // Memoize the settings button
   const settingsButton = useMemo(
@@ -247,7 +246,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                   styles.sideNavIconText,
                   focusedItem === item.id && styles.focusedTextGlow,
                 ]}>
-                {item.id}
+                {item?.id}
               </Text>
             )}
           </TouchableOpacity>
@@ -264,12 +263,14 @@ const styles = StyleSheet.create({
   sideNavigationContainer: {
     left: 0,
     backgroundColor: CommonColors.black,
+    // backgroundColor:'transparent',
     paddingVertical: moderateScale(20),
     paddingHorizontal: moderateScale(20),
     justifyContent: 'space-between',
-    zIndex: 100,
+    zIndex: 3000,
     height: height,
     width: 50,
+    position: 'absolute',
   },
   blur: {
     position: 'absolute',
@@ -281,11 +282,7 @@ const styles = StyleSheet.create({
   blurActive: {
     width: 30,
     height: 30,
-    // left:2,
     position: 'absolute',
-
-    // borderRadius: 60,
-    // opacity: 0.5,
   },
 
   sideNavIconContainer: {
@@ -316,7 +313,7 @@ const styles = StyleSheet.create({
   },
 
   sideNavLogoContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
     paddingVertical: moderateScale(16),
     paddingHorizontal: moderateScale(10),
@@ -329,24 +326,19 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(4),
   },
 
-  sideNavBottomSection: {
-    // marginTop: moderateScale(40),
-    // backgroundColor:'red'
-  },
+  sideNavBottomSection: {},
 
   sideNavFocusedIconContainer: {
     borderRadius: moderateScale(6),
-    // borderWidth: 1,
-    // borderColor: CommonColors.white,
     transform: [{scale: 1.05}],
-    // backgroundColor: CommonColors.white,
   },
   sideNavIconText: {
-    fontSize: scale(24),
+    fontSize: scale(32),
     fontFamily: FontFamily.PublicSans_Bold,
     color: CommonColors.white,
     opacity: 1,
     zIndex: -1000,
+    marginLeft: moderateScale(16),
   },
   focusedTextGlow: {
     color: CommonColors.white,
@@ -361,13 +353,11 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 60,
-    // backgroundColor: '#61dafb', // same tone as image
     opacity: 0.8,
     shadowColor: CommonColors.white,
     shadowOffset: {width: 0, height: 0},
     shadowOpacity: 1,
-    // shadowRadius: 20,
-    elevation: 1, // for Android
+    elevation: 1,
     alignSelf: 'center',
     left: 10,
   },

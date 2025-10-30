@@ -1,42 +1,50 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { CommonColors } from '../styles/Colors';
+import React, {useEffect, useMemo, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
+import {CommonColors} from '../styles/Colors';
 import SideNavigation from './SideNavigation';
 
 interface MainLayoutProps {
   children: React.ReactNode;
   activeScreen: string;
-  hideSidebar?: boolean;  
-  setIsFocused?: (isFocused: boolean) => void
+  hideSidebar?: boolean;
+  setIsFocused?: (isFocused: boolean) => void;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, activeScreen, hideSidebar = false, setIsFocused }) => {
-
+const MainLayout: React.FC<MainLayoutProps> = ({
+  children,
+  activeScreen,
+  hideSidebar = false,
+  setIsFocused,
+}) => {
   // Memoize the isSettings value
   const isSettings = useMemo(() => activeScreen === 'Settings', [activeScreen]);
-  
+
   // Memoize the content container style
-  const contentContainerStyle = useMemo(() => [
-    styles.contentContainer,
-    isSettings && styles.contentWithSettings
-  ], [isSettings]);
-
-
+  const contentContainerStyle = useMemo(
+    () => [styles.contentContainer, isSettings && styles.contentWithSettings],
+    [isSettings],
+  );
 
   // Memoize the side navigation
   const sideNav = useMemo(() => {
-    return !isSettings && !hideSidebar && <SideNavigation activeScreen={activeScreen} setIsFocused={setIsFocused} />;
+    return (
+      !isSettings &&
+      !hideSidebar && (
+        <SideNavigation
+          activeScreen={activeScreen}
+          setIsFocused={setIsFocused}
+        />
+      )
+    );
   }, [isSettings, activeScreen, hideSidebar]);
 
   return (
     <View style={styles.container}>
       {/* Show SideNavigation only when not on Settings screen and not hidden */}
       {sideNav}
-      
+
       {/* Content container for all screens */}
-      <View style={contentContainerStyle}>
-        {children}
-      </View>
+      <View style={contentContainerStyle}>{children}</View>
     </View>
   );
 };
@@ -45,16 +53,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: CommonColors.themeMain,
+    backgroundColor: CommonColors.black,
     width: '100%',
+    paddingLeft: 50,
   },
   contentContainer: {
     flex: 1,
     backgroundColor: CommonColors.themeMain,
   },
-  contentWithSettings: {
-    
-  },
+  contentWithSettings: {},
 });
 
-export default MainLayout; 
+export default MainLayout;

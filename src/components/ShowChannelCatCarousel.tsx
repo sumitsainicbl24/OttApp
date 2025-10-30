@@ -374,7 +374,8 @@ const styles = StyleSheet.create({
   sectionContainer: {
     width: width,
     paddingHorizontal: moderateScale(20),
-    height: height / 1.8,
+    height: height / 1.6,
+    // backgroundColor:'rgb(19,22,27)'
   },
   mainFlashListSize: {
     height: height / 1.8,
@@ -431,7 +432,7 @@ const styles = StyleSheet.create({
     height: verticalScale(50),
     marginBottom: verticalScale(5),
     borderBottomWidth: 1.5,
-    borderBottomColor: CommonColors.textGrey + '30',
+    borderBottomColor: CommonColors.whiteOpacity30,
     position: 'relative',
     // backgroundColor:'red',
     // borderBottomWidth:1,

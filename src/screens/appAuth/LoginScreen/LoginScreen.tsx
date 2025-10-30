@@ -133,7 +133,10 @@ const LoginScreen = () => {
       // }
       console.log(error);
       if (error?.status === 429) {
-        console.log('error?.data?.details?.currentDevices--->>>>',  error?.response?.data?.details?.currentDevices);
+        console.log(
+          'error?.data?.details?.currentDevices--->>>>',
+          error?.response?.data?.details?.currentDevices,
+        );
         navigation.navigate('DevicesList', {
           data: data,
           devicesList: error?.response?.data?.details?.currentDevices,

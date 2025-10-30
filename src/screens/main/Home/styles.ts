@@ -32,6 +32,7 @@ export const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 2000,
     height: 1000,
+    // backgroundColor: 'red',
   },
   carouselTitle: {
     marginBottom: moderateScale(-15),

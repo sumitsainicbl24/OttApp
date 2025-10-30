@@ -63,7 +63,7 @@ export const LoginApi = async (data: any) => {
 export const getAllPlaylistData = async () => {
   const response = await apiPost(getPlaylistData, {
     m3uUrl:
-      'http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts%22',
+      'http://line.diatunnel.link/get.php?username=mrKQdWmJ&password=jSxeKrs&type=m3u_plus&output=ts',
   });
   return response;
 };

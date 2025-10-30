@@ -99,11 +99,11 @@ const LeftChannelItem = memo<LeftChannelItemProps>(
     const [progress, setProgress] = useState(() =>
       calculateProgramProgress(item),
     );
-
+    console.log('currentProgram----->>>>>>', currentProgram);
     // Decode the current program title
     const decodedCurrentProgram =
       currentProgram && currentProgram !== 'No information'
-        ? decodeEPGTitle(currentProgram)
+        ? currentProgram
         : currentProgram;
 
     useEffect(() => {
@@ -151,14 +151,29 @@ const LeftChannelItem = memo<LeftChannelItemProps>(
               numberOfLines={1}>
               {item.num} {decodeChannelName(item.name)}
             </Text>
-            <Text style={{...styles.currentProgram,color:isFocused ? CommonColors.black : CommonColors.blueText}} numberOfLines={1}>
+            <Text
+              style={{
+                ...styles.currentProgram,
+                color: isFocused ? CommonColors.black : CommonColors.blueText,
+              }}
+              numberOfLines={1}>
               {decodedCurrentProgram}
             </Text>
 
             {/* Progress Bar */}
             {progress > 0 && (
               <View style={styles.progressBarContainer}>
-                <View style={[styles.progressBar, {width: `${progress}%`,backgroundColor:isFocused ? CommonColors.black : CommonColors.white}]} />
+                <View
+                  style={[
+                    styles.progressBar,
+                    {
+                      width: `${progress}%`,
+                      backgroundColor: isFocused
+                        ? CommonColors.black
+                        : CommonColors.white,
+                    },
+                  ]}
+                />
               </View>
             )}
           </View>

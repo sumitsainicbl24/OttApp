@@ -23,7 +23,7 @@ import {
 import {useAppDispatch} from '../../../redux/hooks';
 import {setCurrentlyPlaying} from '../../../redux/reducers/main';
 import {RootState} from '../../../redux/store';
-import {verticalScale} from '../../../styles/scaling';
+import {height, verticalScale} from '../../../styles/scaling';
 import {styles} from './styles';
 import YoutubeComp from './YoutubeComp';
 
@@ -193,8 +193,13 @@ const Home = () => {
           <LinearGradient
             colors={[
               'rgba(0, 0, 0, 1)',
+              'rgba(0, 0, 0, 1)',
+              'rgba(0, 0, 0, 1)',
+              'rgba(0, 0, 0, 0.9)',
+              'rgba(0, 0, 0, 0.7)',
               'rgba(0, 0, 0, 0.5)',
-              'rgba(0, 0, 0, 0.2)',
+              'rgba(0, 0, 0, 0.3)',
+              'rgba(0, 0, 0, 0.1)',
               'transparent',
               'transparent',
             ]}
@@ -207,9 +212,7 @@ const Home = () => {
         {!PosterMovieName?.info?.youtube_trailer ? (
           <ImageBackground
             source={{uri: PosterMovieName?.info?.backdrop_path?.[0]}}
-            style={{
-              ...styles.backgroundImagePlaceholder,
-            }}
+            style={styles.backgroundImagePlaceholder}
             resizeMode="cover">
             <ShowDetails
               onPlayPress={handlePlayPress}
@@ -267,15 +270,6 @@ const Home = () => {
           ))}
           {ListFooterComponent()}
         </ScrollView>
-
-        {/* <View
-          style={{
-            marginBottom: verticalScale(55),
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <ActivityIndicator size="large" color="#fff" />
-        </View> */}
       </View>
     </MainLayout>
   );

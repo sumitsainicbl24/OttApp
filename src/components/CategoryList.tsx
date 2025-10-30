@@ -51,6 +51,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [containerHeight, setContainerHeight] = useState(400);
   const flashListRef = useRef<FlashList<any>>(null);
+  const lastScrollTimeRef = useRef<number>(0);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Memoize utility functions
   const isObjectCategory = useCallback(
@@ -149,16 +151,30 @@ const CategoryList: React.FC<CategoryListProps> = ({
     return selectedIndex + PADDING_ITEMS; // PADDING_ITEMS on top
   }, [selectedIndex]);
 
-  // Memoize scroll handler
+  // Memoize scroll handler with rapid scroll detection
   const scrollToIndex = useCallback(
-    (index: number) => {
+    (index: number, forceAnimated: boolean = false) => {
       if (!flashListRef.current) return;
+
+      const currentTime = Date.now();
+      const timeSinceLastScroll = currentTime - lastScrollTimeRef.current;
+
+      // Detect rapid scrolling: if less than 150ms between scrolls, it's fast scrolling
+      const isRapidScrolling = timeSinceLastScroll < 80;
+      const shouldAnimate = forceAnimated || !isRapidScrolling;
+
+      lastScrollTimeRef.current = currentTime;
+
+      // Clear any pending scroll timeout
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
 
       try {
         flashListRef.current.scrollToIndex({
           index: index,
-          animated: true,
-          viewPosition: 0.6,
+          animated: shouldAnimate,
+          viewPosition: 0.5, // Keep focused item centered
         });
       } catch (error) {
         // Fallback to scrollToOffset if scrollToIndex fails
@@ -166,23 +182,32 @@ const CategoryList: React.FC<CategoryListProps> = ({
           index * ITEM_HEIGHT - containerHeight / 2 + ITEM_HEIGHT / 2;
         flashListRef.current.scrollToOffset({
           offset: Math.max(0, offset),
-          animated: true,
+          animated: shouldAnimate,
         });
       }
     },
-    [containerHeight],
+    [containerHeight, ITEM_HEIGHT],
   );
 
   // Auto-scroll to selected category when it changes
   useEffect(() => {
     if (selectedIndexWithPadding !== -1) {
       const timeoutId = setTimeout(() => {
-        scrollToIndex(selectedIndexWithPadding);
+        scrollToIndex(selectedIndexWithPadding, true); // Force animated for programmatic selection
       }, 100);
 
       return () => clearTimeout(timeoutId);
     }
   }, [selectedIndexWithPadding, scrollToIndex]);
+
+  // Cleanup scroll timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Memoize focus handler
   const handleFocus = useCallback(
@@ -268,7 +293,10 @@ const CategoryList: React.FC<CategoryListProps> = ({
   );
 
   return (
-    <TVFocusGuideView autoFocus style={[styles.container, style]} onLayout={handleLayout}>
+    <TVFocusGuideView
+      autoFocus
+      style={[styles.container, style]}
+      onLayout={handleLayout}>
       <FlashList
         ref={flashListRef}
         data={listData}
@@ -289,7 +317,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: moderateScale(25),
     width: scale(450),
-    backgroundColor: 'black',
+    // backgroundColor: 'red',
+    // borderRightWidth: 1.5,
+    // borderRightColor: CommonColors.whiteOpacity20,
+    // backgroundColor:'rgb(19,22,27)'
   },
   categoryItem: {
     paddingVertical: moderateScale(15),
