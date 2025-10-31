@@ -314,7 +314,7 @@ const MoviePlayScreen = () => {
           style={styles.container}
           showsVerticalScrollIndicator={false}>
           {movie ? (
-            <BackgroundComponent movieName={movieTitle} movie={movie} />
+            <BackgroundComponent movieName={movieTitle} movie={movie} numofLines={10}/>
           ) : (
             <BackgroundComponent showName={showTitle} movie={show} />
           )}

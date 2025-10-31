@@ -50,6 +50,7 @@ interface ShowCatCardProps extends TouchableOpacityProps {
   onFocus?: (event: any) => void;
   onBlur?: (event: any) => void;
   onPress?: () => void;
+  currentFocusedItem?: ShowData;
 }
 
 const ShowCatCard: React.FC<ShowCatCardProps> = ({
@@ -59,6 +60,7 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
   onFocus,
   onBlur,
   onPress,
+  currentFocusedItem,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -117,15 +119,24 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
       />
       {show?.rating && Number(show?.rating) > 0 && (
         <View style={styles.ratingContainer}>
-          <CircularProgressBar rating={Number(show?.rating)} size={30} strokeWidth={2} />
+          <CircularProgressBar
+            rating={Number(show?.rating)}
+            size={16}
+            strokeWidth={1}
+            fontSize={scale(13)}
+          />
         </View>
       )}
-      <View style={styles.showTitleContainer}>
+      <View
+        style={[
+          styles.showTitleContainer,
+          isFocused && styles.showTitleContainerFocused,
+        ]}>
         {/* <Text numberOfLines={1} style={styles.showTitle}>{show.title}</Text> */}
         <SimpleMarquee
           text={show.title || show?.name || 'Channel Name'}
           shouldStart={isFocused}
-          textStyle={styles.showTitle}
+          textStyle={[styles.showTitle, isFocused && styles.showTitleFocused]}
         />
       </View>
     </TouchableOpacity>
@@ -144,12 +155,26 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
     marginBottom: verticalScale(25),
-    backgroundColor: CommonColors.backgroundGrey,
+    backgroundColor: '#333333',
+  },
+
+  showTitleContainerFocused: {
+    flex: 1,
+    backgroundColor: CommonColors.white,
+    borderBottomLeftRadius: scale(12),
+    borderBottomRightRadius: scale(12),
+    justifyContent: 'center',
+    paddingHorizontal: moderateScale(10),
+  },
+  showTitleFocused: {
+    fontSize: moderateScale(16),
+    fontFamily: FontFamily.PublicSans_Bold,
+    color: CommonColors.black,
   },
   ratingContainer: {
     position: 'absolute',
-    top: 10,
-    left: 10,
+    bottom: 22,
+    left: 2,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: moderateScale(5),
     borderRadius: 30,
@@ -180,7 +205,7 @@ const styles = StyleSheet.create({
   },
   showTitleContainer: {
     flex: 1,
-    backgroundColor: CommonColors.backgroundGrey,
+    backgroundColor: '#333333',
     borderBottomLeftRadius: scale(12),
     borderBottomRightRadius: scale(12),
     justifyContent: 'center',

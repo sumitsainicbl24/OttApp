@@ -15,12 +15,10 @@ export const CommonColors = {
   blueText: 'rgb(98,160,244)',
   blueOpacity30: 'rgba(98,160,244,0.3)',
   blueOpacity50: 'rgba(98,160,244,0.5)',
-  coolGreen:"#33B864",
-  shamrock:"#03AC13",
-  pine:"#234F1E",
-  springGreen:"#00FF7F",
-
-
+  coolGreen: '#33B864',
+  shamrock: '#03AC13',
+  pine: '#234F1E',
+  springGreen: '#00FF7F',
 
   //button colors
   buttonPrimary: '#1E9CE8',
@@ -38,9 +36,7 @@ export const CommonColors = {
 
   whiteOpacity50: 'rgba(255, 254, 254, 0.5)',
 
-
   blackOpacity40: 'rgba(0, 0, 0, 0.4)',
-
 
   //background colors
   backgroundGrey: '#34393F',

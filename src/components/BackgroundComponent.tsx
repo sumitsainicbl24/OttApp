@@ -42,12 +42,14 @@ interface ShowDetails1Props {
   movieName?: string;
   showName?: string;
   movie?: any;
+  numofLines?: number;
 }
 
 const BackgroundComponent: React.FC<ShowDetails1Props> = ({
   movieName,
   showName,
   movie,
+  numofLines = 5,
 }) => {
   const [showDetails, setShowDetails] = useState<any | null>(null);
 
@@ -152,6 +154,7 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
           showDetails={showDetails}
           PosterMovieName={showDetails}
           showButtons={false}
+          numofLines={numofLines}
           style={{
             // backgroundColor: 'blue',
             height: height / 1.7,

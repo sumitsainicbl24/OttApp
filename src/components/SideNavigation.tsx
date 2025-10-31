@@ -222,14 +222,14 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
               nextFocusRight: undefined,
             } as any)}>
             {/* {focusedItem === item.id && <View style={styles.glow} />} */}
-            {(focusedItem === item.id || activeScreen === item.id) && (
+            {/* {(focusedItem === item.id || activeScreen === item.id) && (
               <Image
                 source={imagepath.blur}
                 style={
                   activeScreen === item.id ? styles.blurActive : styles.blur
                 }
               />
-            )}
+            )} */}
             <Image
               source={item.icon}
               style={[
@@ -244,7 +244,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
               <Text
                 style={[
                   styles.sideNavIconText,
-                  focusedItem === item.id && styles.focusedTextGlow,
+                  // focusedItem === item.id && styles.focusedTextGlow,
                 ]}>
                 {item?.id}
               </Text>
@@ -262,8 +262,8 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 const styles = StyleSheet.create({
   sideNavigationContainer: {
     left: 0,
-    backgroundColor: CommonColors.black,
-    // backgroundColor:'transparent',
+    // backgroundColor: CommonColors.black,
+    backgroundColor:'transparent',
     paddingVertical: moderateScale(20),
     paddingHorizontal: moderateScale(20),
     justifyContent: 'space-between',
@@ -331,6 +331,7 @@ const styles = StyleSheet.create({
   sideNavFocusedIconContainer: {
     borderRadius: moderateScale(6),
     transform: [{scale: 1.05}],
+    backgroundColor: CommonColors.whiteOpacity05,
   },
   sideNavIconText: {
     fontSize: scale(32),

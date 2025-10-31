@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useCallback} from 'react';
+import React, {useMemo, useRef, useCallback, useState} from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -67,7 +67,9 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
   const dispatch = useAppDispatch();
   const currentFocusedRowRef = useRef(0);
-
+  const [currentFocusedItem, setCurrentFocusedItem] = useState<ShowData | null>(
+    null,
+  );
   // Calculate number of columns based on screen width and card width
   const numColumns = useMemo(() => {
     if (horizontal) return 1;
@@ -99,6 +101,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
   const handleItemFocus = useCallback(
     (index: number, item: ShowData) => {
       console.log('item-->>>>>>>', item);
+      // setCurrentFocusedItem(item);
       onFocus?.(item);
 
       // Calculate which row this item is in (0-indexed)
@@ -130,6 +133,7 @@ const ShowCatCarousel: React.FC<ShowCatCarouselProps> = ({
         onPress={() => handleShowPress(item)}
         onFocus={() => handleItemFocus(index, item)}
         style={horizontal ? styles.horizontalGridItem : styles.gridItem}
+        // currentFocusedItem={currentFocusedItem}
       />
     );
   };

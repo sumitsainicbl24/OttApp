@@ -3,6 +3,7 @@ import {View, Text, StyleSheet} from 'react-native';
 import Svg, {Circle} from 'react-native-svg';
 import FontFamily from '../constants/FontFamily';
 import {CommonColors} from '../styles/Colors';
+import { scale } from '../styles/scaling';
 
 interface CircularProgressBarProps {
   rating: number;
@@ -31,7 +32,7 @@ const CircularProgressBar: React.FC<CircularProgressBarProps> = ({
     return '#F44336'; // Red for poor ratings
   };
 
-  const textSize = fontSize || size * 0.28;
+  const textSize = fontSize ;
 
   return (
     <View style={[styles.container, {width: size, height: size}]}>
@@ -91,6 +92,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontFamily: FontFamily.PublicSans_Bold,
     color: CommonColors.textWhite,
+    fontSize: scale(16),
   },
 });
 

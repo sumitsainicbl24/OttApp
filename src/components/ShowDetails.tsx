@@ -27,6 +27,7 @@ interface ShowDetailsProps {
   PosterMovieName?: any;
   showButtons?: boolean;
   style?: any;
+  numofLines?: number;
 }
 
 const ShowDetails: React.FC<ShowDetailsProps> = ({
@@ -37,6 +38,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   PosterMovieName,
   showButtons = true,
   style,
+  numofLines = 5,
 }) => {
   console.log(showDetails, '-------showDetailsshowDetails');
   const [focused, setFocused] = useState<string | null>(null);
@@ -92,14 +94,16 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   };
 
   return (
-    <View style={[styles.featuredContainer,style]}>
+    <View style={[styles.featuredContainer, style]}>
       {/* <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} /> */}
       {showDetails?.logos?.length > 0 ? (
         <FastImage
           source={{uri: showDetails?.logos?.[0]?.file_path}}
           style={{
             height: 70,
-            width: '100%',
+            width: '60%',
+            alignSelf: 'flex-start',
+            // backgroundColor: 'red',
           }}
           resizeMode="contain"
         />
@@ -200,7 +204,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
       )}
 
       <View style={styles.descriptionContainer}>
-        <Text numberOfLines={5} style={styles.description}>
+        <Text numberOfLines={numofLines} style={styles.description}>
           {showDetails?.info?.plot}
         </Text>
       </View>
@@ -217,6 +221,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     marginLeft: moderateScale(40),
     gap: verticalScale(12),
+    // backgroundColor: 'blue',
   },
 
   featuredImagePlaceholder: {

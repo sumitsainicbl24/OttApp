@@ -164,6 +164,7 @@ const Movies = () => {
             {((selectedCategory && moviesData) ||
               selectedCategoryData.length > 0) &&
               !loading && (
+                // <></>
                 <ShowCatCarousel
                   title={`${selectedCategoryName}`}
                   data={selectedCategoryData}
