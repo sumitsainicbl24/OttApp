@@ -8,6 +8,7 @@ interface MainLayoutProps {
   activeScreen: string;
   hideSidebar?: boolean;
   setIsFocused?: (isFocused: boolean) => void;
+  mainStyle?: any;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({
@@ -15,6 +16,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   activeScreen,
   hideSidebar = false,
   setIsFocused,
+  mainStyle,
 }) => {
   // Memoize the isSettings value
   const isSettings = useMemo(() => activeScreen === 'Settings', [activeScreen]);
@@ -39,7 +41,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   }, [isSettings, activeScreen, hideSidebar]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container,mainStyle]}>
       {/* Show SideNavigation only when not on Settings screen and not hidden */}
       {sideNav}
 

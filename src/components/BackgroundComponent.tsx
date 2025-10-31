@@ -51,7 +51,7 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
 }) => {
   const [showDetails, setShowDetails] = useState<any | null>(null);
 
-  console.log(movie,"movoeovoeooev")
+  console.log(movie, 'movoeovoeooev');
 
   useEffect(() => {
     if (movieName) {
@@ -62,37 +62,13 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
     }
   }, [movieName, showName]);
 
-  // const fetchMovieDetails = async () => {
-  //   if (!movieName) return;
-  //   try {
-  //     const details = await getDiaPosterDetail(movie?.stream_id!);
-  //     console.log('details=--->>', details);
-  //     setShowDetails({info: details?.data?.info});
-  //   } catch (error) {
-  //     console.error('Error fetching movie details:', error);
-  //   }
-  // };
-
-  // const fetchShowDetails = () => {
-  //   if (!showName) return;
-  //   console.log('showdedededed', movie);
-  //   setShowDetails({info: movie});
-  // };
-
   const fetchMovieDetails = async (streamId: number): Promise<void> => {
     try {
       const response = await getSeriesDetailsNew('movies', streamId);
       const movieInfo = response?.data?.data?.info;
       const logos = response?.data?.data?.logos;
-
-      console.log('responseresponsemoviedetails---->>>>>', response);
-
       if (movieInfo) {
         setShowDetails({info: movieInfo, logos: logos});
-        console.log(
-          'Movie details fetched successfully for stream_id:',
-          streamId,
-        );
       }
     } catch (error) {
       console.error(
@@ -108,15 +84,8 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
       const response = await getSeriesDetailsNew('series', seriesId);
       const seriesInfo = response?.data?.data?.info;
       const logos = response?.data?.data?.logos;
-
-      console.log('responseresponseseriesdetails---->>>>>', response);
-
       if (seriesInfo) {
         setShowDetails({info: seriesInfo, logos: logos});
-        console.log(
-          'Series details fetched successfully for series_id:',
-          seriesId,
-        );
       }
     } catch (error) {
       console.error(
@@ -132,10 +101,9 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
       {!showDetails?.info?.youtube_trailer ? (
         <ImageBackground
           source={{uri: showDetails?.info?.backdrop_path?.[0]}}
-          style={{
-            ...styles.backgroundImageStyle,
-          }}
-          resizeMode="cover"></ImageBackground>
+          style={styles.backgroundImageStyle}
+          resizeMode="cover"
+        />
       ) : (
         <View style={styles.backgroundImagePlaceholder}>
           <YoutubeComp
@@ -146,7 +114,6 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
         </View>
       )}
 
-      {/* Horizontal gradient overlay - dark on left, transparent on right */}
       <LinearGradient
         colors={[
           'rgba(0, 0, 0, 1)',
@@ -185,6 +152,11 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
           showDetails={showDetails}
           PosterMovieName={showDetails}
           showButtons={false}
+          style={{
+            // backgroundColor: 'blue',
+            height: height / 1.7,
+            gap: verticalScale(18),
+          }}
         />
       </View>
     </View>

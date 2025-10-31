@@ -37,7 +37,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     const targetWidth = focusedItem ? scale(400) : 50;
     Animated.timing(animatedWidth, {
       toValue: targetWidth,
-      duration: 50,
+      duration: 0,
       useNativeDriver: false, // width animation requires layout animation
     }).start();
   }, [drawerOpen]);

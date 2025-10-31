@@ -26,6 +26,7 @@ interface ShowDetailsProps {
   onFocus?: () => void;
   PosterMovieName?: any;
   showButtons?: boolean;
+  style?: any;
 }
 
 const ShowDetails: React.FC<ShowDetailsProps> = ({
@@ -35,6 +36,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   onFocus,
   PosterMovieName,
   showButtons = true,
+  style,
 }) => {
   console.log(showDetails, '-------showDetailsshowDetails');
   const [focused, setFocused] = useState<string | null>(null);
@@ -90,7 +92,7 @@ const ShowDetails: React.FC<ShowDetailsProps> = ({
   };
 
   return (
-    <View style={styles.featuredContainer}>
+    <View style={[styles.featuredContainer,style]}>
       {/* <Image source={showDetails?.image} style={styles.featuredImagePlaceholder} /> */}
       {showDetails?.logos?.length > 0 ? (
         <FastImage
@@ -215,7 +217,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
     marginLeft: moderateScale(40),
     gap: verticalScale(12),
-    // backgroundColor: 'red',
   },
 
   featuredImagePlaceholder: {

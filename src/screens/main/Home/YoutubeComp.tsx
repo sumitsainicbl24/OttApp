@@ -112,6 +112,7 @@ const YoutubeComp = ({
   return (
     <TVFocusGuideView focusable={false} style={styles.container}>
       <YoutubePlayer
+      key={data?.youtube_trailer}
         ref={playerRef}
         height={height}
         width={VideoWidth}

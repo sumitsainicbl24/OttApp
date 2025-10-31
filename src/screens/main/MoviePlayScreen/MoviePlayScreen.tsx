@@ -331,7 +331,6 @@ const MoviePlayScreen = () => {
               />
             </View>
           )}
-          {/* Action Buttons Section */}
           <View style={styles.actionButtonsSection}>
             <View style={styles.actionButtonsContainer}>
               <TouchableOpacity

@@ -105,12 +105,12 @@ const Movies = () => {
     }
   }, [selectedCategory, debouncedGetMovieData]);
   const [isFocused, setIsFocused] = useState(false);
-  const scrollContainerRef = useRef<any>(null);
   return (
     <MainLayout
       activeScreen={activeScreen || 'Movies'}
       hideSidebar={!showCategoryAndSidebar}
-      setIsFocused={setIsFocused}>
+      setIsFocused={setIsFocused}
+      mainStyle={{paddingLeft: showCategoryAndSidebar ? 50 : 0}}>
       <StatusBar
         backgroundColor="transparent"
         translucent
