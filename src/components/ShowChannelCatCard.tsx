@@ -20,7 +20,7 @@ import {
   imageResolutionHandlerForUrl,
 } from '../utils/CommonFunctions';
 import {setCurrentlyPlaying} from '../redux/reducers/main';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import SimpleMarquee from './MarqueeText';
 import {
   EPGProgram,
@@ -33,6 +33,8 @@ import {
   createTimelineSlots,
 } from '../utils/timelineUtils';
 import FastImage from 'react-native-fast-image';
+import {RootState} from '../redux/store';
+import {FlashList} from '@shopify/flash-list';
 
 interface ShowData {
   group?: string;
@@ -68,7 +70,7 @@ interface ShowChannelCatCardProps {
   handleBlockPress?: () => void;
 }
 
-const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
+const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = 
   ({
     show,
     hasTVPreferredFocus,
@@ -83,19 +85,16 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
     handleBlockPress,
     showCurrentDetails = false,
   }) => {
+    const {currentlyPlaying} = useSelector(
+      (state: RootState) => state.rootReducer.main,
+    );
     const [imageError, setImageError] = useState(false);
     const [streamUrl, setStreamUrl] = useState<string | null>(null);
     const [focusedProgramIndex, setFocusedProgramIndex] = useState<
       number | null
     >(null);
     const [lastTap, setLastTap] = useState<number | null>(null);
-    const [currentDetails, setCurrentDetails] = useState<{
-      showTitle: string;
-      timeSlot: string;
-      progressPercentage: number;
-      duration: string;
-      description: string;
-    } | null>(null);
+
     const navigation = useNavigation<NavigationProp<MainStackParamList>>();
 
     const dispatch = useDispatch();
@@ -307,15 +306,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
           setProgramDetails(programDetails);
         }
 
-        // Store locally to render details below the channel row
-        if (showCurrentDetails) {
-          // const localDetails = getProgramDetails(programIndex);
-          // setCurrentDetails(localDetails);
-        }
-
-        // Trigger auto-scroll if program is near the edge of visible area
         if (onProgramFocusWithAutoScroll) {
-          // Get the program position for timeline-based programs
           if (
             programPositions.length > 0 &&
             programIndex < programPositions.length
@@ -327,7 +318,6 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
               programPosition,
             );
           }
-          // For fallback programs, we don't have precise positioning, so skip auto-scroll
         }
       },
       [
@@ -350,13 +340,6 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
       [onBlur],
     );
 
-    const handleProgramPress = React.useCallback(
-      (programIndex: number) => {
-        onPress?.(programIndex);
-      },
-      [onPress],
-    );
-
     const handleImageError = (e: any) => {
       console.log(
         'Image failed to load, showing placeholder for:',
@@ -366,7 +349,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
       setImageError(true);
     };
 
-    const handleDoubleClick = () => {
+    const handleDoubleClick = React.useCallback(() => {
       dispatch(
         setCurrentlyPlaying({
           ...show,
@@ -374,7 +357,6 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
           url: show.url,
         }),
       );
-      console.log('showshowshow---->>>>>>', show);
       navigation.navigate('LiveChannelPlayScreen', {
         channel: {
           ...show,
@@ -383,39 +365,83 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
           epg: show?.epg?.[0]!,
         },
       });
-    };
+    }, [dispatch, show, navigation]);
 
-    const handlePress = (index: number) => {
-      dispatch(
-        setCurrentlyPlaying({
-          ...show,
-          type: 'live', // Mark this as a live TV channel
-          url: show.url,
-        }),
-      );
-      handleBlockPress?.();
-      if (streamUrl === show.url) {
-        handleDoubleClick();
-        setLastTap(null);
-        return;
-      }
-      const now = Date.now();
-      const DOUBLE_PRESS_DELAY = 300;
+    const handlePress = React.useCallback(
+      (index: number) => {
+        dispatch(
+          setCurrentlyPlaying({
+            ...show,
+            type: 'live', // Mark this as a live TV channel
+            url: show.url,
+          }),
+        );
+        handleBlockPress?.();
+        if (streamUrl === show.url) {
+          handleDoubleClick();
+          setLastTap(null);
+          return;
+        }
+        const now = Date.now();
+        const DOUBLE_PRESS_DELAY = 300;
 
-      if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
-        // Double click detected
-        handleDoubleClick();
-        setLastTap(null);
-      } else {
-        // Single click - change the stream URL (OK button press)
-        setStreamUrl(show.url || '');
-        setChannelUrl?.('');
-        setTimeout(() => {
-          setChannelUrl?.(show.url || '');
-        }, 250);
-        setLastTap(now);
-      }
-    };
+        if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
+          // Double click detected
+          handleDoubleClick();
+          setLastTap(null);
+        } else {
+          // Single click - change the stream URL (OK button press)
+          setStreamUrl(show.url || '');
+          setChannelUrl?.('');
+          setTimeout(() => {
+            setChannelUrl?.(show.url || '');
+          }, 250);
+          setLastTap(now);
+        }
+      },
+      [
+        dispatch,
+        show,
+        streamUrl,
+        setChannelUrl,
+        handleBlockPress,
+        handleDoubleClick,
+        lastTap,
+      ],
+    );
+
+    const renderFallbackProgramItem = React.useCallback(
+      ({item, index}: {item: any; index: number}) => (
+        <TouchableOpacity
+          style={[
+            styles.programBlock,
+            focusedProgramIndex === index && styles.programBlockFocused,
+          ]}
+          hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
+          activeOpacity={1}
+          onFocus={event => handleProgramFocus(event, index)}
+          onBlur={event => handleProgramBlur(event, index)}
+          onPress={() => handlePress(index)}>
+          <Text
+            style={[
+              styles.programText,
+              focusedProgramIndex === index && {
+                color: CommonColors.black,
+              },
+            ]}
+            numberOfLines={1}>
+            {item.title}
+          </Text>
+        </TouchableOpacity>
+      ),
+      [
+        focusedProgramIndex,
+        hasTVPreferredFocus,
+        handleProgramFocus,
+        handleProgramBlur,
+        handlePress,
+      ],
+    );
 
     return (
       <View
@@ -427,7 +453,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
           <View style={styles.channelInfo}>
             <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
 
-            <View style={styles.channelLogoContainer}>
+            {/* <View style={styles.channelLogoContainer}>
               <Image
                 source={
                   show?.logo
@@ -444,12 +470,12 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
                   handleImageError(e.nativeEvent);
                 }}
               />
-            </View>
+            </View> */}
 
             <View
               style={{overflow: 'hidden', width: '70%', flexDirection: 'row'}}>
               <SimpleMarquee
-                text={show.title || 'Channel Name'}
+                text={show.title || show?.name || 'Channel Name'}
                 shouldStart={focusedProgramIndex !== null}
                 textStyle={[
                   styles.channelNameText,
@@ -459,7 +485,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
                 ]}
                 speed={50}
               />
-              {streamUrl === show?.url && (
+              {currentlyPlaying?.url === show?.url && (
                 <View
                   style={{
                     position: 'absolute',
@@ -524,66 +550,23 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = React.memo(
                 ))}
               </View>
             ) : (
-              <FlatList
+              <FlashList
                 data={fallbackPrograms}
-                renderItem={({item, index}) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.programBlock,
-                      focusedProgramIndex === index &&
-                        styles.programBlockFocused,
-                    ]}
-                    hasTVPreferredFocus={hasTVPreferredFocus && index === 0}
-                    activeOpacity={1}
-                    onFocus={event => handleProgramFocus(event, index)}
-                    onBlur={event => handleProgramBlur(event, index)}
-                    onPress={() => handlePress(index)}>
-                    <Text
-                      style={[
-                        styles.programText,
-                        focusedProgramIndex === index && {
-                          color: CommonColors.black,
-                        },
-                      ]}
-                      numberOfLines={1}>
-                      {item.title}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index.toString()}
+                renderItem={renderFallbackProgramItem}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                  gap: moderateScale(2),
-                  paddingHorizontal: moderateScale(5),
-                  height: moderateScale(56),
-                }}
-                removeClippedSubviews={true}
-                maxToRenderPerBatch={5}
-                windowSize={3}
+                contentContainerStyle={styles.fallbackProgramContainer}
+                removeClippedSubviews={false}
               />
             )}
           </View>
         </View>
       </View>
     );
-  },
-  (prevProps, nextProps) => {
-    // Custom comparison function for better memoization
-    // Return true if props are equal (skip re-render), false if different (re-render)
-    return (
-      prevProps.show.url === nextProps.show.url &&
-      prevProps.show.title === nextProps.show.title &&
-      prevProps.show.logo === nextProps.show.logo &&
-      prevProps.channelIndex === nextProps.channelIndex &&
-      prevProps.hasTVPreferredFocus === nextProps.hasTVPreferredFocus &&
-      prevProps.timelineConfig === nextProps.timelineConfig
-    );
-  },
-);
+  };
 
-export default ShowChannelCatCard;
+
+export default React.memo(ShowChannelCatCard);
 
 const styles = StyleSheet.create({
   channelRow: {
@@ -593,6 +576,11 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderRadius: moderateScale(8),
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
+  },
+  fallbackProgramContainer: {
+    gap: moderateScale(2),
+    paddingHorizontal: moderateScale(5),
+    height: moderateScale(56),
   },
   filled_star: {
     height: 14,

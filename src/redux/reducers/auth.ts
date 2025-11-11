@@ -10,6 +10,7 @@ interface AuthState {
     moviesData: string[]
     channelsData: any
     userToken: string
+    heavyData: any
 }
 
 const initialState: AuthState = {
@@ -20,6 +21,7 @@ const initialState: AuthState = {
     moviesData: [],
     channelsData: null,
     userToken: '',
+    heavyData: null,
 }
 
 const authSlice = createSlice({
@@ -47,8 +49,11 @@ const authSlice = createSlice({
         setUserToken: (state, action: PayloadAction<string>) => {
             state.userToken = action.payload
         },
+        setHeavyData: (state, action: PayloadAction<any>) => {
+            state.heavyData = action.payload
+        },
     },
 })
 
-export const { setUserData, setAuthToken, setIsPlaylistProcessed, setSeriesData, setMoviesData, setChannelsData, setUserToken } = authSlice.actions
+export const { setUserData, setAuthToken, setIsPlaylistProcessed, setSeriesData, setMoviesData, setChannelsData, setUserToken, setHeavyData } = authSlice.actions
 export default authSlice.reducer

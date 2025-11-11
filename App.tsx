@@ -5,25 +5,29 @@
  * @format
  */
 
-import React, { useEffect } from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  useColorScheme
-} from 'react-native';
+import React, {useEffect} from 'react';
+import {SafeAreaView, StyleSheet, useColorScheme} from 'react-native';
 
-import {
-  Colors
-} from 'react-native/Libraries/NewAppScreen';
-import { Provider } from 'react-redux';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {Provider} from 'react-redux';
 import Toast from 'react-native-toast-message';
-import { getAuthTokenLocalStorage, getIsPlaylistProcessedLocalStorage, getUserDataLocalStorage, getUserTokenLocalStorage } from './src/localStorage/mmkv';
+import {
+  getAuthTokenLocalStorage,
+  getIsPlaylistProcessedLocalStorage,
+  getUserDataLocalStorage,
+  getUserTokenLocalStorage,
+} from './src/localStorage/mmkv';
 import Routes from './src/navigation/Routes';
-import { setAuthToken , setIsPlaylistProcessed, setUserData, setUserToken} from './src/redux/reducers/auth';
-import { store } from './src/redux/store';
+import {
+  setAuthToken,
+  setIsPlaylistProcessed,
+  setUserData,
+  setUserToken,
+} from './src/redux/reducers/auth';
+import {store} from './src/redux/store';
 
 if (__DEV__) {
-  require("./ReactotronConfig");
+  require('./ReactotronConfig');
 }
 
 function App(): React.JSX.Element {
@@ -38,27 +42,24 @@ function App(): React.JSX.Element {
       store.dispatch(setAuthToken(auth_token));
     }
     const isplaylistprocessed = await getIsPlaylistProcessedLocalStorage();
-    if(isplaylistprocessed){
-      store.dispatch(setIsPlaylistProcessed(isplaylistprocessed))
+    if (isplaylistprocessed) {
+      store.dispatch(setIsPlaylistProcessed(isplaylistprocessed));
     }
 
     const userToken = await getUserTokenLocalStorage();
-    if(userToken){
-      store.dispatch(setUserToken(userToken))
+    if (userToken) {
+      store.dispatch(setUserToken(userToken));
     }
 
     const user = await getUserDataLocalStorage();
-    if(user){
-      store.dispatch(setUserData(user))
+    if (user) {
+      store.dispatch(setUserData(user));
     }
-
   };
-
-  
 
   useEffect(() => {
     loadAuthToken();
-  }, [])
+  }, []);
 
   return (
     <Provider store={store}>

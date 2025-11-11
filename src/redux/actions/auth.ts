@@ -26,7 +26,7 @@ import {
   setIsPlaylistProcessedLocalStorage,
   setUserDataLocalStorage,
 } from '../../localStorage/mmkv';
-import { channelData } from '../../screens/main/Tv/TvWithoutMediaPlayer';
+import {channelData} from '../../screens/main/Tv/TvWithoutMediaPlayer';
 
 const {dispatch} = store;
 
@@ -56,7 +56,7 @@ export const setIsPlaylistProcessedAction = async (
 //api
 
 export const LoginApi = async (data: any) => {
-  const response = await apiPost(loginUrl,data);
+  const response = await apiPost(loginUrl, data);
   return response;
 };
 
@@ -112,13 +112,16 @@ export const getCategoryApi = async (type: string) => {
   }
 };
 
-export const getCategoryData = async (type: string, category: string) => {
+export const getCategoryData = async (
+  type: string,
+  category: string,
+  signal: any,
+) => {
   const response = await apiGet(
     `${CategoryDataUrl}?type=${type}&category=${encodeURIComponent(
       category,
     )}&include_epg=${type === 'live'}`,
+    {signal: signal},
   );
   return response;
 };
-
-

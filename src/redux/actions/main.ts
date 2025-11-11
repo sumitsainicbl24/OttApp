@@ -31,10 +31,11 @@ import {
   setUserDataLocalStorage,
   setUserTokenLocalStorage,
 } from '../../localStorage/mmkv';
-import {setUserData, setUserToken} from '../reducers/auth';
+import {setHeavyData, setUserData, setUserToken} from '../reducers/auth';
 import {useSelector} from 'react-redux';
 import {RootState} from '../store';
 import {channelData} from '../../screens/main/Tv/TvWithoutMediaPlayer';
+import {createAsyncThunk} from '@reduxjs/toolkit';
 
 const {dispatch} = store;
 
@@ -331,3 +332,23 @@ export const getDiaPosterDetail = async (stream_id: string) => {
   const response = await apiGet(`${DIAtunnelBaseUrl}${stream_id}`);
   return response;
 };
+
+export const fetchHeavyData = createAsyncThunk(
+  'data/fetchHeavyData',
+  async (payload, {dispatch, rejectWithValue}) => {
+    try {
+      console.log("called")
+      const response = await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve({data: 'heavy data'});
+        }, 20000);
+      });
+      // Dispatch another action if needed
+      dispatch(setHeavyData('Data Loaded'));
+      // return response.data;
+      return response;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);

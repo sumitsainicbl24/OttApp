@@ -66,7 +66,6 @@ const ShowCatCard: React.FC<ShowCatCardProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [imageError, setImageError] = useState(false);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
-  console.log('showshowshow---->>>>>>', show);
 
   // Reset image error state when show changes
   useEffect(() => {

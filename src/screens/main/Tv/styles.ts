@@ -406,6 +406,7 @@ export const styles = StyleSheet.create({
     // paddingHorizontal: moderateScale(20),
     alignItems: 'center',
     gap: verticalScale(16),
+    // backgroundColor: 'red',
   },
 
   categoryListTitle: {

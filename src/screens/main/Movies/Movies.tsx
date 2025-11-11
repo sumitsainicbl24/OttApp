@@ -1,5 +1,5 @@
 // 1. React Native core imports
-import React, {useState, useEffect, useCallback, useRef} from 'react';
+import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -54,11 +54,25 @@ const Movies = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
-
+  const gradientColors = [
+    'rgba(0, 0, 0, 1)',
+    'rgba(0, 0, 0, 1)',
+    'rgba(0, 0, 0, 1)',
+    'rgba(0, 0, 0, 0.9)',
+    'rgba(0, 0, 0, 0.7)',
+    'rgba(0, 0, 0, 0.5)',
+    'rgba(0, 0, 0, 0.3)',
+    'rgba(0, 0, 0, 0.1)',
+    'transparent',
+    'transparent',
+  ];
   // Load movie data from MMKV on component mount
   useEffect(() => {
-    setSelectedCategory(moviesData[0]?.category_id);
-  }, []);
+    const moviesArray = Object.values(moviesData || {}) as any[];
+    if (moviesArray.length > 0) {
+      setSelectedCategory(moviesArray[0]?.category_id);
+    }
+  }, [moviesData]);
 
   const handleScrollViewFocus = (res: any) => {
     setShowCategoryAndSidebar(false);
@@ -104,6 +118,25 @@ const Movies = () => {
       debouncedGetMovieData(selectedCategory);
     }
   }, [selectedCategory, debouncedGetMovieData]);
+
+  // Memoize categories data
+  const memorizeMoviesData = useMemo(() => {
+    return Object.values(moviesData) as any[];
+  }, [moviesData]);
+
+  // Memoize selected category
+  const memorizeSelectedCategory = useMemo(() => {
+    return selectedCategory;
+  }, [selectedCategory]);
+
+  // Memoize category list container style
+  const categoryListContainerStyle = React.useMemo(() => {
+    return [
+      styles.categoryListContainer,
+      !showCategoryAndSidebar && {width: 0, overflow: 'hidden' as const},
+    ];
+  }, [showCategoryAndSidebar]);
+
   const [isFocused, setIsFocused] = useState(false);
   return (
     <MainLayout
@@ -118,18 +151,7 @@ const Movies = () => {
       />
       {isFocused && (
         <LinearGradient
-          colors={[
-            'rgba(0, 0, 0, 1)',
-            'rgba(0, 0, 0, 1)',
-            'rgba(0, 0, 0, 1)',
-            'rgba(0, 0, 0, 0.9)',
-            'rgba(0, 0, 0, 0.7)',
-            'rgba(0, 0, 0, 0.5)',
-            'rgba(0, 0, 0, 0.3)',
-            'rgba(0, 0, 0, 0.1)',
-            'transparent',
-            'transparent',
-          ]}
+          colors={gradientColors}
           start={{x: 0, y: 0}}
           end={{x: 1, y: 0}}
           style={styles.homeGradientFocused}
@@ -137,18 +159,20 @@ const Movies = () => {
       )}
 
       <View style={styles.container}>
-        <View
-          style={[
-            styles.categoryListContainer,
-            !showCategoryAndSidebar && {width: 0, overflow: 'hidden'},
-          ]}
-          nativeID="categoryList">
+        <TVFocusGuideView
+          style={categoryListContainerStyle}
+          nativeID="categoryList"
+          autoFocus>
           <CategoryList
-            categories={Object.values(moviesData)}
-            selectedCategory={selectedCategory}
+            categories={memorizeMoviesData}
+            selectedCategory={memorizeSelectedCategory}
             onFocus={handleCategoryListFocus}
+            style={{
+              borderRightWidth: 1.5,
+              borderRightColor: CommonColors.whiteOpacity20,
+            }}
           />
-        </View>
+        </TVFocusGuideView>
 
         <View>
           {((selectedCategory && moviesData) ||
@@ -164,7 +188,7 @@ const Movies = () => {
             {((selectedCategory && moviesData) ||
               selectedCategoryData.length > 0) &&
               !loading && (
-                // <></>
+
                 <ShowCatCarousel
                   title={`${selectedCategoryName}`}
                   data={selectedCategoryData}

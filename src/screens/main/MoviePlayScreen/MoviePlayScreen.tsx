@@ -56,6 +56,7 @@ import {
   imageResolutionHandlerForUrl,
 } from '../../../utils/CommonFunctions';
 import {styles} from './styles';
+import {MoviePlayer} from '../../../components/MoviePlayer';
 
 type MoviePlayScreenRouteProp = RouteProp<
   MainStackParamList,
@@ -296,6 +297,15 @@ const MoviePlayScreen = () => {
     return <EpisodeCard episode={item} />;
   }
 
+  function handleEpisodeSelect(episode: any) {
+    setSelectedEpisode(episode);
+    if (episode?.url !== streamUrl) {
+      setTiming(null);
+    }
+    setStreamUrl(episode?.url);
+    setIsMoviePlaying(true);
+  }
+
   return (
     <MainLayout activeScreen="MoviePlayScreen" hideSidebar={true}>
       <StatusBar
@@ -304,17 +314,30 @@ const MoviePlayScreen = () => {
         barStyle="light-content"
       />
       {isMoviePlaying ? (
-        <LiveVideoComp
+        <MoviePlayer
           streamUrl={streamUrl || ''}
-          timing={timing}
-          hideControls={live?.type === 'live'}
+          title={currentlyPlaying?.title}
+          onEpisodeSelect={handleEpisodeSelect}
         />
       ) : (
+        // <MoviePlayer
+        //   streamUrl={streamUrl || ''}
+        //   title={currentlyPlaying?.title}
+        // />
+        // <LiveVideoComp
+        //   streamUrl={streamUrl || ''}
+        //   timing={timing}
+        //   hideControls={live?.type === 'live'}
+        // />
         <ScrollView
           style={styles.container}
           showsVerticalScrollIndicator={false}>
           {movie ? (
-            <BackgroundComponent movieName={movieTitle} movie={movie} numofLines={10}/>
+            <BackgroundComponent
+              movieName={movieTitle}
+              movie={movie}
+              numofLines={10}
+            />
           ) : (
             <BackgroundComponent showName={showTitle} movie={show} />
           )}

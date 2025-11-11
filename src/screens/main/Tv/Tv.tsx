@@ -1,5 +1,5 @@
 import {RouteProp, useRoute} from '@react-navigation/native';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {StatusBar, TVFocusGuideView, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useSelector} from 'react-redux';
@@ -23,11 +23,13 @@ const Tv = () => {
   const {channelsData} = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
+  console.log('channelsData--->>>>', channelsData);
+  console.log('tv screen rendered');
   const {activeScreen} = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<any>(0);
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [streamUrl, setStreamUrl] = useState<string>('');
   const [currentProgramDetails, setCurrentProgramDetails] = useState<{
     showTitle: string;
@@ -43,21 +45,31 @@ const Tv = () => {
     description: 'No description available',
   });
 
+  // Create debounced version of setSelectedCategoryData
+  const debouncedSetSelectedCategoryData = useRef(
+    debounce((data: any[]) => {
+      setSelectedCategoryData(data);
+    }, 800),
+  ).current;
+
   useEffect(() => {
     setSelectedCategory(channelsData[0]?.category_id);
+    setSelectedCategoryData(channelsData[0]?.channels || []);
   }, []);
 
   const handleScrollViewFocus = () => {
     setShowCategoryAndSidebar(false);
   };
 
-  const handleCategoryListFocus = useCallback((category: number) => {
-    setLoading(true);
-    setShowCategoryAndSidebar(true);
-    setSelectedCategory(category);
-    clearEPGCaches();
-    setSelectedCategoryData([]);
-  }, []);
+  const handleCategoryListFocus = useCallback(
+    (category: number, categoryName: string, categoryItem: any) => {
+      setShowCategoryAndSidebar(true);
+      setSelectedCategory(category);
+      clearEPGCaches();
+      debouncedSetSelectedCategoryData(categoryItem || []);
+    },
+    [debouncedSetSelectedCategoryData],
+  );
 
   const handleChannelUrl = (url: string) => {
     setStreamUrl(url);
@@ -111,8 +123,11 @@ const Tv = () => {
   const getMovieData = async (category: string) => {
     try {
       setLoading(true);
-      const res = await getCategoryData('live', category);
+      const controller = new AbortController();
+      const res = await getCategoryData('live', category, controller.signal);
+
       const movieData = res?.data?.data?.data?.channels;
+
       if (movieData && movieData.length > 0) {
         // Optimized processing - only process channels that actually have EPG data
         const processedChannels = movieData.map((channel: any) => {
@@ -130,6 +145,7 @@ const Tv = () => {
           return channel; // Return original object to avoid unnecessary re-renders
         });
         setSelectedCategoryData(processedChannels);
+        console.log('processedChannels--->>>>>', processedChannels);
       } else {
         // Set empty array if no data
         setSelectedCategoryData([]);
@@ -149,18 +165,18 @@ const Tv = () => {
     ];
   }, [showCategoryAndSidebar]);
 
-  const debouncedGetMovieData = useCallback(
-    debounce((category: string) => {
-      getMovieData(category);
-    }, 500),
-    [],
-  );
+  // const debouncedGetMovieData = useCallback(
+  //   debounce((category: string) => {
+  //     getMovieData(category);
+  //   }, 500),
+  //   [],
+  // );
 
-  useEffect(() => {
-    if (selectedCategory) {
-      debouncedGetMovieData(selectedCategory);
-    }
-  }, [selectedCategory, debouncedGetMovieData]);
+  // useEffect(() => {
+  //   if (selectedCategory) {
+  //     debouncedGetMovieData(selectedCategory);
+  //   }
+  // }, [selectedCategory, debouncedGetMovieData]);
 
   const [isFocused, setIsFocused] = useState(false);
 
@@ -211,7 +227,7 @@ const Tv = () => {
           />
         </TVFocusGuideView>
 
-        <TVFocusGuideView>
+        <TVFocusGuideView style={{marginLeft: -1}}>
           <ChannelMediaPlayer
             imageSource={imagepath.TvDemoImage}
             showTitle={currentProgramDetails.showTitle}

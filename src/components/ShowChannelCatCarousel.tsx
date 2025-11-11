@@ -91,6 +91,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   loading = false,
   handleBlockPress,
 }) => {
+  console.log('data--->>>>>', data);
   const flashListRef = useRef<FlashList<ShowData>>(null);
   const timelineScrollRef = useRef<ScrollView>(null);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
@@ -100,6 +101,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
     () => (getMovieDetails ? debounce(getMovieDetails, 300) : undefined),
     [getMovieDetails],
   );
+  console.log('show channel cat carousel rendered');
 
   const handleShowPress = (show: ShowData) => {
     if (type === 'series') {
@@ -249,30 +251,43 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
     [timelineConfig.slotWidth, isAutoScrolling],
   );
 
-  const renderShowItem = React.useCallback(
-    ({item, index}: {item: ShowData; index: number}) => (
-      <ShowChannelCatCard
-        // handleBlockPress={() => handleBlockPress?.(item)}
-        show={item}
-        channelIndex={index}
-        onPress={() => handleShowPress(item)}
-        onFocus={() => handleItemFocus(index, item)}
-        setChannelUrl={setChannelUrl}
-        setProgramDetails={setProgramDetails}
-        timelineConfig={timelineConfig}
-        onProgramFocusWithAutoScroll={handleProgramFocusWithAutoScroll}
-      />
-    ),
-    [
-      handleShowPress,
-      handleItemFocus,
-      setChannelUrl,
-      setProgramDetails,
-      timelineConfig,
-      handleProgramFocusWithAutoScroll,
-      handleBlockPress,
-    ],
+  const renderShowItem = ({item, index}: {item: ShowData; index: number}) => (
+    <ShowChannelCatCard
+      show={item}
+      channelIndex={index}
+      onPress={() => handleShowPress(item)}
+      onFocus={() => handleItemFocus(index, item)}
+      setChannelUrl={setChannelUrl}
+      setProgramDetails={setProgramDetails}
+      timelineConfig={timelineConfig}
+      onProgramFocusWithAutoScroll={handleProgramFocusWithAutoScroll}
+    />
   );
+
+  // const renderShowItem = React.useCallback(
+  //   ({item, index}: {item: ShowData; index: number}) => (
+  //     <ShowChannelCatCard
+  //       show={item}
+  //       channelIndex={index}
+  //       onPress={() => handleShowPress(item)}
+  //       onFocus={() => handleItemFocus(index, item)}
+  //       setChannelUrl={setChannelUrl}
+  //       setProgramDetails={setProgramDetails}
+  //       timelineConfig={timelineConfig}
+  //       onProgramFocusWithAutoScroll={handleProgramFocusWithAutoScroll}
+  //     />
+  //   ),
+  //   [
+  //     handleShowPress,
+  //     handleItemFocus,
+  //     setChannelUrl,
+  //     setProgramDetails,
+  //     timelineConfig,
+  //     handleProgramFocusWithAutoScroll,
+  //     handleBlockPress,
+  //     data,
+  //   ],
+  // );
 
   return (
     <View style={[styles.sectionContainer, mainStyle]}>
@@ -306,7 +321,6 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
               contentContainerStyle={styles.timelineContentContainer}
               focusable={false}
               scrollEnabled={false} // Disable individual scrolling since parent handles it
-              removeClippedSubviews={true}
               getItemType={() => 'timeline'}
             />
             {/* </View> */}
@@ -336,8 +350,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
                   contentContainerStyle={styles.gridContainer}
                   estimatedItemSize={verticalScale(65)}
                   scrollEnabled={!disableScroll}
-                  removeClippedSubviews={true}
-                  getItemType={() => 'channel'}
+                  removeClippedSubviews={false}
                   drawDistance={verticalScale(300)}
                   estimatedListSize={styles.mainFlashListSize}
                   overrideItemLayout={(layout, item, index) => {

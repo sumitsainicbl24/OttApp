@@ -61,6 +61,7 @@ const LiveChannelPlayScreen = () => {
   const {currentlyPlaying} = useSelector(
     (state: RootState) => state.rootReducer.main,
   );
+  console.log('currentlyPlaying--->>>>', currentlyPlaying);
   const dispatch = useDispatch();
   const {channel} = route.params;
   const [loading, setLoading] = useState(true);
@@ -656,6 +657,9 @@ const LiveChannelPlayScreen = () => {
             key={currentlyPlaying?.stream_id}
             ref={videoRef}
             source={{uri: currentlyPlaying?.url}}
+            // source={{
+            //   uri: 'http://line.diatunnel.link:80/timeshift/mrKQdWmJ/jSxeKrs/168/2.m3u8',
+            // }}
             style={styles.videoPlayer}
             volume={volume}
             muted={muted}

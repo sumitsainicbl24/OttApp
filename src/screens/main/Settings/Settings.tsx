@@ -5,11 +5,13 @@ import {styles} from './styles';
 import {MainStackParamList} from '../../../navigation/NavigationsTypes';
 import SettingOverlay from '../../../components/SettingOverlay';
 import { CommonColors } from '../../../styles/Colors';
+import { fetchHeavyData } from '../../../redux/actions/main';
+import { useDispatch } from 'react-redux';
 
 const Settings = () => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
   const [focusedOption, setFocusedOption] = useState('');
-
+  const dispatch = useDispatch();
   const handleOptionPress = (option: string) => {
     switch (option) {
       case 'General':
@@ -29,6 +31,8 @@ const Settings = () => {
         break;
       case 'Other':
         navigation.navigate('OtherSettings');
+       case 'EPG':
+         dispatch(fetchHeavyData()) 
         break;
     }
   };

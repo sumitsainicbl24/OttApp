@@ -26,9 +26,9 @@ type CategoryInput = string | ObjectCategory;
 interface CategoryListProps {
   categories?: CategoryInput[];
   selectedCategory?: CategoryInput;
-  onFocus?: (category: number, categoryName: string) => void;
+  onFocus?: (category: number, categoryName: string, categoryItem: any) => void;
   onBlur?: () => void;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>; 
 }
 
 type NormalizedCategory = {
@@ -53,7 +53,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   const flashListRef = useRef<FlashList<any>>(null);
   const lastScrollTimeRef = useRef<number>(0);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+  console.log('category list rendered');
   // Memoize utility functions
   const isObjectCategory = useCallback(
     (item: CategoryInput): item is ObjectCategory => {
@@ -211,11 +211,12 @@ const CategoryList: React.FC<CategoryListProps> = ({
 
   // Memoize focus handler
   const handleFocus = useCallback(
-    (index: number, categoryId: string, categoryName: string) => {
+    (index: number, categoryId: string, categoryName: string, categoryItem: any) => {
+      console.log('categoryIteminside--->>>>>', categoryItem);
       // Convert the index from the padded list back to the original index
       const originalIndex = index - PADDING_ITEMS; // Remove the top padding offset
       setFocusedIndex(originalIndex);
-      onFocus?.(Number(categoryId), categoryName);
+      onFocus?.(Number(categoryId), categoryName, categoryItem?.raw?.channels || []);
       scrollToIndex(index);
     },
     [onFocus, scrollToIndex],
@@ -258,7 +259,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
             (isFocused || isSelected) && styles.categoryItemFocused,
           ]}
           onFocus={() =>
-            handleFocus(index, categoryItem.id, categoryItem?.name)
+            handleFocus(index, categoryItem.id, categoryItem?.name , categoryItem)
           }
           onBlur={handleBlur}
           activeOpacity={1}>
@@ -292,6 +293,10 @@ const CategoryList: React.FC<CategoryListProps> = ({
     [],
   );
 
+  const getItemType = useCallback((item: ListItem) => {
+    return item.type;
+  }, []);
+
   return (
     <TVFocusGuideView
       autoFocus
@@ -306,7 +311,8 @@ const CategoryList: React.FC<CategoryListProps> = ({
         extraData={focusedIndex}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        removeClippedSubviews={true}
+        removeClippedSubviews={false}
+        getItemType={getItemType}
       />
     </TVFocusGuideView>
   );
