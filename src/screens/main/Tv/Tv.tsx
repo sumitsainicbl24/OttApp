@@ -23,8 +23,6 @@ const Tv = () => {
   const {channelsData} = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
-  console.log('channelsData--->>>>', channelsData);
-  console.log('tv screen rendered');
   const {activeScreen} = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<any>(0);
