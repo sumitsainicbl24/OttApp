@@ -1,5 +1,11 @@
 // 1. React Native core imports
-import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -9,19 +15,19 @@ import {
   View,
 } from 'react-native';
 
-import {styles} from './styles';
+import { styles } from './styles';
 import MainLayout from '../../../components/MainLayout';
 import CategoryList from '../../../components/CategoryList';
-import {RouteProp, useRoute} from '@react-navigation/native';
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { MainStackParamList } from '../../../navigation/NavigationsTypes';
 import ShowCatCarousel from '../../../components/ShowCatCarousel';
 import ShowDetails1 from '../../../components/ShowDetails1';
-import {getCategoryData} from '../../../redux/actions/auth';
-import {debounce} from '../../../utils/CommonFunctions';
-import {RootState} from '../../../redux/store';
-import {useSelector} from 'react-redux';
-import {CommonColors} from '../../../styles/Colors';
-import {moderateScale} from '../../../styles/scaling';
+import { getCategoryData } from '../../../redux/actions/auth';
+import { debounce } from '../../../utils/CommonFunctions';
+import { RootState } from '../../../redux/store';
+import { useSelector } from 'react-redux';
+import { CommonColors } from '../../../styles/Colors';
+import { moderateScale } from '../../../styles/scaling';
 import {
   saveMoviesDataToMMKV,
   getMoviesDataFromMMKV,
@@ -44,10 +50,10 @@ type MovieData = {
 
 const Movies = () => {
   const route = useRoute<MoviesScreenRouteProp>();
-  const {moviesData} = useSelector(
+  const { moviesData } = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
-  const {activeScreen} = route.params;
+  const { activeScreen } = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<any>(0);
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
@@ -80,11 +86,11 @@ const Movies = () => {
   };
 
   const handleCategoryListFocus = async (
-    category: any,
+    categoryId: any,
     categoryName: string,
   ) => {
     setShowCategoryAndSidebar(true);
-    setSelectedCategory(category);
+    setSelectedCategory(categoryId);
     setSelectedCategoryName(categoryName);
   };
 
@@ -133,7 +139,7 @@ const Movies = () => {
   const categoryListContainerStyle = React.useMemo(() => {
     return [
       styles.categoryListContainer,
-      !showCategoryAndSidebar && {width: 0, overflow: 'hidden' as const},
+      !showCategoryAndSidebar && { width: 0, overflow: 'hidden' as const },
     ];
   }, [showCategoryAndSidebar]);
 
@@ -143,7 +149,8 @@ const Movies = () => {
       activeScreen={activeScreen || 'Movies'}
       hideSidebar={!showCategoryAndSidebar}
       setIsFocused={setIsFocused}
-      mainStyle={{paddingLeft: showCategoryAndSidebar ? 50 : 0}}>
+      mainStyle={{ paddingLeft: showCategoryAndSidebar ? 50 : 0 }}
+    >
       <StatusBar
         backgroundColor="transparent"
         translucent
@@ -152,8 +159,8 @@ const Movies = () => {
       {isFocused && (
         <LinearGradient
           colors={gradientColors}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 0}}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
           style={styles.homeGradientFocused}
         />
       )}
@@ -162,15 +169,12 @@ const Movies = () => {
         <TVFocusGuideView
           style={categoryListContainerStyle}
           nativeID="categoryList"
-          autoFocus>
+          autoFocus
+        >
           <CategoryList
             categories={memorizeMoviesData}
             selectedCategory={memorizeSelectedCategory}
             onFocus={handleCategoryListFocus}
-            style={{
-              borderRightWidth: 1.5,
-              borderRightColor: CommonColors.whiteOpacity20,
-            }}
           />
         </TVFocusGuideView>
 
@@ -184,11 +188,10 @@ const Movies = () => {
               />
             )}
 
-          <View style={styles.scrollContainer}>
+          <TVFocusGuideView style={styles.scrollContainer}>
             {((selectedCategory && moviesData) ||
               selectedCategoryData.length > 0) &&
               !loading && (
-
                 <ShowCatCarousel
                   title={`${selectedCategoryName}`}
                   data={selectedCategoryData}
@@ -200,7 +203,7 @@ const Movies = () => {
             {loading && (
               <ActivityIndicator size="large" color={CommonColors.white} />
             )}
-          </View>
+          </TVFocusGuideView>
         </View>
       </View>
     </MainLayout>

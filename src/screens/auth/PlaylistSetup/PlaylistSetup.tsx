@@ -1,11 +1,11 @@
 // 1. React Native core imports
-import {Text, View, TouchableOpacity, Image} from 'react-native';
-import React, {useState} from 'react';
+import { Text, View, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
 
 // 2. Global styles and utilities
 import CommonStyles from '../../../styles/CommonStyles';
-import {CommonColors} from '../../../styles/Colors';
-import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
+import { CommonColors } from '../../../styles/Colors';
+import { moderateScale, scale, verticalScale } from '../../../styles/scaling';
 
 // 3. Component imports
 import WrapperContainer from '../../../components/WrapperContainer';
@@ -16,11 +16,11 @@ import {
   RouteProp,
   useNavigation,
 } from '@react-navigation/native';
-import {AuthStackParamList} from '../../../navigation/NavigationsTypes';
+import { AuthStackParamList } from '../../../navigation/NavigationsTypes';
 import imagepath from '../../../constants/imagepath';
 
 // 4. Local styles import (ALWAYS LAST)
-import {styles} from './styles';
+import { styles } from './styles';
 import FontFamily from '../../../constants/FontFamily';
 
 // Type definitions for field configuration
@@ -157,13 +157,13 @@ const PlaylistSetup = ({
   route: RouteProp<AuthStackParamList, 'PlaylistSetup'>;
 }) => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
-  const {type} = route.params;
+  const { type } = route.params;
 
   // Initialize all possible form states
   const [formData, setFormData] = useState({
     playlistUrl:
       'http://line.diatunnel.link/get.php?username=mrKQdWmJ&password=jSxeKrs&type=m3u_plus&output=ts',
-      // 'http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts',
+    // 'http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts',
     username: '',
     password: '',
     serverAddress: '',
@@ -182,7 +182,7 @@ const PlaylistSetup = ({
 
   // Update form data
   const updateFormData = (key: string, value: string | boolean) => {
-    setFormData(prev => ({...prev, [key]: value}));
+    setFormData(prev => ({ ...prev, [key]: value }));
   };
 
   // Dynamic field renderer
@@ -274,7 +274,8 @@ const PlaylistSetup = ({
               color: CommonColors.textSecondary,
               fontFamily: FontFamily.PublicSans_Medium,
               fontSize: scale(26),
-            }}>
+            }}
+          >
             {type === 'xtream'
               ? 'Enter Xcode Server Address , your username and password'
               : type}
@@ -297,12 +298,14 @@ const PlaylistSetup = ({
             activeOpacity={1}
             onFocus={handleNextFocus}
             onBlur={handleBlur}
-            hasTVPreferredFocus={true}>
+            hasTVPreferredFocus={true}
+          >
             <Text
               style={[
                 styles.nextButtonText,
                 focused === 'next' && styles.nextButtonTextFocused,
-              ]}>
+              ]}
+            >
               Next
             </Text>
           </TouchableOpacity>
@@ -310,12 +313,14 @@ const PlaylistSetup = ({
             onPress={handleCancel}
             activeOpacity={1}
             onFocus={handleCancelFocus}
-            onBlur={handleBlur}>
+            onBlur={handleBlur}
+          >
             <Text
               style={[
                 styles.cancelButtonText,
                 focused === 'cancel' && styles.cancelButtonTextFocused,
-              ]}>
+              ]}
+            >
               Cancel
             </Text>
           </TouchableOpacity>

@@ -1,8 +1,7 @@
-import React, {memo, useCallback, useMemo} from 'react';
-import {FlatList, Pressable, Text, View, TVFocusGuideView} from 'react-native';
-import {decodeEPGTitle} from '../../../utils/epgUtils';
-import {styles} from './LeftChannelViewStyles';
-import {Animated} from 'react-native-tvos';
+import { memo, useCallback, useMemo } from 'react';
+import { FlatList, Pressable, Text, TVFocusGuideView, View } from 'react-native';
+import { decodeEPGTitle } from '../../../utils/epgUtils';
+import { styles } from './LeftChannelViewStyles';
 
 export interface Epg {
   id: string;

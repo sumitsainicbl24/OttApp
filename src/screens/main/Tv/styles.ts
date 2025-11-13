@@ -96,6 +96,8 @@ export const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
     backgroundColor: CommonColors.black,
+    // backgroundColor: 'red',
+
     // backgroundColor:'rgb(19,22,27)'
   },
 

@@ -1,9 +1,21 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Alert, Animated, Pressable, StyleSheet, TVFocusGuideView} from 'react-native';
-import YoutubePlayer, {YoutubeIframeRef} from 'react-native-youtube-iframe';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  Alert,
+  Animated,
+  Pressable,
+  StyleSheet,
+  TVFocusGuideView,
+} from 'react-native';
+import YoutubePlayer, { YoutubeIframeRef } from 'react-native-youtube-iframe';
 import imagepath from '../../../constants/imagepath';
-import {moderateScale, width} from '../../../styles/scaling';
-import {imageResolutionHandlerForUrl} from '../../../utils/CommonFunctions';
+import { moderateScale, width } from '../../../styles/scaling';
+import { imageResolutionHandlerForUrl } from '../../../utils/CommonFunctions';
 
 interface YoutubeCompProps {
   data: {
@@ -112,7 +124,7 @@ const YoutubeComp = ({
   return (
     <TVFocusGuideView focusable={false} style={styles.container}>
       <YoutubePlayer
-      key={data?.youtube_trailer}
+        key={data?.youtube_trailer}
         ref={playerRef}
         height={height}
         width={VideoWidth}
@@ -127,7 +139,7 @@ const YoutubeComp = ({
           end: videoDuration - 8,
         }}
         forceAndroidAutoplay={true}
-        webViewStyle={{opacity: opacity, marginTop: moderateScale(50)}}
+        webViewStyle={{ opacity: opacity, marginTop: moderateScale(50) }}
       />
 
       {/* Poster image overlay - shows until video is ready */}
@@ -161,7 +173,7 @@ const createStyles = (height: number) =>
       position: 'relative',
       alignItems: 'flex-end',
       // backgroundColor:'red',
-      // height: height 
+      // height: height
     },
     posterImage: {
       position: 'absolute',

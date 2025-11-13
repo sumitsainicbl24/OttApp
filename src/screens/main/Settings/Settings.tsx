@@ -1,15 +1,19 @@
-import React, {useState} from 'react';
-import {Text, TouchableOpacity, ScrollView} from 'react-native';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
-import {styles} from './styles';
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import SettingOverlay from '../../../components/SettingOverlay';
+import { MainStackParamList } from '../../../navigation/NavigationsTypes';
+import { fetchChannelsDataWithEpg } from '../../../redux/actions/main';
 import { CommonColors } from '../../../styles/Colors';
-import { fetchHeavyData } from '../../../redux/actions/main';
-import { useDispatch } from 'react-redux';
+import { styles } from './styles';
+import { RootState } from '../../../redux/store';
 
 const Settings = () => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
+  const { epgDataLoading } = useSelector(
+    (state: RootState) => state.rootReducer.auth,
+  );
   const [focusedOption, setFocusedOption] = useState('');
   const dispatch = useDispatch();
   const handleOptionPress = (option: string) => {
@@ -31,8 +35,8 @@ const Settings = () => {
         break;
       case 'Other':
         navigation.navigate('OtherSettings');
-       case 'EPG':
-         dispatch(fetchHeavyData()) 
+      case 'EPG':
+        dispatch(fetchChannelsDataWithEpg() as any);
         break;
     }
   };
@@ -48,10 +52,31 @@ const Settings = () => {
         onFocus={() => setFocusedOption(title)}
         onBlur={() => setFocusedOption('')}
         activeOpacity={1}
+        disabled={epgDataLoading}
         {...({
           isTVSelectable: true,
-        } as any)}>
-        <Text style={{...styles.settingOptionText , color:isFocused ? CommonColors.black : CommonColors.white}}>{title}</Text>
+        } as any)}
+      >
+        {epgDataLoading ? (
+          <ActivityIndicator size="small" color={CommonColors.white} />
+        ) : (
+          <Text
+            style={{
+              ...styles.settingOptionText,
+              color: isFocused ? CommonColors.black : CommonColors.white,
+            }}
+          >
+            {title}
+          </Text>
+        )}
+        {/* <Text
+          style={{
+            ...styles.settingOptionText,
+            color: isFocused ? CommonColors.black : CommonColors.white,
+          }}
+        >
+          {title}
+        </Text> */}
       </TouchableOpacity>
     );
   };
@@ -61,7 +86,8 @@ const Settings = () => {
       {/* Settings Options */}
       <ScrollView
         style={styles.optionsContainer}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         {renderSettingOption('General')}
         {renderSettingOption('Playlists')}
         {renderSettingOption('EPG')}

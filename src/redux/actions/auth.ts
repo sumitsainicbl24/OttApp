@@ -1,4 +1,4 @@
-import {apiGet, apiPost} from '../../utils/utils';
+import { apiGet, apiPost } from '../../utils/utils';
 import {
   setAuthToken,
   setIsPlaylistProcessed,
@@ -7,7 +7,7 @@ import {
   setMoviesData,
   setChannelsData,
 } from '../reducers/auth';
-import {store} from '../store';
+import { store } from '../store';
 
 import {
   CategoryDataUrl,
@@ -26,9 +26,9 @@ import {
   setIsPlaylistProcessedLocalStorage,
   setUserDataLocalStorage,
 } from '../../localStorage/mmkv';
-import {channelData} from '../../screens/main/Tv/TvWithoutMediaPlayer';
+import { channelData } from '../../screens/main/Tv/TvWithoutMediaPlayer';
 
-const {dispatch} = store;
+const { dispatch } = store;
 
 export const setUser = async (user: any) => {
   //local storage
@@ -90,9 +90,9 @@ export const getMediaData = async (type?: string) => {
   return response;
 };
 
-export const getCategoryApi = async (type: string) => {
+export const getCategoryApi = async (type: string, epg?: boolean) => {
   if (!!type) {
-    const response = await apiGet(`${categoryUrl}?type=${type}`);
+    const response = await apiGet(`${categoryUrl}?type=${type}&epg=${epg}`);
     if (type === 'live') {
       await saveChannelsDataToMMKV(response.data.data.data);
       dispatch(setChannelsData(response.data.data.data));
@@ -115,13 +115,13 @@ export const getCategoryApi = async (type: string) => {
 export const getCategoryData = async (
   type: string,
   category: string,
-  signal: any,
+  signal?: any,
 ) => {
   const response = await apiGet(
     `${CategoryDataUrl}?type=${type}&category=${encodeURIComponent(
       category,
     )}&include_epg=${type === 'live'}`,
-    {signal: signal},
+    { signal: signal },
   );
   return response;
 };

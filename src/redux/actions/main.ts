@@ -1,5 +1,5 @@
-import {apiGet, apiPost} from '../../utils/utils';
-import {store} from '../store';
+import { apiGet, apiPost } from '../../utils/utils';
+import { store } from '../store';
 
 import {
   addToMyListUrl,
@@ -31,13 +31,19 @@ import {
   setUserDataLocalStorage,
   setUserTokenLocalStorage,
 } from '../../localStorage/mmkv';
-import {setHeavyData, setUserData, setUserToken} from '../reducers/auth';
-import {useSelector} from 'react-redux';
-import {RootState} from '../store';
-import {channelData} from '../../screens/main/Tv/TvWithoutMediaPlayer';
-import {createAsyncThunk} from '@reduxjs/toolkit';
+import {
+  setChannelsData,
+  setEpgDataLoading,
+  setUserData,
+  setUserToken,
+} from '../reducers/auth';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
+import { channelData } from '../../screens/main/Tv/TvWithoutMediaPlayer';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { getCategoryApi } from './auth';
 
-const {dispatch} = store;
+const { dispatch } = store;
 
 //api
 const apiKeyForShowDetails = '79c065d3';
@@ -333,22 +339,20 @@ export const getDiaPosterDetail = async (stream_id: string) => {
   return response;
 };
 
-export const fetchHeavyData = createAsyncThunk(
-  'data/fetchHeavyData',
-  async (payload, {dispatch, rejectWithValue}) => {
+export const fetchChannelsDataWithEpg = createAsyncThunk(
+  'data/fetchChannelsDataWithEpg',
+  async (payload, { dispatch, rejectWithValue }) => {
     try {
-      console.log("called")
-      const response = await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve({data: 'heavy data'});
-        }, 20000);
-      });
-      // Dispatch another action if needed
-      dispatch(setHeavyData('Data Loaded'));
-      // return response.data;
-      return response;
+      console.log('called');
+      dispatch(setEpgDataLoading(true));
+      let res = await getCategoryApi('live', true);
+      console.log('res from fetchChannelsDataWithEpg--->>>', res);
+      dispatch(setChannelsData(res?.data?.data?.data));
+      return;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
+    } finally {
+      dispatch(setEpgDataLoading(false));
     }
   },
 );

@@ -8,7 +8,6 @@
 import React, {useEffect} from 'react';
 import {SafeAreaView, StyleSheet, useColorScheme} from 'react-native';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Provider} from 'react-redux';
 import Toast from 'react-native-toast-message';
 import {
@@ -32,9 +31,7 @@ if (__DEV__) {
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+
 
   const loadAuthToken = async () => {
     const auth_token = await getAuthTokenLocalStorage();

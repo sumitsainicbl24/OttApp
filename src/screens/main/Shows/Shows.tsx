@@ -1,5 +1,5 @@
 // 1. React Native core imports
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   StatusBar,
@@ -7,19 +7,19 @@ import {
   View,
 } from 'react-native';
 
-import {RouteProp, useRoute} from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
 import MainLayout from '../../../components/MainLayout';
 import ShowCatCarousel from '../../../components/ShowCatCarousel';
 import ShowDetails1 from '../../../components/ShowDetails1';
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
-import {getCategoryData} from '../../../redux/actions/auth';
-import {RootState} from '../../../redux/store';
-import {CommonColors} from '../../../styles/Colors';
-import {debounce} from '../../../utils/CommonFunctions';
-import {styles} from './styles';
+import { MainStackParamList } from '../../../navigation/NavigationsTypes';
+import { getCategoryData } from '../../../redux/actions/auth';
+import { RootState } from '../../../redux/store';
+import { CommonColors } from '../../../styles/Colors';
+import { debounce } from '../../../utils/CommonFunctions';
+import { styles } from './styles';
 
 type MoviesScreenRouteProp = RouteProp<MainStackParamList, 'Movies'>;
 
@@ -37,10 +37,10 @@ type MovieData = {
 
 const Shows = () => {
   const route = useRoute<MoviesScreenRouteProp>();
-  const {seriesData} = useSelector(
+  const { seriesData } = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
-  const {activeScreen} = route.params;
+  const { activeScreen } = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
   const [movieCategories, setMovieCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<any>(0);
@@ -99,7 +99,8 @@ const Shows = () => {
     <MainLayout
       activeScreen={activeScreen || 'Movies'}
       hideSidebar={!showCategoryAndSidebar}
-      setIsFocused={setIsFocused}>
+      setIsFocused={setIsFocused}
+    >
       <StatusBar
         backgroundColor="transparent"
         translucent
@@ -120,8 +121,8 @@ const Shows = () => {
             'transparent',
             'transparent',
           ]}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 0}}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
           style={styles.homeGradientFocused}
         />
       )}
@@ -130,9 +131,10 @@ const Shows = () => {
         <View
           style={[
             styles.categoryListContainer,
-            !showCategoryAndSidebar && {width: 0, overflow: 'hidden'},
+            !showCategoryAndSidebar && { width: 0, overflow: 'hidden' },
           ]}
-          nativeID="categoryList">
+          nativeID="categoryList"
+        >
           <CategoryList
             categories={seriesData}
             selectedCategory={selectedCategory}
