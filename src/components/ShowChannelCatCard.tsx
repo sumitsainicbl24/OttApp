@@ -69,6 +69,7 @@ interface ShowChannelCatCardProps {
     programPosition: any,
   ) => void;
   handleBlockPress?: (show: ShowData) => void;
+  firstFocusableRef?: React.RefObject<any>;
 }
 
 const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
@@ -84,6 +85,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   onProgramFocusWithAutoScroll,
   handleBlockPress,
   showCurrentDetails = false,
+  firstFocusableRef,
 }) => {
   const { currentlyPlaying } = useSelector(
     (state: RootState) => state.rootReducer.main,
@@ -370,11 +372,18 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       }),
     );
     // handleBlockPress?.(show);
-    if (streamUrl === show.url) {
+    
+    // Check if the same URL is already set - check multiple sources
+    const isUrlAlreadySet =
+      streamUrl === show.url ||
+      (currentlyPlaying && currentlyPlaying.url === show.url);
+    
+    if (isUrlAlreadySet) {
       handleDoubleClick();
       setLastTap(null);
       return;
     }
+    
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 300;
 
@@ -401,11 +410,13 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     handleBlockPress,
     handleDoubleClick,
     lastTap,
+    currentlyPlaying,
   ]);
 
   const renderFallbackProgramItem = React.useCallback(
     ({ item, index }: { item: any; index: number }) => (
       <TouchableOpacity
+        ref={index === 0 ? firstFocusableRef : undefined}
         style={[
           styles.programBlock,
           focusedProgramIndex === index && styles.programBlockFocused,
@@ -435,6 +446,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       handleProgramFocus,
       handleProgramBlur,
       handlePress,
+      firstFocusableRef,
     ],
   );
 
@@ -444,13 +456,16 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       programPositions.map((position, index) => (
         <ProgramItem
           key={position.program.id || `program-${index}`}
+          ref={index === 0 ? firstFocusableRef : undefined}
           position={position}
           index={index}
           focusedProgramIndex={focusedProgramIndex}
           hasTVPreferredFocus={hasTVPreferredFocus || false}
           onFocus={handleProgramFocus}
           onBlur={handleProgramBlur}
-          onPress={handlePress}
+          show={show}
+          currentStreamUrl={streamUrl}
+          setChannelUrl={setChannelUrl}
         />
       )),
     [
@@ -459,7 +474,10 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       hasTVPreferredFocus,
       handleProgramFocus,
       handleProgramBlur,
-      handlePress,
+      show,
+      streamUrl,
+      setChannelUrl,
+      firstFocusableRef,
     ],
   );
 
@@ -497,7 +515,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             style={{ overflow: 'hidden', width: '70%', flexDirection: 'row' }}
           >
             <SimpleMarquee
-              text={show.title || show?.name || 'Channel Name'}
+              text={show.title || 'Channel Name'}
               shouldStart={focusedProgramIndex !== null}
               textStyle={[
                 styles.channelNameText,
@@ -526,7 +544,10 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         </View>
 
         <View style={styles.programSchedule}>
+        {/* <View style={styles.timelineProgramContainer}>{programItems}</View> */}
+
           {programPositions.length > 0 ? (
+   
             <View style={styles.timelineProgramContainer}>{programItems}</View>
           ) : (
             <FlashList

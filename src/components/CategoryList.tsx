@@ -1,23 +1,21 @@
+import { FlashList, FlashListRef } from '@shopify/flash-list';
 import React, {
-  useState,
-  useRef,
-  useMemo,
-  useEffect,
   useCallback,
+  useMemo,
+  useRef,
+  useState
 } from 'react';
 import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
   StyleProp,
-  ViewStyle,
+  StyleSheet,
+  TouchableOpacity,
   TVFocusGuideView,
+  ViewStyle
 } from 'react-native';
-import { FlashList, FlashListRef } from '@shopify/flash-list';
-import { samepleCategoryData } from '../screens/main/Movies/DummyData';
 import FontFamily from '../constants/FontFamily';
-import { moderateScale, scale, verticalScale } from '../styles/scaling';
+import { samepleCategoryData } from '../screens/main/Movies/DummyData';
 import { CommonColors } from '../styles/Colors';
+import { moderateScale, scale, verticalScale } from '../styles/scaling';
 import SimpleMarquee from './MarqueeText';
 
 type ObjectCategory = {
@@ -35,6 +33,7 @@ interface CategoryListProps {
   onFocus?: (category: number, categoryName: string, categoryItem: any) => void;
   onBlur?: () => void;
   style?: StyleProp<ViewStyle>;
+  nextFocusRightRef?: React.RefObject<any>;
 }
 
 type NormalizedCategory = {
@@ -49,9 +48,11 @@ const CategoryList: React.FC<CategoryListProps> = ({
   onFocus,
   onBlur,
   style,
+  nextFocusRightRef,
 }) => {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const flashListRef = useRef<FlashListRef<any>>(null);
+  const itemRefs = useRef<{ [key: number]: React.RefObject<TouchableOpacity> }>({});
 
   console.log('selectedCategory-->>>>>>>', selectedCategory);
 
@@ -92,8 +93,14 @@ const CategoryList: React.FC<CategoryListProps> = ({
       const isSelected = categoryItem.category_id === selectedCategory;
       const isFocused = focusedIndex === index;
 
+      // Create ref for this item if it doesn't exist
+      if (!itemRefs.current[index]) {
+        itemRefs.current[index] = React.createRef<TouchableOpacity>();
+      }
+
       return (
         <TouchableOpacity
+          ref={itemRefs.current[index]}
           style={[
             styles.categoryItem,
             (isFocused || isSelected) && styles.categoryItemFocused,
@@ -108,6 +115,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
           }
           onBlur={handleBlur}
           activeOpacity={1}
+          nextFocusRight={nextFocusRightRef?.current || undefined}
         >
           <SimpleMarquee
             text={categoryItem.category_name}
@@ -120,7 +128,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
         </TouchableOpacity>
       );
     },
-    [focusedIndex, handleFocus, handleBlur],
+    [focusedIndex, handleFocus, handleBlur, nextFocusRightRef],
   );
 
   return (

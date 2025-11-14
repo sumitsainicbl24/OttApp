@@ -75,6 +75,7 @@ interface ShowChannelCatCarouselProps {
   }) => void;
   loading?: boolean;
   handleBlockPress?: (show: ShowData) => void;
+  firstFocusableRef?: React.RefObject<any>;
 }
 
 const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
@@ -92,11 +93,10 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   setProgramDetails,
   loading = false,
   handleBlockPress,
+  firstFocusableRef,
 }) => {
   // console.log('data--->>>>>', data);
-  const { currentlyPlaying } = useSelector(
-    (state: RootState) => state.rootReducer.main,
-  );
+
   const flashListRef = useRef<FlashList<ShowData>>(null);
   const timelineScrollRef = useRef<ScrollView>(null);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
@@ -267,6 +267,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
         setProgramDetails={setProgramDetails}
         timelineConfig={timelineConfig}
         onProgramFocusWithAutoScroll={handleProgramFocusWithAutoScroll}
+        firstFocusableRef={index === 0 ? firstFocusableRef : undefined}
       />
     ),
     [
@@ -276,9 +277,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
       setProgramDetails,
       timelineConfig,
       handleProgramFocusWithAutoScroll,
-      handleBlockPress,
-      data,
-      currentlyPlaying
+      firstFocusableRef,
     ],
   );
 

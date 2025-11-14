@@ -11,6 +11,7 @@ interface AuthState {
   channelsData: any;
   userToken: string;
   epgDataLoading: boolean;
+  epgDatClearing: boolean;
 }
 
 const initialState: AuthState = {
@@ -22,6 +23,7 @@ const initialState: AuthState = {
   channelsData: null,
   userToken: '',
   epgDataLoading: false,
+  epgDatClearing: false,
 };
 
 const authSlice = createSlice({
@@ -52,6 +54,9 @@ const authSlice = createSlice({
     setEpgDataLoading: (state, action: PayloadAction<any>) => {
       state.epgDataLoading = action.payload;
     },
+    setEpgDatClearing: (state, action: PayloadAction<any>) => {
+      state.epgDatClearing = action.payload;
+    },
   },
 });
 
@@ -64,5 +69,6 @@ export const {
   setChannelsData,
   setUserToken,
   setEpgDataLoading,
+  setEpgDatClearing,
 } = authSlice.actions;
 export default authSlice.reducer;

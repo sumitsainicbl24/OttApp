@@ -9,14 +9,17 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import SettingOverlay from '../../../components/SettingOverlay';
 import { MainStackParamList } from '../../../navigation/NavigationsTypes';
-import { fetchChannelsDataWithEpg } from '../../../redux/actions/main';
+import {
+  fetchChannelsDataWithEpg,
+  fetchChannelsDataWithoutEpg,
+} from '../../../redux/actions/main';
 import { CommonColors } from '../../../styles/Colors';
 import { styles } from './styles';
 import { RootState } from '../../../redux/store';
 
 const Settings = () => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
-  const { epgDataLoading } = useSelector(
+  const { epgDataLoading ,epgDatClearing} = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
   const [focusedOption, setFocusedOption] = useState('');
@@ -43,6 +46,9 @@ const Settings = () => {
       case 'Update EPG':
         dispatch(fetchChannelsDataWithEpg() as any);
         break;
+      case 'Clear EPG':
+        dispatch(fetchChannelsDataWithoutEpg() as any);
+        break;
     }
   };
 
@@ -63,6 +69,9 @@ const Settings = () => {
         } as any)}
       >
         {epgDataLoading && title === 'Update EPG' && (
+          <ActivityIndicator size="small" color={CommonColors.black} />
+        )}
+        {epgDatClearing && title === 'Clear EPG' && (
           <ActivityIndicator size="small" color={CommonColors.black} />
         )}
         <Text
@@ -96,6 +105,7 @@ const Settings = () => {
         {renderSettingOption('General')}
         {renderSettingOption('Playlists')}
         {renderSettingOption('Update EPG')}
+        {renderSettingOption('Clear EPG')}
         {renderSettingOption('Appearance')}
         {renderSettingOption('Playback')}
         {renderSettingOption('Remote control')}

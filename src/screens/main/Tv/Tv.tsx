@@ -152,6 +152,7 @@ const Tv = () => {
   }, [showCategoryAndSidebar]);
 
   const [isFocused, setIsFocused] = useState(false);
+  const firstChannelProgramRef = useRef<any>(null);
 
   return (
     <MainLayout
@@ -196,6 +197,7 @@ const Tv = () => {
               categories={memorizeChannelsData}
               selectedCategory={memorizeSelectedCategory}
               onFocus={handleCategoryListFocus}
+              nextFocusRightRef={firstChannelProgramRef}
             />
           </TVFocusGuideView>
 
@@ -227,6 +229,7 @@ const Tv = () => {
                   type="channels"
                   setChannelUrl={handleChannelUrl}
                   setProgramDetails={handleProgramDetails}
+                  firstFocusableRef={firstChannelProgramRef}
                   // loading={loading}
                 />
               </TVFocusGuideView>

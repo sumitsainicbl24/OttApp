@@ -34,6 +34,7 @@ import {
 import {
   setChannelsData,
   setEpgDataLoading,
+  setEpgDatClearing,
   setUserData,
   setUserToken,
 } from '../reducers/auth';
@@ -42,6 +43,7 @@ import { RootState } from '../store';
 import { channelData } from '../../screens/main/Tv/TvWithoutMediaPlayer';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getCategoryApi } from './auth';
+import Toast from 'react-native-toast-message';
 
 const { dispatch } = store;
 
@@ -348,11 +350,45 @@ export const fetchChannelsDataWithEpg = createAsyncThunk(
       let res = await getCategoryApi('live', true);
       console.log('res from fetchChannelsDataWithEpg--->>>', res);
       dispatch(setChannelsData(res?.data?.data?.data));
+      Toast.show({
+        text1: 'EPG data fetched successfully',
+        type: 'success',
+      });
       return;
     } catch (err: any) {
+      Toast.show({
+        text1: 'EPG data fetching failed',
+        type: 'error',
+      });
       return rejectWithValue(err.response?.data || err.message);
     } finally {
       dispatch(setEpgDataLoading(false));
+    }
+  },
+);
+
+export const fetchChannelsDataWithoutEpg = createAsyncThunk(
+  'data/fetchChannelsDataWithoutEpg',
+  async (payload, { dispatch, rejectWithValue }) => {
+    try {
+      console.log('called');
+      dispatch(setEpgDatClearing(true));
+      let res = await getCategoryApi('live', false);
+      console.log('res from fetchChannelsDataWithEpg--->>>', res);
+      dispatch(setChannelsData(res?.data?.data?.data));
+      Toast.show({
+        text1: 'EPG data Cleared successfully',
+        type: 'success',
+      });
+      return;
+    } catch (err: any) {
+      Toast.show({
+        text1: 'EPG data clearing failed',
+        type: 'error',
+      });
+      return rejectWithValue(err.response?.data || err.message);
+    } finally {
+      dispatch(setEpgDatClearing(false));
     }
   },
 );
