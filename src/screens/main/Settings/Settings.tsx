@@ -1,6 +1,11 @@
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import SettingOverlay from '../../../components/SettingOverlay';
 import { MainStackParamList } from '../../../navigation/NavigationsTypes';
@@ -35,7 +40,7 @@ const Settings = () => {
         break;
       case 'Other':
         navigation.navigate('OtherSettings');
-      case 'EPG':
+      case 'Update EPG':
         dispatch(fetchChannelsDataWithEpg() as any);
         break;
     }
@@ -57,18 +62,18 @@ const Settings = () => {
           isTVSelectable: true,
         } as any)}
       >
-        {epgDataLoading ? (
-          <ActivityIndicator size="small" color={CommonColors.white} />
-        ) : (
-          <Text
-            style={{
-              ...styles.settingOptionText,
-              color: isFocused ? CommonColors.black : CommonColors.white,
-            }}
-          >
-            {title}
-          </Text>
+        {epgDataLoading && title === 'Update EPG' && (
+          <ActivityIndicator size="small" color={CommonColors.black} />
         )}
+        <Text
+          style={{
+            ...styles.settingOptionText,
+            color: isFocused ? CommonColors.black : CommonColors.white,
+          }}
+        >
+          {title}
+        </Text>
+
         {/* <Text
           style={{
             ...styles.settingOptionText,
@@ -90,7 +95,7 @@ const Settings = () => {
       >
         {renderSettingOption('General')}
         {renderSettingOption('Playlists')}
-        {renderSettingOption('EPG')}
+        {renderSettingOption('Update EPG')}
         {renderSettingOption('Appearance')}
         {renderSettingOption('Playback')}
         {renderSettingOption('Remote control')}

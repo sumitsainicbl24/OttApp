@@ -82,22 +82,22 @@ const ProgramItem: React.FC<ProgramItemProps> = ({
   );
 };
 
-// Custom comparison function for better memoization
-const areEqual = (
-  prevProps: ProgramItemProps,
-  nextProps: ProgramItemProps,
-): boolean => {
-  return (
-    prevProps.index === nextProps.index &&
-    prevProps.focusedProgramIndex === nextProps.focusedProgramIndex &&
-    prevProps.position.left === nextProps.position.left &&
-    prevProps.position.width === nextProps.position.width &&
-    prevProps.position.title === nextProps.position.title &&
-    prevProps.hasTVPreferredFocus === nextProps.hasTVPreferredFocus
-  );
-};
+// // Custom comparison function for better memoization
+// const areEqual = (
+//   prevProps: ProgramItemProps,
+//   nextProps: ProgramItemProps,
+// ): boolean => {
+//   return (
+//     prevProps.index === nextProps.index &&
+//     prevProps.focusedProgramIndex === nextProps.focusedProgramIndex &&
+//     prevProps.position.left === nextProps.position.left &&
+//     prevProps.position.width === nextProps.position.width &&
+//     prevProps.position.title === nextProps.position.title &&
+//     prevProps.hasTVPreferredFocus === nextProps.hasTVPreferredFocus
+//   );
+// };
 
-export default React.memo(ProgramItem, areEqual);
+export default React.memo(ProgramItem);
 
 const styles = StyleSheet.create({
   programText: {

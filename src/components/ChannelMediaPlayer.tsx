@@ -91,15 +91,15 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
   const handleError = useCallback((error: any) => {
     console.error('Video error:', error);
     setVideoLoading(false);
-    setIsRetrying(true);
+    // setIsRetrying(true);
 
-    // Auto retry after 3 seconds
-    console.log('Auto retrying in 3 seconds...');
-    retryTimeoutRef.current = setTimeout(() => {
-      setVideoKey(prev => prev + 1); // Force re-render
-      setVideoLoading(true);
-      setIsRetrying(false);
-    }, 3000);
+    // // Auto retry after 3 seconds
+    // console.log('Auto retrying in 3 seconds...');
+    // retryTimeoutRef.current = setTimeout(() => {
+    //   setVideoKey(prev => prev + 1); // Force re-render
+    //   setVideoLoading(true);
+    //   setIsRetrying(false);
+    // }, 3000);
   }, []);
 
   return (

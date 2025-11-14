@@ -384,7 +384,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       setLastTap(null);
     } else {
       // Single click - change the stream URL (OK button press)
-      handleBlockPress?.(show);
+      // handleBlockPress?.(show);
 
       setStreamUrl(show.url || '');
       setChannelUrl?.('');

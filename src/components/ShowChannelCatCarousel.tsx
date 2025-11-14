@@ -33,6 +33,8 @@ import {
   createTimelineConfig,
   getCurrentTimePosition,
 } from '../utils/timelineUtils';
+import { RootState } from '../redux/store';
+import { useSelector } from 'react-redux';
 
 interface ShowData {
   group?: string;
@@ -92,6 +94,9 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   handleBlockPress,
 }) => {
   // console.log('data--->>>>>', data);
+  const { currentlyPlaying } = useSelector(
+    (state: RootState) => state.rootReducer.main,
+  );
   const flashListRef = useRef<FlashList<ShowData>>(null);
   const timelineScrollRef = useRef<ScrollView>(null);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
@@ -143,7 +148,6 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   const handleItemFocus = (item: ShowData) => {
     onFocus?.();
     debouncedGetMovieDetails?.(item?.title);
-    // scrollToRow(index);
   };
 
   const timelineConfig = useMemo(
@@ -258,8 +262,6 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
       <ShowChannelCatCard
         show={item}
         channelIndex={index}
-        // handleBlockPress={handleShowPress}
-        // onPress={() => handleShowPress(item)}
         onFocus={handleItemFocus}
         setChannelUrl={setChannelUrl}
         setProgramDetails={setProgramDetails}
@@ -276,8 +278,34 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
       handleProgramFocusWithAutoScroll,
       handleBlockPress,
       data,
+      currentlyPlaying
     ],
   );
+
+  // const renderShowItem = React.useCallback(
+  //   ({ item, index }: { item: ShowData; index: number }) => (
+  //     <ShowChannelCatCard
+  //       show={item}
+  //       channelIndex={index}
+  //       onPress={() => handleShowPress(item)}
+  //       onFocus={() => handleItemFocus(item)}
+  //       setChannelUrl={setChannelUrl}
+  //       setProgramDetails={setProgramDetails}
+  //       timelineConfig={timelineConfig}
+  //       onProgramFocusWithAutoScroll={handleProgramFocusWithAutoScroll}
+  //     />
+  //   ),
+  //   [
+  //     handleShowPress,
+  //     handleItemFocus,
+  //     setChannelUrl,
+  //     setProgramDetails,
+  //     timelineConfig,
+  //     handleProgramFocusWithAutoScroll,
+  //     handleBlockPress,
+  //     data,
+  //   ],
+  // );
 
   return (
     <View style={[styles.sectionContainer, mainStyle]}>

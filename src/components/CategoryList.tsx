@@ -123,7 +123,6 @@ const CategoryList: React.FC<CategoryListProps> = ({
     [focusedIndex, handleFocus, handleBlur],
   );
 
-
   return (
     <TVFocusGuideView autoFocus style={[styles.container, style]}>
       <FlashList
@@ -133,8 +132,6 @@ const CategoryList: React.FC<CategoryListProps> = ({
         contentContainerStyle={styles.contentContainerStyle}
         renderItem={renderItem}
         removeClippedSubviews={false}
-      
-        scrollEventThrottle={16}
       />
     </TVFocusGuideView>
   );

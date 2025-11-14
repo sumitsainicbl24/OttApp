@@ -1,5 +1,5 @@
 // SimpleMarquee.tsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   LayoutChangeEvent,
@@ -7,13 +7,13 @@ import {
   Text,
   TextStyle,
   View,
-} from "react-native";
-import { width } from "../styles/scaling";
+} from 'react-native';
+import { width } from '../styles/scaling';
 
 type Props = {
   text: string;
   speed?: number; // pixels per second
-  gap?: number;   // space between loops
+  gap?: number; // space between loops
   textStyle?: StyleProp<TextStyle>;
   shouldStart?: boolean; // control when animation starts
 };
@@ -39,10 +39,10 @@ export default function SimpleMarquee({
 
       const animation = Animated.loop(
         Animated.timing(translateX, {
-          toValue: -distance *2,
+          toValue: -distance * 2,
           duration,
           useNativeDriver: true,
-        })
+        }),
       );
 
       animationRef.current = animation;
@@ -63,53 +63,56 @@ export default function SimpleMarquee({
   }, [textWidth, speed, translateX, shouldStart]);
 
   return (
-    <View style={{ width:width}}>
-      {shouldStart ? <Animated.View
-        style={{
-          flexDirection: "row",
-          transform: [{ translateX }],
-          // height: 12,
-          gap: textWidth,
-        }}
-      >
-        {/* first copy */}
-        <Text
-          style={[{ fontSize: 16 }, textStyle]}
-          numberOfLines={1}
-          onLayout={(e: LayoutChangeEvent) =>
-            setTextWidth(e.nativeEvent.layout.width)
-          }
+    <View style={{ width: width }}>
+      {shouldStart ? (
+        <Animated.View
+          style={{
+            flexDirection: 'row',
+            transform: [{ translateX }],
+            // height: 12,
+            gap: textWidth,
+          }}
         >
-          {text}
-        </Text>
+          {/* first copy */}
+          <Text
+            style={[{ fontSize: 16 }, textStyle]}
+            numberOfLines={1}
+            onLayout={(e: LayoutChangeEvent) =>
+              setTextWidth(e.nativeEvent.layout.width)
+            }
+          >
+            {text}
+          </Text>
 
-        {/* second copy */}
-        <Text
-          style={[{ fontSize: 16 }, textStyle]}
-          numberOfLines={1}
-          onLayout={(e: LayoutChangeEvent) =>
-            setTextWidth(e.nativeEvent.layout.width)
-          }
+          {/* second copy */}
+          <Text
+            style={[{ fontSize: 16 }, textStyle]}
+            numberOfLines={1}
+            onLayout={(e: LayoutChangeEvent) =>
+              setTextWidth(e.nativeEvent.layout.width)
+            }
+          >
+            {text}
+          </Text>
+        </Animated.View>
+      ) : (
+        <View
+          style={{
+            flexDirection: 'row',
+            // height: 12,
+          }}
         >
-          {text}
-        </Text>
-      </Animated.View> 
-      : 
-      <View style={{
-          flexDirection: "row",
-        // height: 12,
-        }}>
-      <Text
-      style={[{ fontSize: 16 }, textStyle]}
-      numberOfLines={1}
-      onLayout={(e: LayoutChangeEvent) =>
-        setTextWidth(e.nativeEvent.layout.width)
-      }
-    >
-      {text}
-    </Text>
-    </View>
-        }
+          <Text
+            style={[{ fontSize: 16 }, textStyle]}
+            numberOfLines={1}
+            onLayout={(e: LayoutChangeEvent) =>
+              setTextWidth(e.nativeEvent.layout.width)
+            }
+          >
+            {text}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }

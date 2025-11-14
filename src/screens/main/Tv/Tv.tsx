@@ -6,7 +6,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { StatusBar, TVFocusGuideView, View } from 'react-native';
+import {
+  ActivityIndicator,
+  StatusBar,
+  TVFocusGuideView,
+  View,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
@@ -21,6 +26,7 @@ import { debounce } from 'lodash';
 import { clearEPGCaches } from '../../../utils/epgUtils';
 import { styles } from './styles';
 import { CommonColors } from '../../../styles/Colors';
+import ChannelEpgCarousal from '../../../components/ChannelEpgCarousal';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
@@ -29,7 +35,13 @@ const Tv = () => {
   const { channelsData } = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
-  console.log('channelsData---->>>>', channelsData);
+  const [loader, setLoader] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoader(false);
+    }, 3000);
+  }, []);
   const { activeScreen } = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<any>(0);
@@ -173,46 +185,59 @@ const Tv = () => {
         />
       )}
 
-      <View style={styles.container}>
-        <TVFocusGuideView
-          style={categoryListContainerStyle}
-          nativeID="categoryList"
-          autoFocus
-        >
-          <CategoryList
-            categories={memorizeChannelsData}
-            selectedCategory={memorizeSelectedCategory}
-            onFocus={handleCategoryListFocus}
-          />
-        </TVFocusGuideView>
-
-        <View style={{ marginLeft: -1 }}>
-          <ChannelMediaPlayer
-            imageSource={imagepath.TvDemoImage}
-            showTitle={currentProgramDetails.showTitle}
-            timeSlot={currentProgramDetails.timeSlot}
-            progressPercentage={currentProgramDetails.progressPercentage}
-            duration={currentProgramDetails.duration}
-            description={currentProgramDetails.description}
-            streamUrl={memorizeStreamUrl}
-            selectedCategory={selectedCategoryName}
-            loading={loading}
-          />
-          <TVFocusGuideView autoFocus style={styles.scrollContainer}>
-            <TVFocusGuideView style={styles.showChannelCatCarouselContainer}>
-              <ShowChannelCatCarousel
-                title={selectedCategory}
-                data={selectedCategoryData}
-                onFocus={handleScrollViewFocus}
-                type="channels"
-                setChannelUrl={handleChannelUrl}
-                setProgramDetails={handleProgramDetails}
-                // loading={loading}
-              />
-            </TVFocusGuideView>
+      {!loader ? (
+        <View style={styles.container}>
+          <TVFocusGuideView
+            style={categoryListContainerStyle}
+            nativeID="categoryList"
+            autoFocus
+          >
+            <CategoryList
+              categories={memorizeChannelsData}
+              selectedCategory={memorizeSelectedCategory}
+              onFocus={handleCategoryListFocus}
+            />
           </TVFocusGuideView>
+
+          <View style={{ marginLeft: -1 }}>
+            <ChannelMediaPlayer
+              imageSource={imagepath.TvDemoImage}
+              showTitle={currentProgramDetails.showTitle}
+              timeSlot={currentProgramDetails.timeSlot}
+              progressPercentage={currentProgramDetails.progressPercentage}
+              duration={currentProgramDetails.duration}
+              description={currentProgramDetails.description}
+              streamUrl={memorizeStreamUrl}
+              selectedCategory={selectedCategoryName}
+              loading={loading}
+            />
+            <View style={styles.scrollContainer}>
+              <TVFocusGuideView
+                autoFocus
+                style={styles.showChannelCatCarouselContainer}
+              >
+                {/* <ChannelEpgCarousal
+                ChannelsWithEpg={selectedCategoryData}
+                onFocus={handleScrollViewFocus}
+              /> */}
+                <ShowChannelCatCarousel
+                  title={selectedCategory}
+                  data={selectedCategoryData}
+                  onFocus={handleScrollViewFocus}
+                  type="channels"
+                  setChannelUrl={handleChannelUrl}
+                  setProgramDetails={handleProgramDetails}
+                  // loading={loading}
+                />
+              </TVFocusGuideView>
+            </View>
+          </View>
         </View>
-      </View>
+      ) : (
+        <View style={{ flex: 1, backgroundColor: CommonColors.black ,justifyContent:'center'}}>
+          <ActivityIndicator size="large" color={CommonColors.white} />
+        </View>
+      )}
     </MainLayout>
   );
 };

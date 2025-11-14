@@ -8,7 +8,7 @@ type ExtendedAxiosRequestConfig = AxiosRequestConfig;
 // Create axios instance with base configuration
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  // timeout: 150000,
+  timeout: 150000,
   headers: {
     'Content-Type': 'application/json',
     // Add ngrok-skip-browser-warning header to avoid ngrok browser warning page

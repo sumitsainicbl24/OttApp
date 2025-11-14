@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
-import {CommonColors} from '../../../styles/Colors';
-import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
+import { StyleSheet } from 'react-native';
+import { CommonColors } from '../../../styles/Colors';
+import { moderateScale, scale, verticalScale } from '../../../styles/scaling';
 import FontFamily from '../../../constants/FontFamily';
 
 export const styles = StyleSheet.create({
@@ -89,7 +89,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(20),
     marginHorizontal: moderateScale(8),
     borderRadius: moderateScale(10),
-
+    flexDirection: 'row',
+    gap: moderateScale(10),
     // borderBottomWidth: 1,
     // borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },

@@ -78,20 +78,20 @@ const epgProcessCache = new Map<string, any[]>();
  */
 const generateEPGCacheKey = (epgData: EPGProgram[]): string => {
   if (!epgData || epgData.length === 0) return 'empty';
-  
+
   // Create a simple hash based on program IDs and timestamps
   const keyData = epgData
     .map(p => `${p.id}-${p.start_timestamp}-${p.stop_timestamp}`)
     .sort()
     .join('|');
-  
+
   return keyData;
 };
 
 // Default fallback programs for 24-hour timeline - created once to avoid recreation
 const DEFAULT_PROGRAMS = [
-  {title: 'No information', duration: 'current', color: '#3E4756'},
-  {title: 'No information', duration: 'next', color: '#232629'},
+  { title: 'No information', duration: 'current', color: '#3E4756' },
+  { title: 'No information', duration: 'next', color: '#232629' },
   {
     title: 'No information',
     duration: 'later',
@@ -135,7 +135,7 @@ export const processEPGData = (epgData: EPGProgram[]): any[] => {
   const programsWithTimestamps = epgData.map(program => ({
     ...program,
     startTime: parseInt(program.start_timestamp),
-    endTime: parseInt(program.stop_timestamp)
+    endTime: parseInt(program.stop_timestamp),
   }));
 
   // Sort by start time (more efficient than creating new array)
@@ -143,18 +143,22 @@ export const processEPGData = (epgData: EPGProgram[]): any[] => {
 
   // Get current time once
   const now = Math.floor(Date.now() / 1000);
-  
+
   // Find current program and upcoming programs for 24 hours
   let currentProgram = null;
   let upcomingPrograms = [];
-  
+
   // Calculate 24 hours from now (in seconds)
-  const twentyFourHoursFromNow = now + (24 * 60 * 60);
-  
+  const twentyFourHoursFromNow = now + 24 * 60 * 60;
+
   for (const program of programsWithTimestamps) {
     if (program.startTime <= now && program.endTime > now) {
       currentProgram = program;
-    } else if (program.startTime > now && program.startTime <= twentyFourHoursFromNow && upcomingPrograms.length < 20) {
+    } else if (
+      program.startTime > now &&
+      program.startTime <= twentyFourHoursFromNow &&
+      upcomingPrograms.length < 20
+    ) {
       // Collect up to 20 upcoming programs within 24 hours
       upcomingPrograms.push(program);
     }
@@ -162,20 +166,20 @@ export const processEPGData = (epgData: EPGProgram[]): any[] => {
 
   // Build result array efficiently
   const result = [];
-  
+
   // Add current program
   if (currentProgram) {
     result.push({
       title: decodeEPGTitle(currentProgram.title),
       duration: 'current',
       color: '#3E4756',
-      epgData: currentProgram
+      epgData: currentProgram,
     });
   } else {
     result.push({
       title: 'No information',
       duration: 'current',
-      color: '#3E4756'
+      color: '#3E4756',
     });
   }
 
@@ -185,7 +189,7 @@ export const processEPGData = (epgData: EPGProgram[]): any[] => {
       title: decodeEPGTitle(program.title),
       duration: index === 0 ? 'next' : 'later',
       color: index === 0 ? '#232629' : 'rgba(255, 255, 255, 0.2)',
-      epgData: program
+      epgData: program,
     });
   });
 
@@ -201,7 +205,7 @@ export const processEPGData = (epgData: EPGProgram[]): any[] => {
 
   // Cache the result
   epgProcessCache.set(cacheKey, result);
-  
+
   // Limit cache size to prevent memory leaks
   if (epgProcessCache.size > 100) {
     const firstKey = epgProcessCache.keys().next().value;
@@ -231,7 +235,10 @@ export const getEPGCacheStats = () => {
     titleCacheSize: titleDecodeCache.size,
     descriptionCacheSize: descriptionDecodeCache.size,
     epgCacheSize: epgProcessCache.size,
-    totalCacheSize: titleDecodeCache.size + descriptionDecodeCache.size + epgProcessCache.size
+    totalCacheSize:
+      titleDecodeCache.size +
+      descriptionDecodeCache.size +
+      epgProcessCache.size,
   };
 };
 
@@ -240,28 +247,38 @@ export const getEPGCacheStats = () => {
  */
 export const exampleEPGData: EPGProgram[] = [
   {
-    "id": "131637090",
-    "epg_id": "12",
-    "title": "TWNEb25hbGQgYW5kIERvZGRz", // Base64 encoded: "Donald and Dodds"
-    "lang": "en",
-    "start": "2025-09-01 00:00:00",
-    "end": "2025-09-01 01:35:00",
-    "description": "TWNEb25hbGQgZW4gRG9kZHMgd29yZGVuIGRlIHdlcmVsZCB2YW4gRm9ybXVsZSAxIGluZ2V6b2dlbiBuYWRhdCBlZW4gdGFsZW50dm9sbGUgY291cmV1ciBvdmVybGlqZHQu",
-    "channel_id": "npo1.nl",
-    "start_timestamp": "1756677600",
-    "stop_timestamp": "1756683300",
-    "now_playing": 0,
-    "has_archive": 0
-  }
+    id: '131637090',
+    epg_id: '12',
+    title: 'TWNEb25hbGQgYW5kIERvZGRz', // Base64 encoded: "Donald and Dodds"
+    lang: 'en',
+    start: '2025-09-01 00:00:00',
+    end: '2025-09-01 01:35:00',
+    description:
+      'TWNEb25hbGQgZW4gRG9kZHMgd29yZGVuIGRlIHdlcmVsZCB2YW4gRm9ybXVsZSAxIGluZ2V6b2dlbiBuYWRhdCBlZW4gdGFsZW50dm9sbGUgY291cmV1ciBvdmVybGlqZHQu',
+    channel_id: 'npo1.nl',
+    start_timestamp: '1756677600',
+    stop_timestamp: '1756683300',
+    now_playing: 0,
+    has_archive: 0,
+  },
 ];
 
 /**
  * Example of how channel data with EPG should be structured
  */
 export const exampleChannelWithEPG = {
-  group: "NL | KIDS [LIVE]",
-  title: "Nick Music",
-  logo: "https://example.com/nickmusic-logo.png",
-  url: "https://example.com/stream.m3u8",
-  epg: exampleEPGData
+  group: 'NL | KIDS [LIVE]',
+  title: 'Nick Music',
+  logo: 'https://example.com/nickmusic-logo.png',
+  url: 'https://example.com/stream.m3u8',
+  epg: exampleEPGData,
+};
+
+export const calculateProgramWidth = (epg: EPGProgram): number => {
+
+  // Calculate duration in milliseconds
+  const duration = Number(epg.stop_timestamp) - Number(epg.start_timestamp);
+
+  // Calculate width: 3.33 pixels per second
+  return Math.ceil(duration / 18);
 };
