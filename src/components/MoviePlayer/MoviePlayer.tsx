@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,12 +10,12 @@ import {
   useTVEventHandler,
   TVFocusGuideView,
 } from 'react-native';
-import Video, {VideoRef} from 'react-native-video';
+import Video, { VideoRef } from 'react-native-video';
 import LinearGradient from 'react-native-linear-gradient';
-import {useSelector} from 'react-redux';
-import {moderateScale, verticalScale, scale} from '../../styles/scaling';
-import {CommonColors} from '../../styles/Colors';
-import {RootState} from '../../redux/store';
+import { useSelector } from 'react-redux';
+import { moderateScale, verticalScale, scale } from '../../styles/scaling';
+import { CommonColors } from '../../styles/Colors';
+import { RootState } from '../../redux/store';
 import VideoInfoBadges from './VideoInfoBadges';
 import ProgressBar from './ProgressBar';
 import PlaybackControls from './PlaybackControls';
@@ -52,9 +52,10 @@ const MoviePlayer: React.FC<MoviePlayerProps> = ({
   hideControls = false,
 }) => {
   const videoRef = useRef<VideoRef>(null);
+  const videoViewRef = useRef<View>(null);
 
   // Get series episodes from Redux
-  const {currentSeriesEpisodes} = useSelector(
+  const { currentSeriesEpisodes } = useSelector(
     (state: RootState) => state.rootReducer.main,
   );
 
@@ -469,38 +470,43 @@ const MoviePlayer: React.FC<MoviePlayerProps> = ({
     }, 100);
   };
 
+  const bufferConfig = {
+    minBufferMs: 15000,
+    maxBufferMs: 50000,
+    bufferForPlaybackMs: 2500,
+    bufferForPlaybackAfterRebufferMs: 5000,
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.videoContainer}
         onPress={handleScreenPress}
-        activeOpacity={1}>
-        <Video
-          ref={videoRef}
-          source={{
-            uri: streamUrl,
-            headers: {
-              'User-Agent': 'React-Native-TV-Player/1.0.0',
-            },
-          }}
-          style={styles.video}
-          resizeMode="cover"
-          controls={false}
-          paused={paused}
-          onLoad={handleLoad}
-          onError={handleError}
-          onProgress={handleProgress}
-          repeat={false}
-          playInBackground={false}
-          playWhenInactive={false}
-          ignoreSilentSwitch="ignore"
-          bufferConfig={{
-            minBufferMs: 15000,
-            maxBufferMs: 50000,
-            bufferForPlaybackMs: 2500,
-            bufferForPlaybackAfterRebufferMs: 5000,
-          }}
-        />
+        activeOpacity={1}
+      >
+        <View ref={videoViewRef} style={styles.video}>
+          <Video
+            ref={videoRef}
+            source={{
+              uri: streamUrl,
+              headers: {
+                'User-Agent': 'React-Native-TV-Player/1.0.0',
+              },
+              bufferConfig: bufferConfig,
+            }}
+            style={StyleSheet.absoluteFill}
+            resizeMode="cover"
+            controls={false}
+            paused={paused}
+            onLoad={handleLoad}
+            onError={handleError}
+            onProgress={handleProgress}
+            repeat={false}
+            playInBackground={false}
+            playWhenInactive={false}
+            ignoreSilentSwitch="ignore"
+          />
+        </View>
 
         {/* Top Gradient Overlay */}
         <LinearGradient
@@ -578,13 +584,7 @@ const MoviePlayer: React.FC<MoviePlayerProps> = ({
                       forwardRef={forwardRef}
                       settingsRef={settingsRef}
                     />
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        gap: moderateScale(20),
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
+                    <View style={styles.bottomRightContainer}>
                       {isSeries && (
                         <EpisodeButton
                           ref={episodeRef}
@@ -618,6 +618,8 @@ const MoviePlayer: React.FC<MoviePlayerProps> = ({
         <SettingsModal
           visible={showSettingsModal}
           onClose={handleCloseSettingsModal}
+          videoRef={videoRef}
+          videoViewRef={videoViewRef}
         />
 
         {/* Episode Modal */}
@@ -639,15 +641,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: CommonColors.black,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bottomRightContainer: {
+    flexDirection: 'row',
+    gap: moderateScale(20),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   videoContainer: {
     flex: 1,
-    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   video: {
     flex: 1,
     width: '100%',
     height: '100%',
+    aspectRatio: '16/9',
   },
   topGradient: {
     position: 'absolute',

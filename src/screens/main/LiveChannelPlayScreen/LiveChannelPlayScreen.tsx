@@ -4,7 +4,7 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -20,17 +20,17 @@ import {
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Video, {VideoRef} from 'react-native-video';
-import {useDispatch, useSelector} from 'react-redux';
+import Video, { VideoRef } from 'react-native-video';
+import { useDispatch, useSelector } from 'react-redux';
 import MainLayout from '../../../components/MainLayout';
 import imagepath from '../../../constants/imagepath';
-import {RootState} from '../../../redux/store';
-import {CommonColors} from '../../../styles/Colors';
-import {moderateScale, scale, verticalScale} from '../../../styles/scaling';
+import { RootState } from '../../../redux/store';
+import { CommonColors } from '../../../styles/Colors';
+import { moderateScale, scale, verticalScale } from '../../../styles/scaling';
 import TvGuideModal from './TvGuideModal';
 import HistoryModal from './HistoryModal';
 
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import { MainStackParamList } from '../../../navigation/NavigationsTypes';
 
 import {
   clearLiveTvHistoryApi,
@@ -39,14 +39,14 @@ import {
   getLiveTvHistoryApiWithDateApi,
   saveHistoryApi,
 } from '../../../redux/actions/main';
-import {setCurrentlyPlaying} from '../../../redux/reducers/main';
-import {channelData} from '../Tv/TvWithoutMediaPlayer';
-import {styles} from './styles';
+import { setCurrentlyPlaying } from '../../../redux/reducers/main';
+import { channelData } from '../Tv/TvWithoutMediaPlayer';
+import { styles } from './styles';
 import FastImage from 'react-native-fast-image';
-import {getProxyImageUrl} from '../../../utils/CommonFunctions';
+import { getProxyImageUrl } from '../../../utils/CommonFunctions';
 import LeftChannelModal from './LeftChannelModal';
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 type LiveChannelPlayScreenRouteProp = RouteProp<
   MainStackParamList,
@@ -58,12 +58,12 @@ const LiveChannelPlayScreen = () => {
   const route = useRoute<LiveChannelPlayScreenRouteProp>();
   const videoRef = useRef<VideoRef>(null);
   const focusIndexRef = useRef<number>(0);
-  const {currentlyPlaying} = useSelector(
+  const { currentlyPlaying } = useSelector(
     (state: RootState) => state.rootReducer.main,
   );
   console.log('currentlyPlaying--->>>>', currentlyPlaying);
   const dispatch = useDispatch();
-  const {channel} = route.params;
+  const { channel } = route.params;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showControls, setShowControls] = useState(true);
@@ -82,23 +82,31 @@ const LiveChannelPlayScreen = () => {
   const [channelName, setChannelName] = useState(
     channel?.name || channel?.title || 'Live Channel',
   );
-  const {userToken} = useSelector((state: RootState) => state.rootReducer.auth);
+  const { userToken } = useSelector(
+    (state: RootState) => state.rootReducer.auth,
+  );
 
   // Create navigation items array for FlatList
   type NavigationItem =
-    | {id: string; type: 'button'; label: string; icon?: any; data?: any}
-    | {id: string; type: 'historyItem'; label: string; data?: any; icon?: any};
+    | { id: string; type: 'button'; label: string; icon?: any; data?: any }
+    | {
+        id: string;
+        type: 'historyItem';
+        label: string;
+        data?: any;
+        icon?: any;
+      };
 
   const navigationItems: NavigationItem[] = [
-    {id: 'tvGuide', type: 'button', label: 'TV Guide', icon: 'tvGuide'},
-    {id: 'history', type: 'button', label: 'History', icon: 'history'},
+    { id: 'tvGuide', type: 'button', label: 'TV Guide', icon: 'tvGuide' },
+    { id: 'history', type: 'button', label: 'History', icon: 'history' },
     ...(historyData?.map((item, index) => ({
       id: `historyItem_${index}`,
       type: 'historyItem' as const,
       label: item.name,
       data: item,
     })) || []),
-    {id: 'clear', type: 'button', label: 'Clear', icon: 'clear'},
+    { id: 'clear', type: 'button', label: 'Clear', icon: 'clear' },
   ];
 
   useEffect(() => {
@@ -456,7 +464,8 @@ const LiveChannelPlayScreen = () => {
         style={[styles.navButton, isFocused && styles.navButtonFocused]}
         onFocus={() => handleFocus(item.id)}
         accessible={true}
-        accessibilityRole="button">
+        accessibilityRole="button"
+      >
         <View style={styles.navButtonIcon}>
           <View style={styles.navButtonIconContainer}>
             {item.icon === 'tvGuide' && imagepath.tvGuide && (
@@ -531,7 +540,8 @@ const LiveChannelPlayScreen = () => {
           ]}
           onPress={handleReload}
           onFocus={() => handleFocus('retry')}
-          activeOpacity={1}>
+          activeOpacity={1}
+        >
           {imagepath.reload && (
             <Image source={imagepath.reload} style={styles.retryIcon} />
           )}
@@ -562,9 +572,10 @@ const LiveChannelPlayScreen = () => {
           'transparent',
         ]}
         locations={[0, 0.2, 0.5, 0.8, 0.9, 1]}
-        start={{x: 0, y: 1}}
-        end={{x: 0, y: 0}}
-        style={styles.controlsOverlay}>
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.controlsOverlay}
+      >
         <View>
           {/* Top info section */}
           <View style={styles.topInfoSection}>
@@ -629,7 +640,7 @@ const LiveChannelPlayScreen = () => {
   const handleChannelSelect = (channel: channelData) => {
     console.log('channelselected:---->>>>>>', channel);
     // videoRef?.current?.;
-    videoRef?.current?.setSource({uri: channel?.url});
+    videoRef?.current?.setSource({ uri: channel?.url });
 
     // setChannel(channel);
     // setChannelName(channel?.name || channel?.title || 'Live Channel');
@@ -656,10 +667,7 @@ const LiveChannelPlayScreen = () => {
           <Video
             key={currentlyPlaying?.stream_id}
             ref={videoRef}
-            source={{uri: currentlyPlaying?.url}}
-            // source={{
-            //   uri: 'http://line.diatunnel.link:80/timeshift/mrKQdWmJ/jSxeKrs/168/2.m3u8',
-            // }}
+            source={{ uri: currentlyPlaying?.url }}
             style={styles.videoPlayer}
             volume={volume}
             muted={muted}

@@ -8,8 +8,10 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   StatusBar,
   TVFocusGuideView,
+  unstable_batchedUpdates,
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -42,12 +44,17 @@ const Tv = () => {
       setLoader(false);
     }, 3000);
   }, []);
+
   const { activeScreen } = route.params;
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<any>(0);
   const [selectedCategoryData, setSelectedCategoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [streamUrl, setStreamUrl] = useState<string>('');
+  const categoryListRef = useRef<any>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const firstChannelProgramRef = useRef<any>(null);
+
   const [currentProgramDetails, setCurrentProgramDetails] = useState<{
     showTitle: string;
     timeSlot: string;
@@ -62,31 +69,28 @@ const Tv = () => {
     description: 'No description available',
   });
 
-  const debouncedSetCategory = useMemo(
-    () =>
-      debounce((categoryItem: any) => {
-        setSelectedCategory(selectedCategory);
-        setSelectedCategoryData(categoryItem);
-      }, 800),
-    [],
-  );
-
   useEffect(() => {
     setSelectedCategory(channelsData[0]?.category_id);
     setSelectedCategoryData(channelsData[0]?.channels || []);
   }, []);
 
   const handleScrollViewFocus = useCallback(() => {
-    setShowCategoryAndSidebar(false);
-  }, [setShowCategoryAndSidebar]);
+    categoryListRef?.current?.setNativeProps({
+      style: { width: 0, overflow: 'hidden' as const },
+    });
+  }, []);
 
   const handleCategoryListFocus = useCallback(
     (category: number, categoryName: string, categoryItem: any) => {
-      setShowCategoryAndSidebar(true);
-      clearEPGCaches();
-      debouncedSetCategory(categoryItem);
+      // clearEPGCaches();
+      // unstable_batchedUpdates(() => {
+        categoryListRef?.current?.setNativeProps({
+          style: styles.categoryListContainer,
+        });
+      setSelectedCategoryData(categoryItem);
+      // });
     },
-    [debouncedSetCategory],
+    [],
   );
 
   const handleChannelUrl = useCallback(
@@ -144,20 +148,17 @@ const Tv = () => {
     return getCategoryName(selectedCategory);
   }, [selectedCategory, getCategoryName]);
 
-  const categoryListContainerStyle = React.useMemo(() => {
-    return [
-      styles.categoryListContainer,
-      !showCategoryAndSidebar && { width: 0, overflow: 'hidden' as const },
-    ];
-  }, [showCategoryAndSidebar]);
-
-  const [isFocused, setIsFocused] = useState(false);
-  const firstChannelProgramRef = useRef<any>(null);
+  // const categoryListContainerStyle = React.useMemo(() => {
+  //   return [
+  //     styles.categoryListContainer,
+  //     !showCategoryAndSidebar && { width: 0, overflow: 'hidden' as const },
+  //   ];
+  // }, [showCategoryAndSidebar]);
 
   return (
     <MainLayout
       activeScreen={activeScreen || 'Movies'}
-      hideSidebar={!showCategoryAndSidebar}
+      // hideSidebar={!showCategoryAndSidebar}
       setIsFocused={setIsFocused}
     >
       <StatusBar
@@ -189,7 +190,8 @@ const Tv = () => {
       {!loader ? (
         <View style={styles.container}>
           <TVFocusGuideView
-            style={categoryListContainerStyle}
+            ref={categoryListRef}
+            style={styles.categoryListContainer}
             nativeID="categoryList"
             autoFocus
           >
@@ -201,7 +203,7 @@ const Tv = () => {
             />
           </TVFocusGuideView>
 
-          <View style={{ marginLeft: -1 }}>
+          <View>
             <ChannelMediaPlayer
               imageSource={imagepath.TvDemoImage}
               showTitle={currentProgramDetails.showTitle}
@@ -218,10 +220,6 @@ const Tv = () => {
                 autoFocus
                 style={styles.showChannelCatCarouselContainer}
               >
-                {/* <ChannelEpgCarousal
-                ChannelsWithEpg={selectedCategoryData}
-                onFocus={handleScrollViewFocus}
-              /> */}
                 <ShowChannelCatCarousel
                   title={selectedCategory}
                   data={selectedCategoryData}
@@ -230,14 +228,13 @@ const Tv = () => {
                   setChannelUrl={handleChannelUrl}
                   setProgramDetails={handleProgramDetails}
                   firstFocusableRef={firstChannelProgramRef}
-                  // loading={loading}
                 />
               </TVFocusGuideView>
             </View>
           </View>
         </View>
       ) : (
-        <View style={{ flex: 1, backgroundColor: CommonColors.black ,justifyContent:'center'}}>
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={CommonColors.white} />
         </View>
       )}

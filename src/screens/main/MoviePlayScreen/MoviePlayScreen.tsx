@@ -1,5 +1,5 @@
 // 1. React Native core imports
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -23,20 +23,20 @@ import {
 } from '@react-navigation/native';
 
 // 4. Redux imports
-import {useAppDispatch} from '../../../redux/hooks';
+import { useAppDispatch } from '../../../redux/hooks';
 
 // 5. Global styles and utilities
 import imagepath from '../../../constants/imagepath';
-import {CommonColors} from '../../../styles/Colors';
+import { CommonColors } from '../../../styles/Colors';
 
 // 6. Component imports
 import MainLayout from '../../../components/MainLayout';
 
 // 7. Utils and helpers
-import {MainStackParamList} from '../../../navigation/NavigationsTypes';
+import { MainStackParamList } from '../../../navigation/NavigationsTypes';
 
 // 8. Local styles import (ALWAYS LAST)
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import BackgroundComponent from '../../../components/BackgroundComponent';
 import LiveVideoComp from '../../../components/LiveVideoComp';
 import {
@@ -48,15 +48,18 @@ import {
   mylistCheckApi,
   removeFromMyList,
 } from '../../../redux/actions/main';
-import {setCurrentSeriesEpisodes} from '../../../redux/reducers/main';
-import {RootState} from '../../../redux/store';
+import {
+  setCurrentlyPlaying,
+  setCurrentSeriesEpisodes,
+} from '../../../redux/reducers/main';
+import { RootState } from '../../../redux/store';
 import {
   extractStreamIdFromUrl,
   getEpisodeAndSeasonNumber,
   imageResolutionHandlerForUrl,
 } from '../../../utils/CommonFunctions';
-import {styles} from './styles';
-import {MoviePlayer} from '../../../components/MoviePlayer';
+import { styles } from './styles';
+import { MoviePlayer } from '../../../components/MoviePlayer';
 
 type MoviePlayScreenRouteProp = RouteProp<
   MainStackParamList,
@@ -80,11 +83,13 @@ const MoviePlayScreen = () => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
   const dispatch = useAppDispatch();
   const route = useRoute<MoviePlayScreenRouteProp>();
-  const {currentlyPlaying} = useSelector(
+  const { currentlyPlaying } = useSelector(
     (state: RootState) => state.rootReducer.main,
   );
-  const {userToken} = useSelector((state: RootState) => state.rootReducer.auth);
-  const {show, movie, live} = route.params;
+  const { userToken } = useSelector(
+    (state: RootState) => state.rootReducer.auth,
+  );
+  const { show, movie, live } = route.params;
 
   console.log('show--->>>>', show);
   const [movieTitle, setMovieTitle] = useState();
@@ -136,12 +141,12 @@ const MoviePlayScreen = () => {
         Alert.alert(
           'No Trailer Available',
           'This movie/show does not have a trailer available.',
-          [{text: 'OK'}],
+          [{ text: 'OK' }],
         );
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to open trailer. Please try again.', [
-        {text: 'OK'},
+        { text: 'OK' },
       ]);
     }
   };
@@ -172,7 +177,7 @@ const MoviePlayScreen = () => {
   };
 
   // Episode card component
-  const EpisodeCard = ({episode}: {episode: any}) => {
+  const EpisodeCard = ({ episode }: { episode: any }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     const handleFocus = () => {
@@ -198,11 +203,12 @@ const MoviePlayScreen = () => {
         onPress={onPressEpisode}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        activeOpacity={1}>
+        activeOpacity={1}
+      >
         <Image
           source={
             episode?.info?.movie_image
-              ? {uri: episode?.info?.movie_image}
+              ? { uri: episode?.info?.movie_image }
               : imagepath.VideoPlaceHolder
           }
           style={styles.episodeImage}
@@ -293,11 +299,13 @@ const MoviePlayScreen = () => {
     }
   }
 
-  function renderEpisodes({item}: any) {
+  function renderEpisodes({ item }: any) {
     return <EpisodeCard episode={item} />;
   }
 
   function handleEpisodeSelect(episode: any) {
+    console.log('episode selected', episode);
+    dispatch(setCurrentlyPlaying({ ...episode, type: 'series' }));
     setSelectedEpisode(episode);
     if (episode?.url !== streamUrl) {
       setTiming(null);
@@ -307,7 +315,11 @@ const MoviePlayScreen = () => {
   }
 
   return (
-    <MainLayout activeScreen="MoviePlayScreen" hideSidebar={true}>
+    <MainLayout
+      activeScreen="MoviePlayScreen"
+      hideSidebar={true}
+      mainStyle={styles.mainContainer}
+    >
       <StatusBar
         backgroundColor="transparent"
         translucent
@@ -331,7 +343,8 @@ const MoviePlayScreen = () => {
         // />
         <ScrollView
           style={styles.container}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           {movie ? (
             <BackgroundComponent
               movieName={movieTitle}
@@ -366,7 +379,8 @@ const MoviePlayScreen = () => {
                 onPress={handlePlayPress}
                 onFocus={() => handleFocus('play')}
                 onBlur={handleBlur}
-                activeOpacity={1}>
+                activeOpacity={1}
+              >
                 <Image
                   source={imagepath.playbuttonarrowhead}
                   style={styles.playIconPlaceholder}
@@ -379,8 +393,9 @@ const MoviePlayScreen = () => {
                 <Text
                   style={[
                     styles.playButtonText,
-                    focusedButton === 'play' && {color: CommonColors.black},
-                  ]}>
+                    focusedButton === 'play' && { color: CommonColors.black },
+                  ]}
+                >
                   {timing ? 'Continue' : 'Play'}{' '}
                   {selectedEpisode
                     ? getEpisodeAndSeasonNumber(selectedEpisode?.title)
@@ -398,7 +413,8 @@ const MoviePlayScreen = () => {
                 onPress={handleTrailerPress}
                 onFocus={() => handleFocus('trailer')}
                 onBlur={handleBlur}
-                activeOpacity={1}>
+                activeOpacity={1}
+              >
                 <Image
                   source={imagepath.movieTrailerIcon}
                   style={styles.trailerIconPlaceholder}
@@ -411,8 +427,11 @@ const MoviePlayScreen = () => {
                 <Text
                   style={[
                     styles.trailerButtonText,
-                    focusedButton === 'trailer' && {color: CommonColors.black},
-                  ]}>
+                    focusedButton === 'trailer' && {
+                      color: CommonColors.black,
+                    },
+                  ]}
+                >
                   Trailer
                 </Text>
               </TouchableOpacity>
@@ -430,7 +449,8 @@ const MoviePlayScreen = () => {
                 onPress={handleAddToListPress}
                 onFocus={() => handleFocus('addToList')}
                 onBlur={handleBlur}
-                activeOpacity={1}>
+                activeOpacity={1}
+              >
                 <Image
                   source={
                     addedToMyList
@@ -452,7 +472,8 @@ const MoviePlayScreen = () => {
                     focusedButton === 'addToList' && {
                       color: CommonColors.black,
                     },
-                  ]}>
+                  ]}
+                >
                   {addedToMyList
                     ? focusedButton === 'addToList'
                       ? 'Remove from My list'

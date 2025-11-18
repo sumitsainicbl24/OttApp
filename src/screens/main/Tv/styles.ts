@@ -555,4 +555,9 @@ export const styles = StyleSheet.create({
     letterSpacing: moderateScale(0.56), // 2% of font size
     textAlign: 'center',
   },
+  loadingContainer:{
+    flex: 1,
+    backgroundColor: CommonColors.black,
+    justifyContent: 'center',
+  }
 });

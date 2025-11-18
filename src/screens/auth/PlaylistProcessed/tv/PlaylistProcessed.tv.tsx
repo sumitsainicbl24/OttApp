@@ -1,6 +1,6 @@
 // 1. React Native core imports
-import React, {useEffect, useRef, useState} from 'react';
-import {Animated, Image, Text, TouchableOpacity, View} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Image, Text, TouchableOpacity, View } from 'react-native';
 
 // 2. Global styles and utilities
 import CommonStyles from '../../../../styles/CommonStyles';
@@ -13,7 +13,7 @@ import {
 } from '@react-navigation/native';
 import WrapperContainer from '../../../../components/WrapperContainer';
 import imagepath from '../../../../constants/imagepath';
-import {AuthStackParamList} from '../../../../navigation/NavigationsTypes';
+import { AuthStackParamList } from '../../../../navigation/NavigationsTypes';
 
 // 4. Local styles import (ALWAYS LAST)
 import {
@@ -22,7 +22,7 @@ import {
   setAuthTokenAction,
   setIsPlaylistProcessedAction,
 } from '../../../../redux/actions/auth';
-import {styles} from './styles';
+import { styles } from './styles';
 import Toast from 'react-native-toast-message';
 
 const PlaylistProcessed = ({
@@ -31,11 +31,11 @@ const PlaylistProcessed = ({
   route: RouteProp<AuthStackParamList, 'PlaylistProcessed'>;
 }) => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
-  const {type, playlistUrl, username, password} = route.params;
+  const { type, playlistUrl, username, password } = route.params;
   // Focus state for buttons
   const [focused, setFocused] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({channels: 0, movies: 0, series: 0});
+  const [stats, setStats] = useState({ channels: 0, movies: 0, series: 0 });
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [resumeAttempt, setResumeAttempt] = useState(0);
   const [isResuming, setIsResuming] = useState(false);
@@ -86,7 +86,6 @@ const PlaylistProcessed = ({
         password: password,
       };
       let res = await LoginApi(data);
-      // let res = await LoginApi("http://line.cloud-ott.net/get.php?username=GKBELS&password=JT93E4&type=m3u_plus&output=ts")
       console.log('login response:', res);
       await setAuthTokenAction(res?.data?.token);
       res = await getCategoryApi('live');
@@ -194,7 +193,7 @@ const PlaylistProcessed = ({
         <View style={styles.formContainer}>
           {loading ? (
             <>
-              <Animated.Text style={[styles.formTitle, {opacity: fadeAnim}]}>
+              <Animated.Text style={[styles.formTitle, { opacity: fadeAnim }]}>
                 {isResuming
                   ? `Resuming download (Attempt ${resumeAttempt})...`
                   : retryCount > 0
@@ -209,14 +208,15 @@ const PlaylistProcessed = ({
             </>
           ) : errorMessage ? (
             <>
-              <Text style={[styles.formTitle, {color: '#ff6b6b'}]}>
+              <Text style={[styles.formTitle, { color: '#ff6b6b' }]}>
                 Download Failed
               </Text>
               <Text
                 style={[
                   styles.formSubTitle,
-                  {color: '#ff6b6b', marginBottom: 20},
-                ]}>
+                  { color: '#ff6b6b', marginBottom: 20 },
+                ]}
+              >
                 {errorMessage}
               </Text>
               <TouchableOpacity
@@ -227,9 +227,11 @@ const PlaylistProcessed = ({
                   paddingVertical: 10,
                   borderRadius: 8,
                   marginBottom: 10,
-                }}>
+                }}
+              >
                 <Text
-                  style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
+                  style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}
+                >
                   Retry Download
                 </Text>
               </TouchableOpacity>
@@ -267,7 +269,8 @@ const PlaylistProcessed = ({
                 style={[
                   styles.nextButtonText,
                   focused === 'done' && styles.nextButtonTextFocused,
-                ]}>
+                ]}
+              >
                 Done
               </Text>
             </TouchableOpacity>
@@ -275,12 +278,14 @@ const PlaylistProcessed = ({
               onPress={handleCancel}
               activeOpacity={1}
               onFocus={handleBackFocus}
-              onBlur={handleBlur}>
+              onBlur={handleBlur}
+            >
               <Text
                 style={[
                   styles.cancelButtonText,
                   focused === 'back' && styles.cancelButtonTextFocused,
-                ]}>
+                ]}
+              >
                 Back
               </Text>
             </TouchableOpacity>

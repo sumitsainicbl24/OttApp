@@ -1,6 +1,6 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {CommonColors} from '../styles/Colors';
+import React, { useEffect, useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { CommonColors } from '../styles/Colors';
 import SideNavigation from './SideNavigation';
 
 interface MainLayoutProps {
@@ -41,7 +41,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   }, [isSettings, activeScreen, hideSidebar]);
 
   return (
-    <View style={[styles.container,mainStyle]}>
+    <View style={[styles.container, mainStyle]}>
       {/* Show SideNavigation only when not on Settings screen and not hidden */}
       {sideNav}
 

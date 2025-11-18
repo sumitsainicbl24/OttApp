@@ -1,9 +1,9 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import Authstack from './Authstack';
-import {useAppSelector} from '../redux/hooks';
-import {RootState} from '../redux/store';
+import { useAppSelector } from '../redux/hooks';
+import { RootState } from '../redux/store';
 import Mainstack from './Mainstack';
 import {
   getChannelsDataFromMMKV,
@@ -16,12 +16,12 @@ import {
   setMoviesData,
   setSeriesData,
 } from '../redux/reducers/auth';
-import {useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const Routes = () => {
   const dispatch = useDispatch();
 
-  const {isplaylistprocessed, heavyData} = useAppSelector(
+  const { isplaylistprocessed } = useAppSelector(
     (state: RootState) => state.rootReducer.auth,
   );
 
@@ -36,8 +36,6 @@ const Routes = () => {
   useEffect(() => {
     loadAllData();
   }, []);
-
-  console.log('heavyData--->>>>>>', heavyData);
 
   return (
     <NavigationContainer>

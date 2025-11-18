@@ -1,24 +1,27 @@
-import React, {useState, useEffect, useRef} from 'react';
+import { BlurView } from '@react-native-community/blur';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  StyleSheet,
-  Text,
+  BackHandler,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
-  BackHandler,
-  Platform,
-  useTVEventHandler,
+  StyleSheet,
+  Text,
   TVFocusGuideView,
+  useTVEventHandler,
+  View,
 } from 'react-native';
-import {moderateScale, scale, verticalScale} from '../../styles/scaling';
-import {CommonColors} from '../../styles/Colors';
+import { VideoRef } from 'react-native-video';
 import FontFamily from '../../constants/FontFamily';
-import {BlurView} from '@react-native-community/blur';
+import { CommonColors } from '../../styles/Colors';
+import { moderateScale } from '../../styles/scaling';
 
 interface SettingsModalProps {
   visible: boolean;
   onClose: () => void;
+  videoRef?: React.RefObject<VideoRef | null>;
+  videoViewRef?: React.RefObject<View | null>;
 }
 
 type TabType = 'Audio' | 'Subtitles' | 'Delay' | 'Display';
@@ -28,7 +31,8 @@ interface RadioOption {
   value: string;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
+const SettingsModal = React.forwardRef<View, SettingsModalProps>(
+  ({ visible, onClose, videoRef, videoViewRef }, ref) => {
   const [activeTab, setActiveTab] = useState<TabType>('Audio');
   const [selectedAudio, setSelectedAudio] = useState('English');
   const [selectedSubtitle, setSelectedSubtitle] = useState('None');
@@ -39,38 +43,38 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
   const [isNavigatingTabs, setIsNavigatingTabs] = useState(true);
 
   // Refs for tabs
-  const tabRefs = useRef<{[key: string]: any}>({});
+  const tabRefs = useRef<{ [key: string]: any }>({});
   // Refs for radio options
-  const optionRefs = useRef<{[key: string]: any}>({});
+  const optionRefs = useRef<{ [key: string]: any }>({});
 
   const tabs: TabType[] = ['Audio', 'Subtitles', 'Delay', 'Display'];
 
   const audioOptions: RadioOption[] = [
-    {label: 'Dutch', value: 'Dutch'},
-    {label: 'English', value: 'English'},
-    {label: 'Arabic', value: 'Arabic'},
+    { label: 'Dutch', value: 'Dutch' },
+    { label: 'English', value: 'English' },
+    { label: 'Arabic', value: 'Arabic' },
   ];
 
   const subtitleOptions: RadioOption[] = [
-    {label: 'None', value: 'None'},
-    {label: 'English', value: 'English'},
-    {label: 'Spanish', value: 'Spanish'},
-    {label: 'French', value: 'French'},
+    { label: 'None', value: 'None' },
+    { label: 'English', value: 'English' },
+    { label: 'Spanish', value: 'Spanish' },
+    { label: 'French', value: 'French' },
   ];
 
   const delayOptions: RadioOption[] = [
-    {label: '0s', value: '0s'},
-    {label: '0.5s', value: '0.5s'},
-    {label: '1s', value: '1s'},
-    {label: '1.5s', value: '1.5s'},
-    {label: '2s', value: '2s'},
+    { label: '0s', value: '0s' },
+    { label: '0.5s', value: '0.5s' },
+    { label: '1s', value: '1s' },
+    { label: '1.5s', value: '1.5s' },
+    { label: '2s', value: '2s' },
   ];
 
   const displayOptions: RadioOption[] = [
-    {label: 'Auto', value: 'Auto'},
-    {label: '16:9', value: '16:9'},
-    {label: '4:3', value: '4:3'},
-    {label: 'Original', value: 'Original'},
+    { label: 'Auto', value: 'Auto' },
+    { label: '16:9', value: '16:9' },
+    { label: '4:3', value: '4:3' },
+    { label: 'Original', value: 'Original' },
   ];
 
   const getCurrentOptions = React.useCallback((): RadioOption[] => {
@@ -103,6 +107,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
     }
   };
 
+  // Helper function to get aspectRatio value from display option
+  const getAspectRatioFromDisplayOption = (option: string): string | undefined => {
+    switch (option) {
+      case 'Auto':
+        return '16/9'; // Default aspect ratio
+      case '16:9':
+        return '16/9';
+      case '4:3':
+        return '4/3';
+      case 'Original':
+        return undefined; // Remove aspectRatio constraint for original
+      default:
+        return '16/9';
+    }
+  };
+
   const handleOptionSelect = (value: string) => {
     switch (activeTab) {
       case 'Audio':
@@ -116,6 +136,24 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
         break;
       case 'Display':
         setSelectedDisplay(value);
+        // Update video aspect ratio using setNativeProps on the view wrapper
+        if (videoViewRef?.current) {
+          const aspectRatio = getAspectRatioFromDisplayOption(value);
+          try {
+            if (aspectRatio) {
+              videoViewRef.current.setNativeProps({
+                style: { aspectRatio },
+              });
+            } else {
+              // For 'Original', remove aspectRatio constraint
+              videoViewRef.current.setNativeProps({
+                style: { aspectRatio: undefined },
+              });
+            }
+          } catch (error) {
+            console.warn('Failed to update video aspect ratio:', error);
+          }
+        }
         break;
     }
   };
@@ -316,17 +354,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
         onFocus={() => setFocusedOptionIndex(index)}
         accessible={true}
         accessibilityRole="radio"
-        accessibilityState={{selected: isSelected}}
+        accessibilityState={{ selected: isSelected }}
         accessibilityLabel={option.label}
         tvFocusable={true}
-        hasTVPreferredFocus={isFocused && !isNavigatingTabs}>
+        hasTVPreferredFocus={isFocused && !isNavigatingTabs}
+      >
         <View style={styles.radioButtonContainer}>
           <View
             style={[
               styles.radioButton,
               isSelected && styles.radioButtonSelected,
               isFocused && styles.radioButtonFocused,
-            ]}>
+            ]}
+          >
             {isSelected && <View style={styles.radioButtonInner} />}
           </View>
         </View>
@@ -335,7 +375,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
             styles.optionText,
             isSelected && styles.optionTextSelected,
             isFocused && styles.optionTextFocused,
-          ]}>
+          ]}
+        >
           {option.label}
         </Text>
       </Pressable>
@@ -351,16 +392,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
       visible={visible}
       transparent={true}
       animationType="fade"
-      onRequestClose={onClose}>
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.modalOverlay} onPress={onClose}>
         <BlurView
           style={styles.modalContent}
           blurType="dark"
           blurAmount={40}
-          blurRadius={10}>
+          blurRadius={10}
+        >
           <Pressable
             style={styles.modalContent}
-            onPress={e => e.stopPropagation()}>
+            onPress={e => e.stopPropagation()}
+          >
             {/* Screen Container */}
             <View style={styles.screenContainer}>
               {/* Tabs Header */}
@@ -381,17 +425,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
                         onFocus={() => setFocusedTabIndex(index)}
                         accessible={true}
                         accessibilityRole="tab"
-                        accessibilityState={{selected: activeTab === tab}}
+                        accessibilityState={{ selected: activeTab === tab }}
                         tvFocusable={true}
                         hasTVPreferredFocus={
                           index === 0 && visible && isNavigatingTabs
-                        }>
+                        }
+                      >
                         <Text
                           style={[
                             styles.tabText,
                             activeTab === tab && styles.tabTextActive,
                             isFocused && styles.tabTextFocused,
-                          ]}>
+                          ]}
+                        >
                           {tab}
                         </Text>
                       </Pressable>
@@ -406,10 +452,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
               <ScrollView
                 style={styles.optionsContainer}
                 contentContainerStyle={styles.optionsContent}
-                showsVerticalScrollIndicator={false}>
+                showsVerticalScrollIndicator={false}
+              >
                 <TVFocusGuideView
                   style={styles.optionsFocusGuide}
-                  autoFocus={true}>
+                  autoFocus={true}
+                >
                   {getCurrentOptions().map((option, index) => {
                     const isSelected = getSelectedValue() === option.value;
                     return renderRadioButton(option, isSelected, index);
@@ -422,7 +470,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({visible, onClose}) => {
       </Pressable>
     </Modal>
   );
-};
+  },
+);
+
+SettingsModal.displayName = 'SettingsModal';
 
 const styles = StyleSheet.create({
   modalOverlay: {

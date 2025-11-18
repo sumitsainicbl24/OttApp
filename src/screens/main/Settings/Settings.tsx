@@ -19,7 +19,7 @@ import { RootState } from '../../../redux/store';
 
 const Settings = () => {
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
-  const { epgDataLoading ,epgDatClearing} = useSelector(
+  const { epgDataLoading, epgDatClearing } = useSelector(
     (state: RootState) => state.rootReducer.auth,
   );
   const [focusedOption, setFocusedOption] = useState('');

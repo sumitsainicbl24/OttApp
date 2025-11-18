@@ -492,7 +492,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         <View style={styles.channelInfo}>
           <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
 
-          {/* <View style={styles.channelLogoContainer}>
+          <View style={styles.channelLogoContainer}>
               <Image
                 source={
                   show?.logo
@@ -509,7 +509,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
                   handleImageError(e.nativeEvent);
                 }}
               />
-            </View> */}
+            </View>
 
           <View
             style={{ overflow: 'hidden', width: '70%', flexDirection: 'row' }}

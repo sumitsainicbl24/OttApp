@@ -1,22 +1,19 @@
 import { FlashList, FlashListRef } from '@shopify/flash-list';
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   StyleProp,
   StyleSheet,
+  Text,
   TouchableOpacity,
   TVFocusGuideView,
-  ViewStyle
+  ViewStyle,
 } from 'react-native';
 import FontFamily from '../constants/FontFamily';
 import { samepleCategoryData } from '../screens/main/Movies/DummyData';
 import { CommonColors } from '../styles/Colors';
 import { moderateScale, scale, verticalScale } from '../styles/scaling';
 import SimpleMarquee from './MarqueeText';
+import { debounce } from 'lodash';
 
 type ObjectCategory = {
   category_id: string | number;
@@ -50,11 +47,24 @@ const CategoryList: React.FC<CategoryListProps> = ({
   style,
   nextFocusRightRef,
 }) => {
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const flashListRef = useRef<FlashListRef<any>>(null);
-  const itemRefs = useRef<{ [key: number]: React.RefObject<TouchableOpacity> }>({});
 
-  console.log('selectedCategory-->>>>>>>', selectedCategory);
+  const itemRefs = useRef<{
+    [key: number]: React.RefObject<React.ElementRef<
+      typeof TouchableOpacity
+    > | null>;
+  }>({});
+
+  const textRefs = useRef<{
+    [key: number]: React.RefObject<React.ElementRef<typeof Text> | null>;
+  }>({});
+
+  const debouncedFn = debounce(
+    (categoryId: string, categoryName: string, categoryItem: any) => {
+      onFocus?.(Number(categoryId), categoryName, categoryItem);
+    },
+    800,
+  );
 
   // Memoize category data processing
   const categoryData: CategoryInput[] = useMemo(() => {
@@ -72,39 +82,62 @@ const CategoryList: React.FC<CategoryListProps> = ({
       categoryName: string,
       categoryItem: any,
     ) => {
-      setFocusedIndex(index);
-      onFocus?.(Number(categoryId), categoryName, categoryItem?.channels || []);
+      // Update text color when focused
+      itemRefs.current[index]?.current?.setNativeProps({
+        style: {
+          backgroundColor: CommonColors.white,
+          borderRadius: 12,
+        },
+      });
+
+      textRefs.current[index]?.current?.setNativeProps({
+        style: {
+          color: CommonColors.black,
+        },
+      });
+      debouncedFn(categoryId, categoryName, categoryItem?.channels || []);
     },
     [onFocus],
   );
 
   // Memoize blur handler
-  const handleBlur = useCallback(() => {
-    setFocusedIndex(null);
-    onBlur?.();
-  }, []);
+  const handleBlur = useCallback(
+    (index: number) => {
+      itemRefs.current[index]?.current?.setNativeProps({
+        style: {
+          backgroundColor: CommonColors.black,
+          borderRadius: 12,
+        },
+      });
 
-  // Memoize layout handler
+      // Reset color to original when blur
+      textRefs.current[index]?.current?.setNativeProps({
+        style: {
+          color: CommonColors.textWhite,
+        },
+      });
+      onBlur?.();
+    },
+    [onBlur],
+  );
 
   // Memoize render item function
   const renderItem = useCallback(
     ({ item, index }: { item: any; index: number }) => {
       const categoryItem: any = item;
-      const isSelected = categoryItem.category_id === selectedCategory;
-      const isFocused = focusedIndex === index;
-
-      // Create ref for this item if it doesn't exist
       if (!itemRefs.current[index]) {
-        itemRefs.current[index] = React.createRef<TouchableOpacity>();
+        itemRefs.current[index] =
+          React.createRef<React.ElementRef<typeof TouchableOpacity>>();
+      }
+      if (!textRefs.current[index]) {
+        textRefs.current[index] =
+          React.createRef<React.ElementRef<typeof Text>>();
       }
 
       return (
         <TouchableOpacity
           ref={itemRefs.current[index]}
-          style={[
-            styles.categoryItem,
-            (isFocused || isSelected) && styles.categoryItemFocused,
-          ]}
+          style={styles.categoryItem}
           onFocus={() =>
             handleFocus(
               index,
@@ -113,22 +146,17 @@ const CategoryList: React.FC<CategoryListProps> = ({
               categoryItem,
             )
           }
-          onBlur={handleBlur}
+          onBlur={() => handleBlur(index)}
           activeOpacity={1}
           nextFocusRight={nextFocusRightRef?.current || undefined}
         >
-          <SimpleMarquee
-            text={categoryItem.category_name}
-            textStyle={[
-              styles.categoryText,
-              (isFocused || isSelected) && styles.categoryTextFocused,
-            ]}
-            shouldStart={Boolean(isFocused || isSelected)}
-          />
+          <Text ref={textRefs.current[index]} style={styles.categoryText}>
+            {categoryItem.category_name}
+          </Text>
         </TouchableOpacity>
       );
     },
-    [focusedIndex, handleFocus, handleBlur, nextFocusRightRef],
+    [],
   );
 
   return (

@@ -345,11 +345,10 @@ export const fetchChannelsDataWithEpg = createAsyncThunk(
   'data/fetchChannelsDataWithEpg',
   async (payload, { dispatch, rejectWithValue }) => {
     try {
-      console.log('called');
       dispatch(setEpgDataLoading(true));
       let res = await getCategoryApi('live', true);
       console.log('res from fetchChannelsDataWithEpg--->>>', res);
-      dispatch(setChannelsData(res?.data?.data?.data));
+
       Toast.show({
         text1: 'EPG data fetched successfully',
         type: 'success',
@@ -371,11 +370,9 @@ export const fetchChannelsDataWithoutEpg = createAsyncThunk(
   'data/fetchChannelsDataWithoutEpg',
   async (payload, { dispatch, rejectWithValue }) => {
     try {
-      console.log('called');
       dispatch(setEpgDatClearing(true));
       let res = await getCategoryApi('live', false);
       console.log('res from fetchChannelsDataWithEpg--->>>', res);
-      dispatch(setChannelsData(res?.data?.data?.data));
       Toast.show({
         text1: 'EPG data Cleared successfully',
         type: 'success',

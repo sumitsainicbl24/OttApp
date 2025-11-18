@@ -10,6 +10,7 @@
     "start": "react-native start",
     "test": "jest",
     "clean": "cd android && ./gradlew clean && cd .. && watchman watch-del-all",
+    "release": "cd android && ./gradlew assembleRelease && cd ..",
     "full-clean": "cd android && ./gradlew clean && rm -rf ~/.gradle/caches/ && gradlew -stop && cd .. watchman watch-del-all"
   },
   "dependencies": {
@@ -59,6 +60,7 @@
     "@types/lodash": "^4.17.20",
     "@types/react": "^19.1.0",
     "@types/react-test-renderer": "^19.1.0",
+    "babel-plugin-react-compiler": "latest",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
     "prettier": "2.8.8",

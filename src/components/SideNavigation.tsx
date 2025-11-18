@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useRef, useEffect} from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -7,13 +7,13 @@ import {
   Text,
   Animated,
 } from 'react-native';
-import {height, moderateScale, scale, verticalScale} from '../styles/scaling';
-import {CommonColors} from '../styles/Colors';
+import { height, moderateScale, scale, verticalScale } from '../styles/scaling';
+import { CommonColors } from '../styles/Colors';
 import imagepath from '../constants/imagepath';
 import FontFamily from '../constants/FontFamily';
-import {NavigationProp} from '@react-navigation/native';
-import {MainStackParamList} from '../navigation/NavigationsTypes';
-import {useNavigation} from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
+import { MainStackParamList } from '../navigation/NavigationsTypes';
+import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 
 interface SideNavigationProps {
@@ -53,7 +53,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
       case 'Shows':
       case 'Favorites':
       case 'Search':
-        navigation.navigate(screen, {activeScreen: screen});
+        navigation.navigate(screen, { activeScreen: screen });
         break;
       case 'Settings':
         // Settings doesn't take activeScreen parameter according to types
@@ -88,7 +88,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 
       return [
         styles.sideNavIconContainer,
-        !focusedItem && {justifyContent: 'center'},
+        !focusedItem && { justifyContent: 'center' },
         isActive && styles.sideNavActiveIconContainer,
         !isActive && styles.sideNavInactiveIconContainer,
         isFocused && styles.sideNavFocusedIconContainer,
@@ -98,7 +98,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 
   // Memoize the container style with animated width
   const containerStyle = useMemo(
-    () => [styles.sideNavigationContainer, {width: animatedWidth}],
+    () => [styles.sideNavigationContainer, { width: animatedWidth }],
     [animatedWidth],
   );
 
@@ -172,7 +172,8 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
           isTVSelectable: true,
           nextFocusLeft: undefined,
           nextFocusRight: undefined,
-        } as any)}>
+        } as any)}
+      >
         <Image
           source={
             focusedItem == 'Settings'
@@ -187,15 +188,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
             },
           ]}
         />
-        {focusedItem && (
-          <Text
-            style={[
-              styles.sideNavIconText,
-              focusedItem == 'Settings' && styles.focusedTextGlow,
-            ]}>
-            Settings
-          </Text>
-        )}
+        {focusedItem && <Text style={styles.sideNavIconText}>Settings</Text>}
       </TouchableOpacity>
     ),
     [focusedItem, getIconStyle],
@@ -220,7 +213,8 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
               isTVSelectable: true,
               nextFocusLeft: undefined,
               nextFocusRight: undefined,
-            } as any)}>
+            } as any)}
+          >
             {/* {focusedItem === item.id && <View style={styles.glow} />} */}
             {/* {(focusedItem === item.id || activeScreen === item.id) && (
               <Image
@@ -245,7 +239,8 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 style={[
                   styles.sideNavIconText,
                   // focusedItem === item.id && styles.focusedTextGlow,
-                ]}>
+                ]}
+              >
                 {item?.id}
               </Text>
             )}
@@ -263,7 +258,7 @@ const styles = StyleSheet.create({
   sideNavigationContainer: {
     left: 0,
     // backgroundColor: CommonColors.black,
-    backgroundColor:'transparent',
+    backgroundColor: 'transparent',
     paddingVertical: moderateScale(20),
     paddingHorizontal: moderateScale(20),
     justifyContent: 'space-between',
@@ -330,7 +325,7 @@ const styles = StyleSheet.create({
 
   sideNavFocusedIconContainer: {
     borderRadius: moderateScale(6),
-    transform: [{scale: 1.05}],
+    transform: [{ scale: 1.05 }],
     backgroundColor: CommonColors.whiteOpacity05,
   },
   sideNavIconText: {
@@ -345,7 +340,7 @@ const styles = StyleSheet.create({
     color: CommonColors.white,
     opacity: 1,
     textShadowColor: CommonColors.white,
-    textShadowOffset: {width: 0, height: 0},
+    textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
     elevation: 5,
   },
@@ -356,7 +351,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     opacity: 0.8,
     shadowColor: CommonColors.white,
-    shadowOffset: {width: 0, height: 0},
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     elevation: 1,
     alignSelf: 'center',
