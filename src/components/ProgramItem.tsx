@@ -190,33 +190,7 @@ const ProgramItem = React.forwardRef<any, ProgramItemProps>(({
   );
 });
 
-// // Custom comparison function for better memoization
-// const areEqual = (
-//   prevProps: ProgramItemProps,
-//   nextProps: ProgramItemProps,
-// ): boolean => {
-//   return (
-//     prevProps.index === nextProps.index &&
-//     prevProps.focusedProgramIndex === nextProps.focusedProgramIndex &&
-//     prevProps.position.left === nextProps.position.left &&
-//     prevProps.position.width === nextProps.position.width &&
-//     prevProps.position.title === nextProps.position.title &&
-//     prevProps.hasTVPreferredFocus === nextProps.hasTVPreferredFocus
-//   );
-// };
-
-export default React.memo(ProgramItem, (prevProps, nextProps) => {
-  return (
-    prevProps.index === nextProps.index &&
-    prevProps.focusedProgramIndex === nextProps.focusedProgramIndex &&
-    prevProps.position.left === nextProps.position.left &&
-    prevProps.position.width === nextProps.position.width &&
-    prevProps.position.title === nextProps.position.title &&
-    prevProps.hasTVPreferredFocus === nextProps.hasTVPreferredFocus &&
-    prevProps.show?.url === nextProps.show?.url &&
-    prevProps.currentStreamUrl === nextProps.currentStreamUrl
-  );
-});
+export default React.memo(ProgramItem);
 
 // export default ProgramItem;
 

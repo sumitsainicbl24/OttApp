@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
-  FlatList,
   Image,
-  ImageSourcePropType,
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableOpacityProps,
   View,
+  InteractionManager,
 } from 'react-native';
 import { CommonColors } from '../styles/Colors';
 import { moderateScale, scale, verticalScale } from '../styles/scaling';
@@ -17,7 +15,6 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { MainStackParamList } from '../navigation/NavigationsTypes';
 import {
   getProxyImageUrl,
-  imageResolutionHandlerForUrl,
 } from '../utils/CommonFunctions';
 import { setCurrentlyPlaying } from '../redux/reducers/main';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,7 +32,7 @@ import {
 import FastImage from 'react-native-fast-image';
 import { RootState } from '../redux/store';
 import { FlashList } from '@shopify/flash-list';
-import ProgramItem from './ProgramItem';
+import OptimizedProgramItem from './OptimizedProgramItem';
 
 interface ShowData {
   group?: string;
@@ -72,7 +69,85 @@ interface ShowChannelCatCardProps {
   firstFocusableRef?: React.RefObject<any>;
 }
 
-const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
+// Memoize channel info component to prevent unnecessary re-renders
+const ChannelInfo = React.memo<{
+  channelIndex: number;
+  logo: string | undefined;
+  title: string | undefined;
+  imageError: boolean;
+  focusedProgramIndex: number | null;
+  currentlyPlayingUrl: string | undefined;
+  showUrl: string | undefined;
+  onImageError: (e: any) => void;
+}>(
+  ({
+    channelIndex,
+    logo,
+    title,
+    imageError,
+    focusedProgramIndex,
+    currentlyPlayingUrl,
+    showUrl,
+    onImageError,
+  }) => {
+    const isCurrentlyPlaying = currentlyPlayingUrl === showUrl;
+
+    return (
+      <View style={styles.channelInfo}>
+        <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
+
+        <View style={styles.channelLogoContainer}>
+          <Image
+            source={
+              logo
+                ? imageError
+                  ? { uri: getProxyImageUrl(logo) }
+                  : { uri: logo }
+                : imagepath.tv
+            }
+            style={styles.channelLogo}
+            resizeMode="contain"
+            tintColor={!logo ? CommonColors.white : undefined}
+            onError={onImageError}
+          />
+        </View>
+
+        <View
+          style={{ overflow: 'hidden', width: '70%', flexDirection: 'row' }}
+        >
+          <SimpleMarquee
+            text={title || 'Channel Name'}
+            shouldStart={focusedProgramIndex !== null}
+            textStyle={[
+              styles.channelNameText,
+              focusedProgramIndex !== null && {
+                color: CommonColors.blueText,
+              },
+            ]}
+            speed={50}
+          />
+          {showUrl && isCurrentlyPlaying && (
+            <View
+              style={{
+                position: 'absolute',
+                right: 0,
+                justifyContent: 'center',
+                backgroundColor: 'black',
+              }}
+            >
+              <FastImage
+                source={imagepath.playicon}
+                style={{ height: 16, width: 16 }}
+              />
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  },
+);
+
+const OptimizedShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
   show,
   hasTVPreferredFocus,
   onFocus,
@@ -96,9 +171,12 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     null,
   );
   const [lastTap, setLastTap] = useState<number | null>(null);
+  const calculationCacheRef = useRef<{
+    epgHash: string;
+    positions: any[];
+  } | null>(null);
 
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
-
   const dispatch = useDispatch();
 
   // Reset image error state when show changes
@@ -106,36 +184,75 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     setImageError(false);
   }, [show.title, show.logo]);
 
-  // Use external timeline configuration or create default one for 24 hours
-  const timelineConfig = React.useMemo(
+  // Memoize timeline config
+  const timelineConfig = useMemo(
     () =>
       externalTimelineConfig ||
       createTimelineConfig(30, 48, moderateScale(200)),
     [externalTimelineConfig],
   );
 
-  // Generate timeline slots
-  const timelineSlots = React.useMemo(
+  // Memoize timeline slots
+  const timelineSlots = useMemo(
     () => createTimelineSlots(timelineConfig),
     [timelineConfig],
   );
 
-  // Calculate program positions within timeline
-  const programPositions = React.useMemo(() => {
-    console.log('programPositions');
-    return calculateProgramPositions(
-      show.epg || [], // Pass empty array if no EPG data - calculateProgramPositions will handle it
-      timelineSlots,
-      timelineConfig.slotWidth,
-    );
+  // Optimized program positions calculation with caching and deferred execution
+  const [programPositions, setProgramPositions] = useState<any[]>([]);
+  const [isCalculatingPositions, setIsCalculatingPositions] = useState(false);
+  
+  useEffect(() => {
+    setIsCalculatingPositions(true);
+    
+    // Defer heavy calculation to avoid blocking scroll
+    const task = InteractionManager.runAfterInteractions(() => {
+      // Create a simple hash of EPG data for caching
+      const epgHash = show.epg
+        ? JSON.stringify(show.epg.map((p) => p.id || p.epg_id))
+        : 'no-epg';
+
+      // Check cache
+      if (
+        calculationCacheRef.current &&
+        calculationCacheRef.current.epgHash === epgHash
+      ) {
+        setProgramPositions(calculationCacheRef.current.positions);
+        setIsCalculatingPositions(false);
+        return;
+      }
+
+      // Calculate positions
+      const positions = calculateProgramPositions(
+        show.epg || [],
+        timelineSlots,
+        timelineConfig.slotWidth,
+      );
+
+      // Update cache
+      calculationCacheRef.current = {
+        epgHash,
+        positions,
+      };
+
+      setProgramPositions(positions);
+      setIsCalculatingPositions(false);
+    });
+
+    return () => {
+      if (task && task.cancel) {
+        task.cancel();
+      }
+    };
   }, [show.epg, timelineSlots, timelineConfig.slotWidth]);
 
-  // Fallback to old method if no EPG data
-  const fallbackPrograms = React.useMemo(() => {
+  // Memoize fallback programs
+  const fallbackPrograms = useMemo(() => {
     return processEPGData(show.epg || []);
-  }, [show.epg, show.title]);
+  }, [show.epg]);
 
-  const getProgramDetails = React.useCallback(
+  // Memoize program details getter
+  const getProgramDetails = useCallback(
     (programIndex: number) => {
       let programData = null;
       let epgData = null;
@@ -143,24 +260,20 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         programPositions.length > 0 &&
         programIndex < programPositions.length
       ) {
-        // Use timeline program data
         programData = programPositions[programIndex];
-        epgData = programData.program; // Timeline positions have EPG data in .program
+        epgData = programData.program;
       } else if (
         fallbackPrograms.length > 0 &&
         programIndex < fallbackPrograms.length
       ) {
-        // Use fallback program data
         programData = fallbackPrograms[programIndex];
-        epgData = programData.epgData; // Fallback programs have EPG data in .epgData
+        epgData = programData.epgData;
       }
 
       if (programData) {
-        console.log('programData', programData);
-        // Extract time information from EPG data if available
-        let timeSlot = '02:00 - 03:00PM'; // Default
-        let progressPercentage = 0; // Default to 0 for non-current programs
-        let duration = '26 min'; // Default
+        let timeSlot = '02:00 - 03:00PM';
+        let progressPercentage = 0;
+        let duration = '26 min';
 
         if (epgData && epgData.start_timestamp && epgData.stop_timestamp) {
           try {
@@ -170,7 +283,6 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             const endTime = new Date(parseInt(epgData.stop_timestamp) * 1000);
             const now = new Date();
 
-            // Format time slot
             const formatTime = (date: Date) => {
               const hours = date.getHours();
               const minutes = date.getMinutes();
@@ -181,7 +293,6 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
 
             timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
 
-            // Only calculate progress percentage for current programs
             if (programData.duration === 'current') {
               const totalDuration = endTime.getTime() - startTime.getTime();
               const elapsed = now.getTime() - startTime.getTime();
@@ -190,41 +301,33 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
                 Math.min(100, (elapsed / totalDuration) * 100),
               );
             } else {
-              // For future programs, set progress to 0
               progressPercentage = 0;
             }
 
-            // Calculate duration
             const durationMs = endTime.getTime() - startTime.getTime();
             const durationMinutes = Math.round(durationMs / (1000 * 60));
             duration = `${durationMinutes} min`;
           } catch (error) {
             console.warn('Error parsing EPG timestamps:', error);
-            // Fall back to default values if timestamp parsing fails
           }
         } else {
-          // For programs without EPG data, generate reasonable time slots
           const now = new Date();
           const currentHour = now.getHours();
           const currentMinute = now.getMinutes();
 
-          // Generate time slots based on program index and current time
           let startHour = currentHour;
-          let startMinute = Math.floor(currentMinute / 30) * 30; // Round to nearest 30 minutes
+          let startMinute = Math.floor(currentMinute / 30) * 30;
 
           if (programData.duration === 'current') {
-            // Current program starts at current time
             startHour = currentHour;
             startMinute = Math.floor(currentMinute / 30) * 30;
           } else if (programData.duration === 'next') {
-            // Next program starts 30 minutes from current time
             startMinute += 30;
             if (startMinute >= 60) {
               startMinute = 0;
               startHour = (startHour + 1) % 24;
             }
           } else {
-            // Future programs - add more time based on index
             const additionalMinutes = (programIndex - 1) * 30;
             startMinute += additionalMinutes;
             while (startMinute >= 60) {
@@ -242,7 +345,6 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
             endHour = (startHour + 1) % 24;
           }
 
-          // Format time slot
           const formatTime = (hour: number, minute: number) => {
             const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
             const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -255,15 +357,13 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
           )}`;
           duration = '30 min';
 
-          // Only show progress for current programs
           if (programData.duration === 'current') {
-            progressPercentage = 65; // Default progress for current programs without EPG
+            progressPercentage = 65;
           } else {
-            progressPercentage = 0; // No progress for future programs
+            progressPercentage = 0;
           }
         }
 
-        // Extract and decode description from EPG data
         let description = 'No description available';
         if (epgData && epgData.description) {
           try {
@@ -283,11 +383,10 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
         };
       }
 
-      // Return default values if no program data found
       return {
         showTitle: 'No Information',
         timeSlot: '02:00 - 03:00PM',
-        progressPercentage: 0, // Default to 0 for unknown programs
+        progressPercentage: 0,
         duration: '26 min',
         description: 'No description available',
       };
@@ -295,12 +394,11 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     [programPositions, fallbackPrograms],
   );
 
-  const handleProgramFocus = React.useCallback(
+  const handleProgramFocus = useCallback(
     (event: any, programIndex: number) => {
       setFocusedProgramIndex(programIndex);
       onFocus?.(show);
 
-      // Set program details without changing the stream URL
       if (setProgramDetails) {
         const programDetails = getProgramDetails(programIndex);
         setProgramDetails(programDetails);
@@ -323,7 +421,7 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     [
       onFocus,
       setProgramDetails,
-      showCurrentDetails,
+      show,
       onProgramFocusWithAutoScroll,
       programPositions,
       channelIndex,
@@ -331,26 +429,19 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     ],
   );
 
-  const handleProgramBlur = React.useCallback(() => {
+  const handleProgramBlur = useCallback(() => {
     setFocusedProgramIndex(null);
-    // onBlur?.();
-    // setCurrentDetails(null);
-  }, [onBlur]);
+  }, []);
 
-  const handleImageError = (e: any) => {
-    console.log(
-      'Image failed to load, showing placeholder for:',
-      show.title,
-      e,
-    );
+  const handleImageError = useCallback((e: any) => {
     setImageError(true);
-  };
+  }, []);
 
-  const handleDoubleClick = React.useCallback(() => {
+  const handleDoubleClick = useCallback(() => {
     dispatch(
       setCurrentlyPlaying({
         ...show,
-        type: 'live', // Mark this as a live TV channel
+        type: 'live',
         url: show.url,
       }),
     );
@@ -364,17 +455,15 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     });
   }, [dispatch, show, navigation]);
 
-  const handlePress = React.useCallback(() => {
+  const handlePress = useCallback(() => {
     dispatch(
       setCurrentlyPlaying({
         ...show,
-        type: 'live', // Mark this as a live TV channel
+        type: 'live',
         url: show.url,
       }),
     );
-    // handleBlockPress?.(show);
 
-    // Check if the same URL is already set - check multiple sources
     const isUrlAlreadySet =
       streamUrl === show.url ||
       (currentlyPlaying && currentlyPlaying.url === show.url);
@@ -389,13 +478,9 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     const DOUBLE_PRESS_DELAY = 300;
 
     if (lastTap && now - lastTap < DOUBLE_PRESS_DELAY) {
-      // Double click detected
       handleDoubleClick();
       setLastTap(null);
     } else {
-      // Single click - change the stream URL (OK button press)
-      // handleBlockPress?.(show);
-
       setStreamUrl(show.url || '');
       setChannelUrl?.('');
       setTimeout(() => {
@@ -408,13 +493,13 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     show,
     streamUrl,
     setChannelUrl,
-    handleBlockPress,
     handleDoubleClick,
     lastTap,
     currentlyPlaying,
   ]);
 
-  const renderFallbackProgramItem = React.useCallback(
+  // Optimized fallback program item renderer
+  const renderFallbackProgramItem = useCallback(
     ({ item, index }: { item: any; index: number }) => (
       <TouchableOpacity
         ref={index === 0 ? firstFocusableRef : undefined}
@@ -451,15 +536,47 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
     ],
   );
 
-  // Memoize the program items list
-  const programItems = React.useMemo(
-    () =>
-      programPositions.map((position, index) => (
-        <ProgramItem
-          key={position.program.id || `program-${index}`}
-          ref={index === 0 ? firstFocusableRef : undefined}
+  // Window-based rendering: Only render programs that are likely visible
+  // Calculate visible range based on timeline width and scroll position
+  const visibleProgramPositions = useMemo(() => {
+    if (programPositions.length === 0) return [];
+    
+    // Limit to maximum 50 programs per channel to prevent lag
+    // This ensures smooth scrolling even with many programs
+    const MAX_VISIBLE_PROGRAMS = 50;
+    
+    if (programPositions.length <= MAX_VISIBLE_PROGRAMS) {
+      return programPositions;
+    }
+    
+    // If focused, show more programs around the focused one
+    if (focusedProgramIndex !== null) {
+      const start = Math.max(0, focusedProgramIndex - 10);
+      const end = Math.min(programPositions.length, focusedProgramIndex + 40);
+      return programPositions.slice(start, end);
+    }
+    
+    // Otherwise, show first MAX_VISIBLE_PROGRAMS
+    return programPositions.slice(0, MAX_VISIBLE_PROGRAMS);
+  }, [programPositions, focusedProgramIndex]);
+
+  // Memoize program items list - only create when visible positions change
+  const programItems = useMemo(() => {
+    // Use InteractionManager to defer rendering during scroll
+    return visibleProgramPositions.map((position, index) => {
+      // Find original index in full programPositions array
+      const originalIndex = programPositions.findIndex(
+        (p) => p.program.id === position.program.id || 
+               (p.left === position.left && p.width === position.width)
+      );
+      const actualIndex = originalIndex >= 0 ? originalIndex : index;
+      
+      return (
+        <OptimizedProgramItem
+          key={position.program.id || `program-${actualIndex}`}
+          ref={actualIndex === 0 ? firstFocusableRef : undefined}
           position={position}
-          index={index}
+          index={actualIndex}
           focusedProgramIndex={focusedProgramIndex}
           hasTVPreferredFocus={hasTVPreferredFocus || false}
           onFocus={handleProgramFocus}
@@ -467,20 +584,25 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
           show={show}
           currentStreamUrl={streamUrl}
           setChannelUrl={setChannelUrl}
+          setProgramDetails={setProgramDetails}
+          getProgramDetails={getProgramDetails}
         />
-      )),
-    [
-      programPositions,
-      focusedProgramIndex,
-      hasTVPreferredFocus,
-      handleProgramFocus,
-      handleProgramBlur,
-      show,
-      streamUrl,
-      setChannelUrl,
-      firstFocusableRef,
-    ],
-  );
+      );
+    });
+  }, [
+    visibleProgramPositions,
+    programPositions,
+    focusedProgramIndex,
+    hasTVPreferredFocus,
+    handleProgramFocus,
+    handleProgramBlur,
+    show,
+    streamUrl,
+    setChannelUrl,
+    setProgramDetails,
+    getProgramDetails,
+    firstFocusableRef,
+  ]);
 
   return (
     <View
@@ -490,82 +612,52 @@ const ShowChannelCatCard: React.FC<ShowChannelCatCardProps> = ({
       ]}
     >
       <View style={styles.rowTop}>
-        <View style={styles.channelInfo}>
-          <Text style={styles.channelNumber}>{channelIndex + 1}</Text>
-
-          <View style={styles.channelLogoContainer}>
-            <Image
-              source={
-                show?.logo
-                  ? imageError
-                    ? { uri: getProxyImageUrl(show?.logo) }
-                    : { uri: show?.logo }
-                  : imagepath.tv
-              }
-              style={styles.channelLogo}
-              resizeMode="contain"
-              tintColor={!show?.logo ? CommonColors.white : undefined}
-              onError={e => {
-                console.log('Image error:', e.nativeEvent.error);
-                handleImageError(e.nativeEvent);
-              }}
-            />
-          </View>
-
-          <View
-            style={{ overflow: 'hidden', width: '70%', flexDirection: 'row' }}
-          >
-            <SimpleMarquee
-              text={show.title || 'Channel Name'}
-              shouldStart={focusedProgramIndex !== null}
-              textStyle={[
-                styles.channelNameText,
-                focusedProgramIndex !== null && {
-                  color: CommonColors.blueText,
-                },
-              ]}
-              speed={50}
-            />
-            {show?.url && currentlyPlaying?.url === show?.url && (
-              <View
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  justifyContent: 'center',
-                  backgroundColor: 'black',
-                }}
-              >
-                <FastImage
-                  source={imagepath.playicon}
-                  style={{ height: 16, width: 16 }}
-                />
-              </View>
-            )}
-          </View>
-        </View>
+        <ChannelInfo
+          channelIndex={channelIndex}
+          logo={show.logo}
+          title={show.title}
+          imageError={imageError}
+          focusedProgramIndex={focusedProgramIndex}
+          currentlyPlayingUrl={currentlyPlaying?.url}
+          showUrl={show.url}
+          onImageError={handleImageError}
+        />
 
         <View style={styles.programSchedule}>
-
-          {programPositions.length > 0 ? (
-  //  <></>
-            <View style={styles.timelineProgramContainer}>{programItems}</View>
-          ) : (
+          {!isCalculatingPositions && programPositions.length > 0 && visibleProgramPositions.length > 0 ? (
+            <View style={styles.timelineProgramContainer}>
+              {programItems}
+            </View>
+          ) : !isCalculatingPositions && programPositions.length === 0 ? (
             <FlashList
               data={fallbackPrograms}
               renderItem={renderFallbackProgramItem}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.fallbackProgramContainer}
-              removeClippedSubviews={false}
+              removeClippedSubviews={true}
             />
-          )}
+          ):<></>}
         </View>
       </View>
     </View>
   );
 };
 
-export default React.memo(ShowChannelCatCard);
+// Custom comparison function to prevent unnecessary re-renders
+const areEqual = (prevProps: ShowChannelCatCardProps, nextProps: ShowChannelCatCardProps) => {
+  // Only re-render if these critical props change
+  return (
+    prevProps.show.url === nextProps.show.url &&
+    prevProps.show.title === nextProps.show.title &&
+    prevProps.show.logo === nextProps.show.logo &&
+    prevProps.channelIndex === nextProps.channelIndex &&
+    JSON.stringify(prevProps.show.epg?.map(p => p.id || p.epg_id)) === 
+    JSON.stringify(nextProps.show.epg?.map(p => p.id || p.epg_id))
+  );
+};
+
+export default React.memo(OptimizedShowChannelCatCard, areEqual);
 
 const styles = StyleSheet.create({
   channelRow: {
@@ -580,12 +672,6 @@ const styles = StyleSheet.create({
     gap: moderateScale(2),
     paddingHorizontal: moderateScale(5),
     height: moderateScale(56),
-  },
-  filled_star: {
-    height: 14,
-    width: 14,
-    alignSelf: 'flex-end',
-    marginBottom: moderateScale(8),
   },
   channelRowFocused: {
     paddingTop: verticalScale(0),
@@ -615,8 +701,6 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(4),
     justifyContent: 'center',
     alignItems: 'center',
-    // backgroundColor: 'red',
-    // backgroundColor: CommonColors.backgroundBlue,
   },
   channelLogo: {
     height: moderateScale(40),
@@ -650,100 +734,24 @@ const styles = StyleSheet.create({
     borderColor: CommonColors.white,
     backgroundColor: 'rgba(225, 226, 228, 1)',
     zIndex: 1000,
-    elevation: 5, // Higher elevation for Android
-  },
-  currentProgram: {
-    backgroundColor: '#3E4756',
-  },
-  nextProgram: {
-    backgroundColor: '#232629',
+    elevation: 5,
   },
   programText: {
     fontFamily: FontFamily.PublicSans_SemiBold,
     fontSize: scale(25),
-    // color: CommonColors.whiteOpacity50,
     color: 'rgb(179,180,181)',
-    // color:''
     textAlign: 'left',
   },
   timelineProgramContainer: {
-    // position: 'relative',
     height: moderateScale(45),
     width: '100%',
     marginLeft: moderateScale(2),
     overflow: 'visible',
     zIndex: 10,
-    // backgroundColor:'red'
-  },
-  timelineProgramBlock: {
-    position: 'absolute',
-    top: verticalScale(2),
-    height: moderateScale(42),
-    borderRadius: moderateScale(6),
-    paddingHorizontal: moderateScale(4),
-    justifyContent: 'center',
-    // backgroundColor:'yellow'
-    // borderWidth: 0.5, // Reduced border width for cleaner look
-    // borderColor: 'rgba(255, 255, 255, 0.05)', // Very subtle border for separation
-  },
-  smallProgramText: {
-    fontSize: moderateScale(14),
-  },
-  verySmallProgramText: {
-    fontSize: moderateScale(12),
   },
   rowTop: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    // backgroundColor: 'red',
-  },
-  detailsInline: {
-    marginTop: verticalScale(8),
-    width: '12.6%',
-    alignSelf: 'flex-start',
-    borderRadius: moderateScale(10),
-    backgroundColor: 'rgba(27,30,33,0.6)',
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: moderateScale(14),
-    flexDirection: 'row',
-    position: 'absolute',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  detailsTitle: {
-    fontFamily: FontFamily.PublicSans_SemiBold,
-    fontSize: moderateScale(20),
-    color: CommonColors.white,
-    marginBottom: verticalScale(6),
-  },
-  detailsMeta: {
-    fontFamily: FontFamily.PublicSans_Regular,
-    fontSize: moderateScale(15),
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: verticalScale(8),
-  },
-  detailsDescription: {
-    fontFamily: FontFamily.PublicSans_Regular,
-    fontSize: moderateScale(15),
-    color: 'rgba(255,255,255,0.92)',
-  },
-  progressBarTrack: {
-    height: verticalScale(4),
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: moderateScale(2),
-    overflow: 'hidden',
-    marginTop: verticalScale(6),
-    marginBottom: verticalScale(6),
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: CommonColors.white,
   },
 });

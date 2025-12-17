@@ -19,7 +19,7 @@ import { useSelector } from 'react-redux';
 import CategoryList from '../../../components/CategoryList';
 import ChannelMediaPlayer from '../../../components/ChannelMediaPlayer';
 import MainLayout from '../../../components/MainLayout';
-import ShowChannelCatCarousel from '../../../components/ShowChannelCatCarousel';
+import OptimizedShowChannelCatCarousel from '../../../components/OptimizedShowChannelCatCarousel';
 import imagepath from '../../../constants/imagepath';
 import { MainStackParamList } from '../../../navigation/NavigationsTypes';
 import { getCategoryData } from '../../../redux/actions/auth';
@@ -29,6 +29,7 @@ import { clearEPGCaches } from '../../../utils/epgUtils';
 import { styles } from './styles';
 import { CommonColors } from '../../../styles/Colors';
 import ChannelEpgCarousal from '../../../components/ChannelEpgCarousal';
+import ShowChannelCatCarousel from '../../../components/ShowChannelCatCarousel';
 
 type TvScreenRouteProp = RouteProp<MainStackParamList, 'Tv'>;
 
@@ -84,9 +85,9 @@ const Tv = () => {
     (category: number, categoryName: string, categoryItem: any) => {
       // clearEPGCaches();
       // unstable_batchedUpdates(() => {
-        categoryListRef?.current?.setNativeProps({
-          style: styles.categoryListContainer,
-        });
+      categoryListRef?.current?.setNativeProps({
+        style: styles.categoryListContainer,
+      });
       setSelectedCategoryData(categoryItem);
       // });
     },
@@ -95,7 +96,12 @@ const Tv = () => {
 
   const handleChannelUrl = useCallback(
     (url: string) => {
-      setStreamUrl(url);
+      console.log('url ----->>>>>>', url);
+      // setStreamUrl('https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8')
+      // Only set URL if it's not empty to prevent Activity null error
+      if (url && url.trim() !== '') {
+        setStreamUrl(url);
+      }
     },
     [setStreamUrl],
   );
@@ -115,6 +121,7 @@ const Tv = () => {
   );
 
   const memorizeChannelsData = useMemo(() => {
+    console.log('channelsData', channelsData);
     return Object.values(channelsData) as any[];
   }, [channelsData]);
 
@@ -220,7 +227,7 @@ const Tv = () => {
                 autoFocus
                 style={styles.showChannelCatCarouselContainer}
               >
-                <ShowChannelCatCarousel
+                <OptimizedShowChannelCatCarousel
                   title={selectedCategory}
                   data={selectedCategoryData}
                   onFocus={handleScrollViewFocus}
@@ -229,6 +236,15 @@ const Tv = () => {
                   setProgramDetails={handleProgramDetails}
                   firstFocusableRef={firstChannelProgramRef}
                 />
+                   {/* <ShowChannelCatCarousel
+                  title={selectedCategory}
+                  data={selectedCategoryData}
+                  onFocus={handleScrollViewFocus}
+                  type="channels"
+                  setChannelUrl={handleChannelUrl}
+                  setProgramDetails={handleProgramDetails}
+                  firstFocusableRef={firstChannelProgramRef}
+                /> */}
               </TVFocusGuideView>
             </View>
           </View>

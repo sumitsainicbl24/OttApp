@@ -214,7 +214,19 @@ const Home = () => {
           />
         )}
 
-        {!PosterMovieName?.info?.youtube_trailer ? (
+<ImageBackground
+            source={{uri: PosterMovieName?.info?.backdrop_path?.[0]}}
+            style={styles.backgroundImagePlaceholder}
+            resizeMode="cover">
+            <ShowDetails
+              onPlayPress={handlePlayPress}
+              showDetails={PosterMovieName}
+              PosterMovieName={PosterMovieName}
+              showButtons={false}
+            />
+          </ImageBackground>
+
+        {/* {!PosterMovieName?.info?.youtube_trailer ? (
           <ImageBackground
             source={{uri: PosterMovieName?.info?.backdrop_path?.[0]}}
             style={styles.backgroundImagePlaceholder}
@@ -245,7 +257,7 @@ const Home = () => {
             </View>
             <YoutubeComp data={PosterMovieName?.info} />
           </View>
-        )}
+        )} */}
 
         <ScrollView
           style={styles.scrollContainer}

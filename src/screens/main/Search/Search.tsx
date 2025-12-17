@@ -1,6 +1,6 @@
 // 1. React Native core imports
-import React, { useState } from 'react'
-import { ScrollView, StatusBar, View, TouchableOpacity, Text, Image } from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
+import { ScrollView, StatusBar, View, TouchableOpacity, Text, Image, ActivityIndicator } from 'react-native'
 
 import { styles } from './styles'
 import imagepath from '../../../constants/imagepath'
@@ -24,6 +24,8 @@ const Search = () => {
   const [searchedChannels, setSearchedChannels] = useState<any[]>([])
   const [microphoneFocused, setMicrophoneFocused] = useState(false)
   const [showCategoryAndSidebar, setShowCategoryAndSidebar] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const handleMicrophonePress = () => {
     console.log('Microphone button pressed')
@@ -42,25 +44,77 @@ const Search = () => {
     setMicrophoneFocused(false)
   }
 
-  const loadSearchData = async () => {
+  const loadSearchData = async (query: string) => {
+    if (!query.trim()) {
+      setSearchedMovies([])
+      setSearchedShows([])
+      setSearchedChannels([])
+      setIsLoading(false)
+      // Abort any pending requests
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+        abortControllerRef.current = null
+      }
+      return
+    }
+
+    // Abort previous request if exists
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+
+    // Create new AbortController for this search
+    const abortController = new AbortController()
+    abortControllerRef.current = abortController
+
+    setIsLoading(true)
     try{
-      let res = await getSearchData('movies', searchText)
+      // Check if request was aborted before making API calls
+      if (abortController.signal.aborted) {
+        return
+      }
+
+      let res = await getSearchData('movies', query, { signal: abortController.signal })
       console.log('res movies-->>>>', res)
+      
+      // Check again after each API call
+      if (abortController.signal.aborted) {
+        return
+      }
       setSearchedMovies(res?.data?.data?.data || [])
 
-      res = await getSearchData('series', searchText)
+      res = await getSearchData('series', query, { signal: abortController.signal })
       console.log('res sereis-->>>>', res)
 
+      // Check again after each API call
+      if (abortController.signal.aborted) {
+        return
+      }
       setSearchedShows(res?.data?.data?.data || [])
 
-      // res = await getSearchData('channel', searchText)
+      // res = await getSearchData('channel', query, { signal: abortController.signal })
 
       
       // console.log('res movies-->>>>', res)
 
+      // Check again before setting channels
+      if (abortController.signal.aborted) {
+        return
+      }
       setSearchedChannels(res?.data?.data?.data || [])
-    }catch(error){
+    }catch(error: any){
+      // Ignore abort errors
+      if (error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        console.log('Search request aborted')
+        return
+      }
       console.log('error in loadSearchData', error)
+    }finally{
+      // Only set loading to false if this is still the current request
+      if (abortControllerRef.current === abortController) {
+        setIsLoading(false)
+        abortControllerRef.current = null
+      }
     }
   }
 
@@ -70,18 +124,50 @@ const Search = () => {
 
   const handleSearchSubmit = () => {
     if (searchText.trim()) {
-      loadSearchData()
+      loadSearchData(searchText)
     }
   }
 
-  // // Clear search results when search text is cleared
-  // useEffect(() => {
-  //   if (!searchText.trim()) {
-  //     setSearchedMovies([])
-  //     setSearchedShows([])
-  //     setSearchedChannels([])
-  //   }
-  // }, [searchText])
+  // Debounced search effect - searches on each keystroke with 500ms delay
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    // Clear previous timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+
+    // If search text is empty, clear results immediately
+    if (!searchText.trim()) {
+      setSearchedMovies([])
+      setSearchedShows([])
+      setSearchedChannels([])
+      setIsLoading(false)
+      return
+    }
+    
+    loadSearchData(searchText)
+    // // Set new timeout for debounced search
+    // debounceTimeoutRef.current = setTimeout(() => {
+    // }, 500) // 500ms debounce delay
+
+    // // Cleanup function to clear timeout on unmount or when searchText changes
+    // return () => {
+    //   if (debounceTimeoutRef.current) {
+    //     clearTimeout(debounceTimeoutRef.current)
+    //   }
+    // }
+  }, [searchText])
+
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+        abortControllerRef.current = null
+      }
+    }
+  }, [])
 
   return (
     <MainLayout activeScreen={activeScreen || "Search"} hideSidebar={!showCategoryAndSidebar}>
@@ -127,8 +213,16 @@ const Search = () => {
           </Text>
         )}
 
+        {/* Show loader when searching */}
+        {isLoading && searchText.trim() !== '' && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={CommonColors.white} />
+            <Text style={styles.loadingText}>Searching...</Text>
+          </View>
+        )}
+
         {/* Show API search results if available */}
-        {searchedMovies.length > 0 && (
+        {!isLoading && searchedMovies.length > 0 && (
           <ShowCatCarousel 
             title="Movies" 
             data={searchedMovies}
@@ -138,7 +232,7 @@ const Search = () => {
           />
         )}
 
-        {searchedShows.length > 0 && (
+        {!isLoading && searchedShows.length > 0 && (
           <ShowCatCarousel 
             title="Shows" 
             data={searchedShows}
@@ -147,7 +241,7 @@ const Search = () => {
           />
         )}
 
-        {searchedChannels.length > 0 && (
+        {!isLoading && searchedChannels.length > 0 && (
           <ShowCatCarousel 
             title="Channels" 
             data={searchedChannels}

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useCallback, useState } from 'react';
+import React, { useMemo, useRef, useCallback, useState, useImperativeHandle } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -6,10 +6,10 @@ import {
   TextStyle,
   View,
   ViewStyle,
-  TouchableOpacity,
   ScrollView,
   ActivityIndicator,
   TVFocusGuideView,
+  InteractionManager,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { CommonColors } from '../styles/Colors';
@@ -21,20 +21,17 @@ import {
   width,
 } from '../styles/scaling';
 import FontFamily from '../constants/FontFamily';
-import { debounce } from '../utils/CommonFunctions';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { MainStackParamList } from '../navigation/NavigationsTypes';
 import { setCurrentlyPlaying } from '../redux/reducers/main';
 import { useAppDispatch } from '../redux/hooks';
-import ShowChannelCatCard from './ShowChannelCatCard';
+import OptimizedShowChannelCatCard from './OptimizedShowChannelCatCard';
 import { EPGProgram } from '../utils/epgUtils';
 import {
   createTimelineSlots,
   createTimelineConfig,
   getCurrentTimePosition,
 } from '../utils/timelineUtils';
-import { RootState } from '../redux/store';
-import { useSelector } from 'react-redux';
 import moment from 'moment';
 
 interface ShowData {
@@ -43,16 +40,6 @@ interface ShowData {
   logo?: string;
   url?: string;
   epg?: EPGProgram[];
-}
-
-interface TimelineItem {
-  id: string;
-  startTime: string;
-  endTime: string;
-  middleTime: string;
-  displayTimeRange: string;
-  startTimestamp: number;
-  endTimestamp: number;
 }
 
 interface ShowChannelCatCarouselProps {
@@ -79,7 +66,7 @@ interface ShowChannelCatCarouselProps {
   firstFocusableRef?: React.RefObject<any>;
 }
 
-const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
+const OptimizedShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   title,
   data,
   onShowPress,
@@ -96,29 +83,59 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   handleBlockPress,
   firstFocusableRef,
 }) => {
-  // console.log('data--->>>>>', data);
-
-  const flashListRef = useRef<FlashList<ShowData>>(null);
+  const flashListRef = useRef<any>(null);
   const timelineScrollRef = useRef<ScrollView>(null);
   const navigation = useNavigation<NavigationProp<MainStackParamList>>();
   const dispatch = useAppDispatch();
   const [isAutoScrolling, setIsAutoScrolling] = useState<boolean>(false);
-  const debouncedGetMovieDetails = useMemo(
-    () => (getMovieDetails ? debounce(getMovieDetails, 300) : undefined),
-    [getMovieDetails],
-  );
-  console.log('show channel cat carousel rendered');
 
-  const handleShowPress = (show: ShowData) => {
-    if (type === 'series') {
-      dispatch(setCurrentlyPlaying(show));
-      navigation.navigate('MoviePlayScreen', { show: show });
-    }
-    if (type === 'movies') {
-      dispatch(setCurrentlyPlaying(show));
-      navigation.navigate('MoviePlayScreen', { movie: show });
-    }
-  };
+  // Memoize timeline config - only create once
+  const timelineConfig = useMemo(
+    () => createTimelineConfig(30, 48, scale(280)),
+    [],
+  );
+
+  // Memoize timeline slots - only recalculate if config changes
+  const timelineSlots = useMemo(
+    () => createTimelineSlots(timelineConfig),
+    [timelineConfig],
+  );
+
+  // Memoize current time position - update every minute
+  const [currentTimePosition, setCurrentTimePosition] = useState(() =>
+    getCurrentTimePosition(timelineSlots, timelineConfig.slotWidth),
+  );
+
+  // Update current time position periodically (every minute)
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTimePosition(
+        getCurrentTimePosition(timelineSlots, timelineConfig.slotWidth),
+      );
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [timelineSlots, timelineConfig.slotWidth]);
+
+  // Memoize current date time
+  const currentDateTime = useMemo(
+    () => moment().format('ddd, MMM D, h:mm A'),
+    [currentTimePosition], // Update when time position changes
+  );
+
+  const handleShowPress = useCallback(
+    (show: ShowData) => {
+      if (type === 'series') {
+        dispatch(setCurrentlyPlaying(show));
+        navigation.navigate('MoviePlayScreen', { show: show });
+      }
+      if (type === 'movies') {
+        dispatch(setCurrentlyPlaying(show));
+        navigation.navigate('MoviePlayScreen', { movie: show });
+      }
+    },
+    [type, dispatch, navigation],
+  );
 
   const scrollToRow = useCallback(
     (itemIndex: number) => {
@@ -143,35 +160,19 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
         }
       }
     },
-    [horizontal],
+    [horizontal, disableScroll],
   );
 
-  const handleItemFocus = (item: ShowData) => {
-    onFocus?.();
-    debouncedGetMovieDetails?.(item?.title);
-  };
-
-  const timelineConfig = useMemo(
-    () => createTimelineConfig(30, 48, scale(280)), // Increased slot width for better spacing
-    [],
+  const handleItemFocus = useCallback(
+    (item: ShowData) => {
+      onFocus?.();
+      getMovieDetails?.(item?.title);
+    },
+    [onFocus, getMovieDetails],
   );
 
-  const timelineSlots = useMemo(
-    () => createTimelineSlots(timelineConfig),
-    [timelineConfig],
-  );
-
-  const currentTimePosition = useMemo(
-    () => getCurrentTimePosition(timelineSlots, timelineConfig.slotWidth),
-    [timelineSlots, timelineConfig.slotWidth],
-  );
-
-  const currentDateTime = React.useMemo(
-    () => moment().format('ddd, MMM D, h:mm A'),
-    [],
-  );
-
-  const renderTimelineItem = React.useCallback(
+  // Memoize timeline item renderer
+  const renderTimelineItem = useCallback(
     ({ item, index }: { item: any; index: number }) => {
       return (
         <View
@@ -184,11 +185,12 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
     [timelineConfig.slotWidth],
   );
 
+  // Optimized auto-scroll handler with debouncing
   const handleProgramFocusWithAutoScroll = useCallback(
     (channelIndex: number, programIndex: number, programPosition: any) => {
-      if (isAutoScrolling) return; // Prevent multiple auto-scrolls
+      if (isAutoScrolling) return;
 
-      const visibleTimelineWidth = width - scale(350); // Channel info width
+      const visibleTimelineWidth = width - scale(350);
       const programLeft = programPosition?.left || 0;
       const programWidth = programPosition?.width || 0;
       const programRight = programLeft + programWidth;
@@ -197,7 +199,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
       const rightThreshold = visibleTimelineWidth * 0.8;
 
       if (programLeft < leftThreshold) {
-        const targetLeft = visibleTimelineWidth * 0.4; // Center the program
+        const targetLeft = visibleTimelineWidth * 0.4;
         const scrollX = Math.max(0, programLeft - targetLeft);
 
         setIsAutoScrolling(true);
@@ -210,7 +212,7 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
           setIsAutoScrolling(false);
         }, 500);
       } else if (programRight > rightThreshold) {
-        const targetRight = visibleTimelineWidth * 0.6; // Center the program
+        const targetRight = visibleTimelineWidth * 0.6;
         const scrollX = programRight - targetRight;
 
         setIsAutoScrolling(true);
@@ -224,13 +226,13 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
         }, 500);
       }
     },
-    [timelineConfig.slotWidth, isAutoScrolling],
+    [isAutoScrolling],
   );
 
-  const renderShowItem = React.useCallback(
+  // Optimized render item with better memoization
+  const renderShowItem = useCallback(
     ({ item, index }: { item: ShowData; index: number }) => (
-      // <Text style={{color: 'white'}}>{item.title}</Text>
-      <ShowChannelCatCard
+      <OptimizedShowChannelCatCard
         show={item}
         channelIndex={index}
         onFocus={handleItemFocus}
@@ -242,7 +244,6 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
       />
     ),
     [
-      handleShowPress,
       handleItemFocus,
       setChannelUrl,
       setProgramDetails,
@@ -252,7 +253,15 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
     ],
   );
 
+  // Memoize key extractor
+  const keyExtractor = useCallback(
+    (item: ShowData, index: number) =>
+      item.url || item.title || `channel-${index}`,
+    [],
+  );
 
+  // Memoize estimated item size for better FlashList performance
+  const getItemType = useCallback(() => 'channel', []);
 
   return (
     <View style={[styles.sectionContainer, mainStyle]}>
@@ -277,19 +286,17 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
                 {currentDateTime}
               </Text>
             </View>
-            {/* <View style={styles.timelineContainer}> */}
             <FlashList
               data={timelineSlots}
               renderItem={renderTimelineItem}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item, index) => `timeline-${index}`}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.timelineContentContainer}
               focusable={false}
-              scrollEnabled={false} // Disable individual scrolling since parent handles it
+              scrollEnabled={false}
               getItemType={() => 'timeline'}
             />
-            {/* </View> */}
           </View>
 
           <View style={styles.carouselWrapper}>
@@ -308,18 +315,22 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
                   ref={flashListRef}
                   data={data}
                   renderItem={renderShowItem}
+                  keyExtractor={keyExtractor}
                   showsVerticalScrollIndicator={false}
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.gridContainer}
                   scrollEnabled={!disableScroll}
-                  removeClippedSubviews={false}
-                  drawDistance={verticalScale(300)}
+                  removeClippedSubviews={true}
+                  drawDistance={verticalScale(200)}
+                  getItemType={getItemType}
                 />
                 {currentTimePosition >= 0 && (
                   <View
                     style={[
                       styles.currentTimeLineAcrossChannels,
-                      { left: currentTimePosition + moderateScale(300) }, // Offset by channel name width
+                      {
+                        left: currentTimePosition + moderateScale(300),
+                      },
                     ]}
                   >
                     <View style={styles.circle} />
@@ -340,14 +351,27 @@ const ShowChannelCatCarousel: React.FC<ShowChannelCatCarouselProps> = ({
   );
 };
 
-export default React.memo(ShowChannelCatCarousel);
+// Custom comparison to prevent re-renders during scroll
+const areEqual = (
+  prevProps: ShowChannelCatCarouselProps,
+  nextProps: ShowChannelCatCarouselProps,
+) => {
+  return (
+    prevProps.data.length === nextProps.data.length &&
+    prevProps.title === nextProps.title &&
+    prevProps.loading === nextProps.loading &&
+    JSON.stringify(prevProps.data.map(d => d.url || d.title)) ===
+    JSON.stringify(nextProps.data.map(d => d.url || d.title))
+  );
+};
+
+export default React.memo(OptimizedShowChannelCatCarousel, areEqual);
 
 const styles = StyleSheet.create({
   sectionContainer: {
     width: width,
     paddingHorizontal: moderateScale(20),
     height: height / 1.6,
-    // backgroundColor:'rgb(19,22,27)'
   },
   mainFlashListSize: {
     height: height / 1.8,
@@ -366,7 +390,6 @@ const styles = StyleSheet.create({
     fontSize: scale(38),
     color: CommonColors.white,
     marginLeft: moderateScale(20),
-    // marginBottom: verticalScale(20),
   },
   carouselWrapper: {
     flex: 1,
@@ -374,11 +397,9 @@ const styles = StyleSheet.create({
   },
   gridContainer: {
     paddingHorizontal: moderateScale(20),
-    // paddingVertical: verticalScale(5),
   },
   gridItem: {
-    // flex: 1,
-    marginHorizontal: moderateScale(7.5), // Half of the original marginRight to center spacing
+    marginHorizontal: moderateScale(7.5),
   },
   bottomOverlay: {
     position: 'absolute',
@@ -406,8 +427,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: CommonColors.whiteOpacity30,
     position: 'relative',
-    // backgroundColor:'red',
-    // borderBottomWidth:1,
   },
   timelineContentContainer: {
     paddingHorizontal: moderateScale(20),
@@ -416,7 +435,7 @@ const styles = StyleSheet.create({
     borderBottomColor: CommonColors.textGrey + '30',
   },
   timelineItem: {
-    width: scale(280), // Match the slot width
+    width: scale(280),
     height: verticalScale(40),
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -443,14 +462,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 1.5,
     backgroundColor: CommonColors.blueOpacity50,
-    zIndex: 15, // Higher z-index to appear above channel content
-    // For Android shadow
+    zIndex: 15,
   },
   epgScrollContainer: {
     flex: 1,
   },
   epgContentContainer: {
-    minWidth: width * 2, // Make content wider than screen to enable scrolling
+    minWidth: width * 2,
     flexDirection: 'column',
   },
   autoScrollIndicator: {
@@ -469,7 +487,6 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.PublicSans_Medium,
   },
   loadingContainer: {
-    // flex: 1,
     position: 'absolute',
     top: 0,
     left: 0,
@@ -478,10 +495,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: verticalScale(40),
-    // backgroundColor:'red',
     height: 60,
     width: width / 1.5,
-    // alig
   },
   loadingText: {
     color: CommonColors.white,

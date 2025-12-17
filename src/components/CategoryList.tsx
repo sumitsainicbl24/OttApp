@@ -47,6 +47,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   style,
   nextFocusRightRef,
 }) => {
+  console.log('category list rendered');
   const flashListRef = useRef<FlashListRef<any>>(null);
 
   const itemRefs = useRef<{

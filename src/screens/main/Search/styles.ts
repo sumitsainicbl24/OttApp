@@ -420,4 +420,19 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: moderateScale(50),
   },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: verticalScale(60),
+    minHeight: verticalScale(200),
+  },
+
+  loadingText: {
+    fontFamily: FontFamily.PublicSans_Medium,
+    fontSize: moderateScale(18),
+    color: CommonColors.white,
+    marginTop: verticalScale(16),
+  },
 }) 

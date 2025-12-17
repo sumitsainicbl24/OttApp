@@ -42,6 +42,7 @@ const ChannelMediaPlayer: React.FC<ChannelMediaPlayerProps> = ({
     (state: RootState) => state.rootReducer.main.currentlyPlaying,
   );
 
+  console.log('streamUrl ----->>>>>>', streamUrl);
   // Video loading and error states
   const [videoLoading, setVideoLoading] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);

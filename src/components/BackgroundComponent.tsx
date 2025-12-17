@@ -100,7 +100,12 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
 
   return (
     <View style={styles.backgroundImagePlaceholder}>
-      {!showDetails?.info?.youtube_trailer ? (
+         <ImageBackground
+          source={{uri: showDetails?.info?.backdrop_path?.[0]}}
+          style={styles.backgroundImageStyle}
+          resizeMode="cover"
+        />
+      {/* {!showDetails?.info?.youtube_trailer ? (
         <ImageBackground
           source={{uri: showDetails?.info?.backdrop_path?.[0]}}
           style={styles.backgroundImageStyle}
@@ -114,7 +119,7 @@ const BackgroundComponent: React.FC<ShowDetails1Props> = ({
             VideoWidth={width}
           />
         </View>
-      )}
+      )} */}
 
       <LinearGradient
         colors={[

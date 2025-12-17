@@ -146,13 +146,13 @@ const ShowDetails1: React.FC<ShowDetails1Props> = ({
     const hasTrailer = contentDetails?.info?.youtube_trailer;
     const backdropImage = contentDetails?.info?.backdrop_path?.[0];
 
-    if (hasTrailer) {
-      return (
-        <View style={styles.backgroundImagePlaceholder}>
-          <YoutubeComp data={contentDetails?.info} />
-        </View>
-      );
-    }
+    // if (hasTrailer) {
+    //   return (
+    //     <View style={styles.backgroundImagePlaceholder}>
+    //       <YoutubeComp data={contentDetails?.info} />
+    //     </View>
+    //   );
+    // }
 
     return (
       <ImageBackground

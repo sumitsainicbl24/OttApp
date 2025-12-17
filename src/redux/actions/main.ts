@@ -112,9 +112,10 @@ export const getMovieCastAndCrewWithTMDB_ID = async (id: string) => {
   return response;
 };
 
-export const getSearchData = async (type: string, title: string) => {
+export const getSearchData = async (type: string, title: string, config?: any) => {
   const response = await apiGet(
     `${searchUrl}?type=${type}&query=${encodeURIComponent(title)}`,
+    config,
   );
   return response;
 };

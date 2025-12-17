@@ -65,14 +65,14 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    console.error('Response error:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      url: error.config?.url,
-      method: error.config?.method?.toUpperCase(),
-      data: error.response?.data,
-      message: error.message,
-    });
+    // console.error('Response error:', {
+    //   status: error.response?.status,
+    //   statusText: error.response?.statusText,
+    //   url: error.config?.url,
+    //   method: error.config?.method?.toUpperCase(),
+    //   data: error.response?.data,
+    //   message: error.message,
+    // });
 
     // Handle common errors
     if (error.response?.status === 401) {
@@ -105,7 +105,7 @@ const makeRequest = async <T = any>(
     });
     return response;
   } catch (error) {
-    console.error(`${method} request to ${url} failed:`, error);
+    // console.error(`${method} request to ${url} failed:`, error);
     throw error;
   }
 };
